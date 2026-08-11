@@ -207,8 +207,11 @@ services:
     logging: *logging
     environment:
       # Домен, на который Caddy выпустит сертификат Let's Encrypt.
-      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS не задан (например edu.example.kz)}
+      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS не задан (например eduopen.kz)}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL не задан}
+      # www-имя для редиректа на apex. Заглушка по умолчанию безвредна:
+      # Caddy слушает её только внутри контейнера.
+      WWW_ADDRESS: ${WWW_ADDRESS:-http://localhost:8081}
     ports:
       - "80:80"
       - "443:443"

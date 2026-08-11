@@ -24,10 +24,25 @@ Postgres и Redis не публикуют портов и не подключе�
 | CPU / RAM | 2 vCPU / 4 ГБ | api и worker по 1 ГБ лимита + Postgres |
 | Диск | 40 ГБ SSD | БД, транскрипты диалогов, 14 дней дампов |
 | Порты | 80, 443 (TCP+UDP) | ACME-проверка и HTTP/3 |
-| Домен | A/AAAA на этот сервер **до** первого запуска | Caddy выпускает сертификат при старте |
+| Домен | A-запись на этот сервер **до** первого запуска | Caddy выпускает сертификат при старте |
 | Юрисдикция | площадка в РК | DP-2 §13, см. [COMPLIANCE.md](../COMPLIANCE.md) |
 
 Нужны Docker Engine 24+ и Docker Compose v2.24+.
+
+### Состояние домена eduopen.kz
+
+Проверено 2026-08-11:
+
+| Запись | Значение | Вывод |
+|---|---|---|
+| `eduopen.kz` A | `185.98.5.127` | есть |
+| `www.eduopen.kz` A | `185.98.5.127` | есть → редирект на apex включён |
+| CAA | отсутствует | Let's Encrypt не заблокирован |
+| NS | `ns1–ns3.hoster.kz` | хостинг в РК |
+
+**На `185.98.5.127` сейчас работает Plesk** (`Server: nginx`, `X-Powered-By: PleskLin`,
+отдаётся страница-заглушка), порты 80 и 443 заняты. Пока это так, Caddy на том же
+сервере не поднимется — см. «Конфликт портов» ниже.
 
 ## 2. Конфигурация
 
@@ -36,9 +51,10 @@ cp .env.prod.example .env.prod
 chmod 600 .env.prod
 ```
 
-Заполнить обязательное: `SITE_ADDRESS`, `ACME_EMAIL`, `FRONTEND_ORIGIN`,
-`POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`,
-`COOKIE_SECRET`, `ANTHROPIC_API_KEY`.
+Домен уже проставлен (`SITE_ADDRESS=eduopen.kz`, `WWW_ADDRESS=www.eduopen.kz`,
+`FRONTEND_ORIGIN=https://eduopen.kz`). Заполнить нужно секреты и почту:
+`ACME_EMAIL`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_ACCESS_SECRET`,
+`JWT_REFRESH_SECRET`, `COOKIE_SECRET`, `ANTHROPIC_API_KEY`.
 
 ```bash
 # Секреты (каждый — отдельным вызовом)
@@ -58,6 +74,27 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 
 Порядок гарантирован зависимостями: `postgres`/`redis` → healthy → `migrate`
 (`prisma migrate deploy`) → completed → `api` и `worker` → api healthy → `web`.
+
+### Конфликт портов с Plesk
+
+На `185.98.5.127` порты 80/443 занимает nginx из Plesk. Пока это не решено,
+`web` не стартует. Три пути:
+
+1. **Отдельный сервер под платформу** (рекомендую). Поднять стенд на чистой
+   машине, проверить по её IP, затем переставить A-записи `eduopen.kz` и
+   `www.eduopen.kz`. Простоя нет, откат — возврат старой A-записи.
+2. **Освободить порты на текущем сервере**: удалить домен из Plesk или
+   остановить его nginx. Простой на время переключения, откат тяжелее.
+3. **Оставить Plesk-nginx фронтом.** Тогда TLS выпускает Plesk, а стенд
+   слушает `127.0.0.1:8080`. Правки: в `SITE_ADDRESS` поставить `:80`,
+   в compose заменить публикацию портов `web` на `"127.0.0.1:8080:80"`,
+   а из `deploy/Caddyfile` **убрать обе строки** `header_up X-Forwarded-For
+   {remote_host}` — иначе IP клиента, присланный Plesk'ом, затрётся, и
+   rate-limit станет общим на весь сервер. В Plesk настроить проксирование
+   на `127.0.0.1:8080` с пробросом `X-Forwarded-For` и `X-Forwarded-Proto`.
+
+Вариант 3 экономит сервер, но добавляет второй прокси в цепочку и переносит
+управление сертификатом в Plesk.
 
 Чтобы не писать флаги каждый раз:
 

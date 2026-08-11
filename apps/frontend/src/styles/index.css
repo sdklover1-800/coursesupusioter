@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Дизайн-система «Inquiry» — токены.
+   Тема: «steppe dusk / инквайри». Акцент — амбер «сократическая искра».
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --ink: 22 24 43; /* #16182B — глубокий индиго-чернильный */
+    --surface: 247 246 242; /* #F7F6F2 — тёплый off-white */
+    --card: 255 255 255;
+    --border: 226 224 234;
+    --muted: 108 110 132;
+    --fg: 28 30 51;
+    --brand: 91 84 224; /* #5B54E0 индиго-фиолет */
+    --brand-soft: 233 231 252;
+    --spark: 242 180 65; /* #F2B441 амбер */
+    --teal: 44 185 166; /* #2CB9A6 */
+    --danger: 229 72 77;
+  }
+
+  :root[data-theme='dark'] {
+    --ink: 8 9 20;
+    --surface: 14 15 28; /* тёмный индиго-фон */
+    --card: 23 25 43;
+    --border: 42 45 72;
+    --muted: 150 152 176;
+    --fg: 233 233 244;
+    --brand: 129 123 245;
+    --brand-soft: 39 37 74;
+    --spark: 245 190 88;
+    --teal: 52 205 184;
+    --danger: 245 105 110;
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: rgb(var(--surface));
+    color: rgb(var(--fg));
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Unbounded', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Тонкая «сетка инквайри» для фоновых секций */
+  .bg-inquiry-grid {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgb(var(--border) / 0.7) 1px, transparent 0);
+    background-size: 28px 28px;
+  }
+
+  .card {
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgb(16 18 43 / 0.04), 0 8px 24px -14px rgb(16 18 43 / 0.14);
+  }
+
+  /* Скелетон-шиммер */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(var(--fg) / 0.06), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+}

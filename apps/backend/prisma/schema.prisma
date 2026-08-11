@@ -1,0 +1,498 @@
+// ─────────────────────────────────────────────────────────────────────────
+//  Модель данных образовательной платформы (ТЗ §10).
+//  Провайдер: PostgreSQL. ORM: Prisma.
+//
+//  Примечание по языкам (§6.1, §6.4): поля language — String (валидируются
+//  Zod по перечню LANGUAGES из @edu/shared), а не Prisma-enum, чтобы добавление
+//  нового языка не требовало миграции БД («список языков конфигурируемый»).
+//  Cohort.condition — String по той же причине (§10.1: "AI_ASSISTED|...|").
+// ─────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums (фиксированные доменные множества) ──────────────────────────────
+
+enum Role {
+  STUDENT
+  COURSE_MANAGER
+  ADMIN
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AssessmentType {
+  QUIZ
+  PRACTICAL
+}
+
+// Вид теста: итоговый модуля (оценивается) или тренировочный мини-квиз.
+enum QuizKind {
+  MODULE_FINAL
+  LECTURE_MINI
+  COURSE_FINAL
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  TRUE_FALSE
+  // расширяемо: MULTI_CHOICE, OPEN_ANSWER — позже (FR-5.1)
+}
+
+enum Difficulty {
+  VERY_EASY
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  WITHDRAWN
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  PASSED
+  FAILED
+  ABANDONED
+}
+
+enum OrchestrationMode {
+  TUTOR_JUDGE
+  SINGLE_CALL
+}
+
+enum ChatRole {
+  AI
+  STUDENT
+  SYSTEM
+}
+
+enum GenerationType {
+  QUIZ
+  PRACTICAL
+  MINI
+  ALL
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  DONE
+  ERROR
+}
+
+enum PromptKind {
+  QUIZ_GEN
+  PRACTICAL_GEN
+  SOCRATIC_TUTOR
+  JUDGE
+}
+
+// ── Пользователи и исследовательские группы ───────────────────────────────
+
+model User {
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  passwordHash           String
+  role                   Role      @default(STUDENT)
+  name                   String
+  interfaceLanguage      String    @default("ru") // kk|ru|en (§6.1)
+  cohortId               String?
+  cohort                 Cohort?   @relation(fields: [cohortId], references: [id], onDelete: SetNull)
+  // Информированное согласие (FR-R.6): факт, дата, версия текста
+  researchConsentAt      DateTime?
+  researchConsentVersion String?
+  // Стартовый пароль/сброс (FR-1.4, FR-1.7)
+  mustChangePassword     Boolean   @default(false)
+  isActive               Boolean   @default(true)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  enrollments      Enrollment[]
+  createdCourses   Course[]         @relation("CourseCreatedBy")
+  generationJobs   GenerationJob[]
+  refreshTokens    RefreshToken[]
+  auditLogs        AuditLog[]       @relation("AuditActor")
+  teacherSessions  TeacherSession[] @relation("TeacherSessionLoggedBy")
+  events           EventLog[]
+
+  @@index([role])
+  @@index([cohortId])
+}
+
+model Cohort {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  condition   String // AI_ASSISTED | WITH_TEACHER | CONTROL | ... (расширяемо)
+  description String?
+  createdAt   DateTime @default(now())
+
+  users           User[]
+  teacherSessions TeacherSession[]
+  events          EventLog[]
+}
+
+/// Refresh-токены с ротацией (FR-1.6): храним хеш, отзыв — по инвалидации.
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  // Цепочка ротации: заменяющий токен
+  replacedBy String?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ── Курсы, языковые версии, модули, лекции ────────────────────────────────
+
+model Course {
+  id              String        @id @default(cuid())
+  defaultLanguage String // базовый язык (§4.3)
+  status          PublishStatus @default(DRAFT)
+  createdById     String
+  createdBy       User          @relation("CourseCreatedBy", fields: [createdById], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  languageVersions CourseLanguageVersion[]
+  enrollments      Enrollment[]
+}
+
+model CourseLanguageVersion {
+  id          String        @id @default(cuid())
+  courseId    String
+  course      Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  language    String // kk|ru|en
+  title       String
+  description String?
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  modules        Module[]
+  enrollments    Enrollment[]
+  generationJobs GenerationJob[]
+  finalMiniQuiz  Quiz? // итоговый мини-квиз по курсу (тренировочный)
+
+  @@unique([courseId, language]) // §10.1
+  @@index([status])
+}
+
+model Module {
+  id                      String                @id @default(cuid())
+  courseLanguageVersionId String
+  languageVersion         CourseLanguageVersion @relation(fields: [courseLanguageVersionId], references: [id], onDelete: Cascade)
+  orderIndex              Int
+  title                   String
+  assessmentType          AssessmentType        @default(QUIZ)
+  // Практическое задание может охватывать весь курс (FR-2.3)
+  coversWholeCourse       Boolean               @default(false)
+
+  lectures      Lecture[]
+  quiz          Quiz?
+  practicalTask PracticalTask?
+
+  @@unique([courseLanguageVersionId, orderIndex])
+}
+
+model Lecture {
+  id             String   @id @default(cuid())
+  moduleId       String
+  module         Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  orderIndex     Int
+  title          String
+  youtubeVideoId String // валидированный ID (FR-4.3)
+  transcriptText String   @db.Text // расшифровка (FR-2.4), источник для ИИ-генерации
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  progress LectureProgress[]
+  miniQuiz Quiz? // мини-квиз после лекции (тренировочный)
+
+  @@unique([moduleId, orderIndex])
+}
+
+// ── Тесты ─────────────────────────────────────────────────────────────────
+
+// Тест. Три вида (kind), см. QuizKind:
+//  - MODULE_FINAL  — итоговый тест модуля (оценивается, §4.5);
+//  - LECTURE_MINI  — мини-квиз после лекции (тренировочный, не оценивается);
+//  - COURSE_FINAL  — итоговый мини-квиз по курсу (тренировочный).
+// Тренировочные (isGraded=false) не создают попыток, не влияют на прогресс и не
+// попадают в оценочную телеметрию — так сохраняется валидность исследования.
+// Вопросы/редактор/генерация переиспользуются (расширяемость §9.3).
+model Quiz {
+  id            String   @id @default(cuid())
+  kind          QuizKind @default(MODULE_FINAL)
+  isGraded      Boolean  @default(true)
+
+  // Ровно одна из привязок заполнена — в зависимости от kind
+  moduleId                String?                @unique
+  module                  Module?                @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lectureId               String?                @unique
+  lecture                 Lecture?               @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  courseLanguageVersionId String?                @unique
+  languageVersion         CourseLanguageVersion? @relation(fields: [courseLanguageVersionId], references: [id], onDelete: Cascade)
+
+  title         String
+  passThreshold Float    @default(0.7) // FR-5.4
+  maxAttempts   Int      @default(2) // FR-5.6
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+}
+
+model QuizQuestion {
+  id               String       @id @default(cuid())
+  quizId           String
+  quiz             Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  type             QuestionType
+  prompt           String       @db.Text
+  options          Json // string[]
+  correctOptionIds Json // number[] — индексы правильных вариантов
+  explanation      String?      @db.Text
+  difficulty       Difficulty   @default(MEDIUM)
+  orderIndex       Int
+  isAIGenerated    Boolean      @default(false) // FR-5.2, FR-7.4
+  isEdited         Boolean      @default(false) // ручная правка (FR-7.4)
+
+  @@unique([quizId, orderIndex]) // защита от дублей при ретрае/перегенерации (аудит H1)
+  @@index([quizId])
+}
+
+// ── Практическое задание ──────────────────────────────────────────────────
+
+model PracticalTask {
+  id                     String     @id @default(cuid())
+  moduleId               String     @unique // 1:1 с модулем типа PRACTICAL
+  module                 Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title                  String
+  scenarioPrompt         String     @db.Text // виден студенту (§5.3)
+  referenceSolution      String     @db.Text // СКРЫТО от студента
+  rubricSpec             Json // { key_points[], answer_reached_criteria } — СКРЫТО
+  difficulty             Difficulty @default(MEDIUM)
+  tokenBudget            Int        @default(9000) // предохранитель (§5.6)
+  maxAiMessages          Int        @default(22) // основной лимит (FR-6.4)
+  // Окно доступности (NFR-1.8): растянутое окно вместо жёсткого дедлайна —
+  // сглаживание пиков сдачи (основной сценарий деградации чата в день дедлайна).
+  availableFrom          DateTime?
+  availableUntil         DateTime?
+  systemPromptTemplateId String? // §10.1
+  isAIGenerated          Boolean    @default(false)
+  isEdited               Boolean    @default(false)
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+
+  sessions PracticalSession[]
+}
+
+// ── Запись на курс и прогресс ─────────────────────────────────────────────
+
+model Enrollment {
+  id                String                @id @default(cuid())
+  userId            String
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId          String
+  course            Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  languageVersionId String // выбранный язык прохождения (§4.3)
+  languageVersion   CourseLanguageVersion @relation(fields: [languageVersionId], references: [id])
+  status            EnrollmentStatus      @default(ACTIVE)
+  progressPercent   Float                 @default(0)
+  startedAt         DateTime              @default(now())
+  completedAt       DateTime?
+
+  lectureProgress   LectureProgress[]
+  quizAttempts      QuizAttempt[]
+  practicalSessions PracticalSession[]
+  certificate       Certificate?
+
+  @@unique([userId, courseId]) // один enrollment на курс
+  @@index([userId])
+}
+
+model LectureProgress {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lectureId    String
+  lecture      Lecture    @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  isCompleted  Boolean    @default(false)
+  completedAt  DateTime?
+
+  @@unique([enrollmentId, lectureId])
+}
+
+model QuizAttempt {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  quizId       String
+  quiz         Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers      Json // { questionId: number[] }
+  score        Float
+  passed       Boolean
+  startedAt    DateTime   @default(now())
+  submittedAt  DateTime?
+
+  @@index([enrollmentId])
+  @@index([quizId])
+}
+
+// ── Сократические сессии ──────────────────────────────────────────────────
+
+model PracticalSession {
+  id                String            @id @default(cuid())
+  enrollmentId      String
+  enrollment        Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  practicalTaskId   String
+  practicalTask     PracticalTask     @relation(fields: [practicalTaskId], references: [id])
+  status            SessionStatus     @default(IN_PROGRESS)
+  tokensUsed        Int               @default(0) // серверный учёт (§5.6)
+  aiMessageCount    Int               @default(0) // основной лимит (FR-6.4)
+  maxAiMessages     Int               @default(22) // снимок лимита на момент старта сессии
+  verdictReason     String?           @db.Text
+  evaluationResult  Json? // агрегат рубрики (§5.5)
+  integrityFlags    Json? // сигналы целостности (FR-6.11)
+  orchestrationMode OrchestrationMode @default(TUTOR_JUDGE)
+  modelUsed         String? // воспроизводимость (FR-R.7)
+  promptTemplateId  String? // воспроизводимость (FR-R.7)
+  startedAt         DateTime          @default(now())
+  lastActivityAt    DateTime          @default(now()) // для idle-паузы (§5.7)
+  endedAt           DateTime?
+
+  messages ChatMessage[]
+
+  @@index([enrollmentId])
+  @@index([status])
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  sessionId      String
+  session        PracticalSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role           ChatRole
+  content        String   @db.Text
+  tokensIn       Int      @default(0)
+  tokensOut      Int      @default(0)
+  // Пошаговая оценка рубрики для реплики студента (§5.5, FR-R.3)
+  turnAssessment Json?
+  // Сигналы целостности конкретной реплики (FR-6.11)
+  integrityFlags Json?
+  createdAt      DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+// ── Сертификаты ───────────────────────────────────────────────────────────
+
+model Certificate {
+  id           String     @id @default(cuid())
+  enrollmentId String     @unique // 1:1
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  serialNumber String     @unique // уникальный серийный номер (FR-9.2)
+  issuedAt     DateTime   @default(now())
+  fileRef      String? // путь/ключ PDF
+  hash         String? // контроль целостности
+}
+
+// ── ИИ-операции: задачи генерации и промпт-шаблоны ────────────────────────
+
+model GenerationJob {
+  id                      String                @id @default(cuid())
+  courseLanguageVersionId String
+  languageVersion         CourseLanguageVersion @relation(fields: [courseLanguageVersionId], references: [id], onDelete: Cascade)
+  type                    GenerationType
+  params                  Json
+  status                  JobStatus             @default(QUEUED)
+  result                  Json?
+  error                   String?               @db.Text
+  createdById             String
+  createdBy               User                  @relation(fields: [createdById], references: [id])
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+
+  @@index([courseLanguageVersionId])
+  @@index([status])
+}
+
+/// Версия промпт-шаблона (FR-R.7 — воспроизводимость ИИ-операций).
+model PromptTemplate {
+  id        String     @id @default(cuid())
+  kind      PromptKind
+  language  String
+  version   String
+  content   String     @db.Text
+  createdAt DateTime   @default(now())
+
+  @@unique([kind, language, version])
+}
+
+// ── Исследование: телеметрия, занятия с преподавателем, аудит ─────────────
+
+/// Единый журнал событий (FR-R.2, Приложение E).
+model EventLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  enrollmentId String?
+  sessionId    String?
+  cohortId     String?
+  cohort       Cohort?  @relation(fields: [cohortId], references: [id], onDelete: SetNull)
+  eventType    String
+  payload      Json
+  createdAt    DateTime @default(now())
+
+  @@index([eventType])
+  @@index([userId])
+  @@index([cohortId])
+  @@index([createdAt])
+}
+
+/// Ручная регистрация занятия с преподавателем (FR-R.9).
+model TeacherSession {
+  id         String   @id @default(cuid())
+  cohortId   String
+  cohort     Cohort   @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  date       DateTime
+  topic      String
+  loggedById String
+  loggedBy   User     @relation("TeacherSessionLoggedBy", fields: [loggedById], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@index([cohortId])
+}
+
+/// Аудит действий администратора и менеджера (NFR-2.9).
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation("AuditActor", fields: [actorId], references: [id])
+  action     String // напр. USER_CREATED, ROLE_CHANGED, DATA_EXPORTED, COURSE_PUBLISHED
+  targetType String?
+  targetId   String?
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+}

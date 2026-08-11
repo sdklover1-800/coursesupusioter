@@ -1,0 +1,42 @@
+# Локальная инфраструктура для разработки.
+# ПРОД: БД размещается в юрисдикции РК (DP-2, §13) — см. README раздел «Приватность».
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: edu_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: edu
+      POSTGRES_PASSWORD: edu_dev_password
+      POSTGRES_DB: edu_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - edu_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edu -d edu_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: edu_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      # Хост-порт 6380: 6379 на машине разработчика может быть занят Redis
+      # другого проекта. Изоляция важна — очереди BullMQ и ключи rate-limit
+      # не должны смешиваться с чужими данными.
+      - "6380:6379"
+    volumes:
+      - edu_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  edu_pgdata:
+  edu_redisdata:

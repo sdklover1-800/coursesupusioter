@@ -1,0 +1,95 @@
+# Веб-слой прода: TLS, статика SPA, проксирование API.
+# Переменные подставляются из окружения контейнера web (см. docker-compose.prod.yml).
+
+{
+	# Почта для Let's Encrypt: уведомления об истечении сертификата.
+	email {$ACME_EMAIL}
+
+	# Админ-API Caddy (:2019) в проде не нужен — выключаем, чтобы не светить
+	# управляющий интерфейс внутри сети.
+	admin off
+
+	servers {
+		# Реальный IP клиента для rate-limit'а Fastify (trustProxy включён в app.ts).
+		trusted_proxies static private_ranges
+	}
+}
+
+{$SITE_ADDRESS} {
+	# ── Логи ────────────────────────────────────────────────────────
+	log {
+		output stdout
+		format json
+	}
+
+	# ── Сжатие ──────────────────────────────────────────────────────
+	# Всё, кроме SSE-эндпоинта сократического диалога: сжатие потока
+	# ломает по-чанковую отдачу ответа ассистента (NFR-1.4).
+	@compressible not path /api/sessions/*/messages
+	encode @compressible zstd gzip
+
+	# ── Заголовки безопасности ──────────────────────────────────────
+	# CSP не дублируем: она задана в index.html фронтенда и в helmet на API.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+
+	# ── Prometheus-метрики наружу не отдаём ─────────────────────────
+	# Внутри docker-сети остаются доступны: http://api:4000/metrics
+	handle /metrics* {
+		respond 404
+	}
+
+	# ── API ─────────────────────────────────────────────────────────
+	handle /api/* {
+		reverse_proxy api:4000 {
+			# ВАЖНО: перезаписываем X-Forwarded-For, а не дописываем.
+			# В app.ts включён trustProxy: true — Fastify берёт ЛЕВОЕ значение
+			# цепочки XFF как IP клиента. Если бы Caddy дописывал, клиент прислал
+			# бы свой X-Forwarded-For и обошёл rate-limit логина (NFR-2.8),
+			# подставляя новый «IP» на каждую попытку подбора пароля.
+			header_up X-Forwarded-For {remote_host}
+
+			# -1 = отдавать клиенту каждый чанк немедленно. Критично для SSE
+			# (POST /api/sessions/:id/messages), для JSON-ответов безвредно.
+			flush_interval -1
+
+			# Время до первого байта: генерация материалов и ответ ассистента
+			# идут дольше обычного запроса. Длительность самого потока не
+			# ограничиваем — иначе оборвётся долгий сократический диалог.
+			transport http {
+				response_header_timeout 5m
+			}
+		}
+	}
+
+	# ── Health-check для мониторинга ────────────────────────────────
+	# Отдаёт только { status, checks: { db, redis } } — секретов нет.
+	handle /health {
+		reverse_proxy api:4000 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# ── SPA ─────────────────────────────────────────────────────────
+	handle {
+		root * /srv
+
+		# Файлы Vite'а имеют хеш в имени — кешируем навсегда.
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+
+		# index.html — точка входа SPA, кешировать нельзя: иначе после
+		# деплоя браузер продолжит грузить старые /assets/*.
+		header /index.html Cache-Control "no-cache, must-revalidate"
+
+		try_files {path} /index.html
+		file_server
+	}
+}

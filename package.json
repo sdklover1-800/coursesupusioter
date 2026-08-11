@@ -1,0 +1,26 @@
+{
+  "name": "edu-platform",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Образовательная платформа с ИИ-генерацией учебных материалов и сократическим чат-ассистентом (MVP)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:shared": "npm run build --workspace @edu/shared",
+    "dev:backend": "npm run dev --workspace @edu/backend",
+    "dev:frontend": "npm run dev --workspace @edu/frontend",
+    "build": "npm run build:shared && npm run build --workspace @edu/backend && npm run build --workspace @edu/frontend",
+    "db:migrate": "npm run db:migrate --workspace @edu/backend",
+    "db:seed": "npm run db:seed --workspace @edu/backend",
+    "db:generate": "npm run db:generate --workspace @edu/backend",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}

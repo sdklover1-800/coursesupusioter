@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CSP (NFR-2.5): встраивание YouTube (nocookie), Google Fonts, API того же origin. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self'"
+    />
+    <title>Инквайри — образовательная платформа</title>
+    <meta name="description" content="Обучение с ИИ-ассистентом и сократическим диалогом" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

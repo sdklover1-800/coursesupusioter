@@ -1,0 +1,140 @@
+# ─────────────────────────────────────────────────────────────
+# 1. СЕКРЕТЫ И КЛЮЧИ — самое критичное, никогда не коммитить
+# ─────────────────────────────────────────────────────────────
+# .env содержит боевые ANTHROPIC_API_KEY / OPENAI_API_KEY,
+# JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, COOKIE_SECRET, DATABASE_URL
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+# Приватные ключи, сертификаты, keystore
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.der
+*.jks
+*.keystore
+*.asc
+*.gpg
+id_rsa*
+id_ed25519*
+*.ppk
+
+# Токены инструментов
+.npmrc
+.sentryclirc
+.netrc
+*.token
+credentials.json
+service-account*.json
+
+# ─────────────────────────────────────────────────────────────
+# 2. ПЕРСОНАЛЬНЫЕ ДАННЫЕ СТУДЕНТОВ (DP-2 РК, см. COMPLIANCE.md)
+# ─────────────────────────────────────────────────────────────
+# Выгрузки research-модуля: события, сессии, рубрики, попытки квизов
+events.csv
+practical_sessions.csv
+rubric_assessments.csv
+quiz_attempts.csv
+cohort_summary.csv
+/*.csv
+exports/
+research-exports/
+
+# Сгенерированные сертификаты с ФИО студентов
+certificates-output/
+certificate-*.pdf
+
+# Дампы и бэкапы БД (миграции в prisma/migrations/*.sql остаются в git)
+backups/
+*.dump
+*.sql.gz
+*.backup
+*.sqlite
+*.sqlite3
+pgdata/
+apps/backend/prisma/*.db
+apps/backend/prisma/*.db-journal
+
+# Redis persistence
+dump.rdb
+appendonly*.aof
+appendonlydir/
+
+# ─────────────────────────────────────────────────────────────
+# 3. ИСХОДНЫЕ МАТЕРИАЛЫ ЛЕКЦИЙ (тяжёлые бинарники, права вуза)
+# ─────────────────────────────────────────────────────────────
+# scripts/extract_lectures.py по умолчанию пишет lectures.json в корень
+/lectures.json
+/lectures-*.json
+lectures-src/
+*.docx
+*.doc
+*.pptx
+*.xlsx
+
+# ─────────────────────────────────────────────────────────────
+# 4. ЗАВИСИМОСТИ И СБОРКА
+# ─────────────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+apps/frontend/dist/
+generated/
+*.tsbuildinfo
+.turbo/
+.vite/
+.cache/
+
+# ─────────────────────────────────────────────────────────────
+# 5. ЛОГИ, ТЕСТЫ, ВРЕМЕННЫЕ ФАЙЛЫ
+# ─────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pid
+*.seed
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+tmp/
+temp/
+.tmp/
+
+# ─────────────────────────────────────────────────────────────
+# 6. PYTHON (scripts/extract_lectures.py)
+# ─────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+
+# ─────────────────────────────────────────────────────────────
+# 7. ЛОКАЛЬНОЕ ОКРУЖЕНИЕ РАЗРАБОТЧИКА
+# ─────────────────────────────────────────────────────────────
+# Сессии/заметки AI-агентов — могут содержать фрагменты кода и данных
+.remember/
+.claude/settings.local.json
+.claude/*.local.json
+
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~

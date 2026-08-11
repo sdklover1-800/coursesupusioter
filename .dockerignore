@@ -1,0 +1,51 @@
+# Контекст сборки. Первое правило — не втащить секреты в слои образа:
+# всё, что попадёт в COPY, остаётся в истории образа навсегда.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+.sentryclirc
+
+# Персональные данные и выгрузки
+*.csv
+backups/
+certificates-output/
+*.dump
+*.sql.gz
+
+# Зависимости и артефакты — ставятся/собираются внутри образа
+node_modules
+**/node_modules
+dist
+**/dist
+build
+coverage
+**/*.tsbuildinfo
+.turbo
+.vite
+.cache
+
+# Инструменты разработчика
+.git
+.gitignore
+.remember
+.claude
+.vscode
+.idea
+.DS_Store
+**/*.log
+
+# Документация и локальная инфраструктура (в образе не нужны)
+README.md
+COMPLIANCE.md
+LOADTEST.md
+docker-compose.yml
+docker-compose.prod.yml
+deploy/README.md
+__pycache__
+*.py[cod]
+.venv

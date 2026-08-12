@@ -48,7 +48,7 @@ export function LoginPage() {
           <h1 className="font-display text-4xl font-semibold leading-tight">{t('auth.tagline')}</h1>
           <p className="mt-5 text-lg text-white/60">{t('auth.subtitle')}</p>
         </div>
-        <div className="relative text-xs text-white/40">© {new Date().getFullYear()} · Kazakhstan · Research MVP</div>
+        <div className="relative text-xs text-white/40">© {new Date().getFullYear()} eduopen.kz</div>
       </div>
 
       {/* Правая панель — форма */}
@@ -62,16 +62,13 @@ export function LoginPage() {
           <p className="mb-8 text-sm text-muted">{t('auth.subtitle')}</p>
           <form onSubmit={submit} className="space-y-4">
             <Field label={t('auth.email')}>
-              <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@edu.kz" />
+              <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@example.com" />
             </Field>
             <Field label={t('auth.password')} error={error}>
               <Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </Field>
             <Button type="submit" size="lg" loading={loading} className="w-full">{t('auth.signIn')}</Button>
           </form>
-          <p className="mt-6 text-center text-xs text-muted">
-            admin@edu.kz · manager@edu.kz · student@edu.kz — пароль см. seed
-          </p>
         </div>
       </div>
     </div>

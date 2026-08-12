@@ -74,7 +74,7 @@ export function DashboardsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Inquiry" title={t('nav.dashboards')} subtitle={t('dashboard.overview')} />
+      <PageHeader eyebrow={t('common.appName')} title={t('nav.dashboards')} subtitle={t('dashboard.overview')} />
 
       <Card className="mb-6 !py-4">
         <Field label={t('nav.courses')}>

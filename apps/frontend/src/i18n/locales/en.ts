@@ -3,7 +3,7 @@ import type { Resources } from './ru';
 /** English locale (§6.2). */
 export const en: Resources = {
   common: {
-    appName: 'Inquiry',
+    appName: 'EduOpen',
     save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add',
     back: 'Back', next: 'Next', prev: 'Back', submit: 'Submit', loading: 'Loading…',
     error: 'Error', success: 'Done', confirm: 'Confirm', yes: 'Yes', no: 'No',

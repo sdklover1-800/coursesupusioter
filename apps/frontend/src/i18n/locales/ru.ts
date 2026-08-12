@@ -1,7 +1,7 @@
 /** Русская локаль — канонический набор ключей (§6.2). */
 export const ru = {
   common: {
-    appName: 'Инквайри',
+    appName: 'EduOpen',
     save: 'Сохранить', cancel: 'Отмена', delete: 'Удалить', edit: 'Редактировать', add: 'Добавить',
     back: 'Назад', next: 'Далее', prev: 'Назад', submit: 'Отправить', loading: 'Загрузка…',
     error: 'Ошибка', success: 'Готово', confirm: 'Подтвердить', yes: 'Да', no: 'Нет',

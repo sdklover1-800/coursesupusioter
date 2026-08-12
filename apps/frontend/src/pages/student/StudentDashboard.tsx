@@ -18,7 +18,7 @@ export function StudentDashboard() {
 
   return (
     <>
-      <PageHeader eyebrow="Inquiry" title={t('student.myLearning')} subtitle={t('auth.subtitle')} />
+      <PageHeader eyebrow={t('common.appName')} title={t('student.myLearning')} subtitle={t('auth.subtitle')} />
       {isLoading ? (
         <LoadingRows />
       ) : !data?.items.length ? (

@@ -3,7 +3,7 @@ import type { Resources } from './ru';
 /** Қазақ тіліндегі локаль (§6.2). */
 export const kk: Resources = {
   common: {
-    appName: 'Инквайри',
+    appName: 'EduOpen',
     save: 'Сақтау', cancel: 'Болдырмау', delete: 'Жою', edit: 'Өңдеу', add: 'Қосу',
     back: 'Артқа', next: 'Келесі', prev: 'Артқа', submit: 'Жіберу', loading: 'Жүктелуде…',
     error: 'Қате', success: 'Дайын', confirm: 'Растау', yes: 'Иә', no: 'Жоқ',

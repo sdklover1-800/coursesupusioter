@@ -10,7 +10,9 @@ services:
       POSTGRES_PASSWORD: edu_dev_password
       POSTGRES_DB: edu_platform
     ports:
-      - "5432:5432"
+      # Хост-порт 5433: на машине разработчика может быть свой Postgres на 5432,
+      # он перехватывает localhost и запросы уходят не в этот контейнер.
+      - "5433:5432"
     volumes:
       - edu_pgdata:/var/lib/postgresql/data
     healthcheck:

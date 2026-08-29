@@ -70,6 +70,7 @@ appendonlydir/
 # scripts/extract_lectures.py по умолчанию пишет lectures.json в корень
 /lectures.json
 /lectures-*.json
+docs/media/lectures*.json
 lectures-src/
 *.docx
 *.doc

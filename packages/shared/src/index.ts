@@ -6,6 +6,7 @@ export * from './enums.js';
 export * from './events.js';
 export * from './constants.js';
 export * from './llm-schemas.js';
+export * from './catalog.js';
 
 /** Стандартный конверт ошибки API (единый формат) */
 export interface ApiError {

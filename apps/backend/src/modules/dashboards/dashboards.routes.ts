@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { Role, type RubricAggregate } from '@edu/shared';
+import { ADMITTED_ENROLLMENT_STATUSES, Role, type RubricAggregate } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
@@ -8,6 +8,14 @@ import { env } from '../../config/env.js';
 
 const guard = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
 const adminOnly = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.ADMIN)] });
+
+/**
+ * Статистика учитывает только допущенных к курсу (ACTIVE/COMPLETED): заявки
+ * PENDING/REJECTED — не участники, иначе они занижали бы прогресс/завершаемость.
+ * Попытки тестов и сессии без фильтра: создать их можно только при одобренной
+ * записи (гейт loadOwnedEnrollment), фильтр по текущему статусу лишь терял бы историю.
+ */
+const admitted = { status: { in: [...ADMITTED_ENROLLMENT_STATUSES] } };
 
 /** Дашборды и аналитика (FR-10, §11.4). Подробные метрики — явное требование. */
 export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
@@ -21,7 +29,7 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
       throw Errors.forbidden('Дашборд доступен только автору курса');
     }
 
-    const enrollments = await prisma.enrollment.findMany({ where: { courseId: id } });
+    const enrollments = await prisma.enrollment.findMany({ where: { courseId: id, ...admitted } });
     const total = enrollments.length;
     const completed = enrollments.filter((e) => e.status === 'COMPLETED').length;
     const avgProgress = total ? enrollments.reduce((s, e) => s + e.progressPercent, 0) / total : 0;
@@ -54,7 +62,7 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
     if (req.user!.role === Role.COURSE_MANAGER && course.createdById !== req.user!.id) throw Errors.forbidden('Только автор курса');
 
     const enrollments = await prisma.enrollment.findMany({
-      where: { courseId: id },
+      where: { courseId: id, ...admitted },
       include: {
         user: { select: { id: true, name: true, cohortId: true } },
         quizAttempts: { select: { score: true, passed: true } },
@@ -89,18 +97,22 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /dashboards/overview — сводные метрики (ADMIN, FR-10.6).
   app.get('/dashboards/overview', adminOnly(app), async () => {
-    const [users, students, courses, publishedVersions, enrollments, completedEnrollments, sessions, certificates] = await Promise.all([
+    const [users, students, registeredStudents, courses, publishedVersions, enrollments, completedEnrollments, pendingRequests, sessions, certificates] = await Promise.all([
       prisma.user.count(),
+      // Студенты-участники: хотя бы одна одобренная запись (самозарегистрированные
+      // без одобренной заявки сюда не входят — они в registeredStudents).
+      prisma.user.count({ where: { role: 'STUDENT', enrollments: { some: admitted } } }),
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.course.count(),
       prisma.courseLanguageVersion.count({ where: { status: 'PUBLISHED' } }),
-      prisma.enrollment.count(),
+      prisma.enrollment.count({ where: admitted }),
       prisma.enrollment.count({ where: { status: 'COMPLETED' } }),
+      prisma.enrollment.count({ where: { status: 'PENDING' } }),
       prisma.practicalSession.findMany(),
       prisma.certificate.count(),
     ]);
     return {
-      users, students, courses, publishedVersions, enrollments, completedEnrollments, certificates,
+      users, students, registeredStudents, courses, publishedVersions, enrollments, completedEnrollments, pendingRequests, certificates,
       practical: summarizePractical(sessions),
     };
   });
@@ -114,7 +126,7 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
     const userIds = [...userToCohort.keys()];
 
     const [enrollments, sessions] = await Promise.all([
-      prisma.enrollment.findMany({ where: { userId: { in: userIds } }, select: { userId: true, status: true } }),
+      prisma.enrollment.findMany({ where: { userId: { in: userIds }, ...admitted }, select: { userId: true, status: true } }),
       prisma.practicalSession.findMany({ where: { enrollment: { userId: { in: userIds } } }, include: { enrollment: { select: { userId: true } } } }),
     ]);
 

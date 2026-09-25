@@ -9,6 +9,7 @@ import { audit } from '../../telemetry/events.js';
 import { enqueueGeneration } from '../../generation/enqueue.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
 import { publishCheckInclude, publishProblems } from './publishValidation.js';
+import { lectureTitleProblem } from './lectureTitle.js';
 
 const langEnum = z.enum(LANGUAGES);
 const managerOnly = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
@@ -166,7 +167,12 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const data = parse(z.object({ title: z.string().min(1).optional(), youtubeUrl: z.string().optional(), transcriptText: z.string().optional() }), req.body);
     const update: Record<string, unknown> = {};
-    if (data.title) update.title = data.title;
+    if (data.title) {
+      // Название публично видно в каталоге — те же правила, что при публикации (FR-2.9).
+      const titleProblem = lectureTitleProblem(data.title);
+      if (titleProblem) throw Errors.badRequest(`Название лекции: ${titleProblem}`);
+      update.title = data.title;
+    }
     if (data.youtubeUrl !== undefined) update.youtubeVideoId = data.youtubeUrl ? extractYoutubeId(data.youtubeUrl) : '';
     if (data.transcriptText !== undefined) update.transcriptText = data.transcriptText;
     const lecture = await prisma.lecture.update({ where: { id }, data: update });

@@ -6,6 +6,7 @@ import { clsx } from 'clsx';
 import { api, ApiError } from '../../lib/api';
 import { Badge, Button, Card, toast } from '../../components/ui';
 import { LoadingRows, MeterBar } from '../../components/page';
+import { ContentError } from '../../components/enrollment';
 
 interface Question { id: string; type: 'SINGLE_CHOICE' | 'TRUE_FALSE'; prompt: string; options: string[]; difficulty: string }
 interface Quiz { id: string; title: string; passThreshold: number; maxAttempts: number; attemptsUsed: number; questions: Question[] }
@@ -28,11 +29,12 @@ export function QuizPage() {
   const qc = useQueryClient();
   const [mode, setMode] = useState<Mode>('select');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['quiz', quizId, enrollmentId],
     queryFn: () => api.get<{ quiz: Quiz }>(`/quizzes/${quizId}?enrollmentId=${enrollmentId}`),
   });
 
+  if (error) return <ContentError error={error} courseId={courseId} enrollmentId={enrollmentId} />;
   if (isLoading || !data) return <LoadingRows rows={4} />;
   const quiz = data.quiz;
   const attemptsLeft = quiz.maxAttempts - quiz.attemptsUsed;

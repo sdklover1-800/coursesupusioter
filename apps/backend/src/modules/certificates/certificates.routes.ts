@@ -1,10 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { Role } from '@edu/shared';
+import { ADMITTED_ENROLLMENT_STATUSES, Role } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
 import { buildCertificatePdf } from './certificate.service.js';
+import { assertEnrollmentAdmitted } from '../learn/access.js';
 
 export async function certificateRoutes(app: FastifyInstance): Promise<void> {
   // GET /me/certificates/:enrollmentId — PDF сертификат (STUDENT, FR-9.2, FR-9.3).
@@ -12,6 +13,7 @@ export async function certificateRoutes(app: FastifyInstance): Promise<void> {
     const { enrollmentId } = parse(z.object({ enrollmentId: z.string() }), req.params);
     const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
     if (!enrollment || enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа');
+    assertEnrollmentAdmitted(enrollment); // гейт одобрения заявки
     if (enrollment.status !== 'COMPLETED') throw Errors.badRequest('Курс ещё не завершён');
 
     const pdf = await buildCertificatePdf(enrollmentId);
@@ -24,7 +26,7 @@ export async function certificateRoutes(app: FastifyInstance): Promise<void> {
   // GET /me/certificates — список выданных сертификатов.
   app.get('/me/certificates', { preHandler: [app.authenticate, app.requireRole(Role.STUDENT)] }, async (req) => {
     const certs = await prisma.certificate.findMany({
-      where: { enrollment: { userId: req.user!.id } },
+      where: { enrollment: { userId: req.user!.id, status: { in: [...ADMITTED_ENROLLMENT_STATUSES] } } },
       include: { enrollment: { include: { languageVersion: { select: { title: true, language: true } } } } },
       orderBy: { issuedAt: 'desc' },
     });

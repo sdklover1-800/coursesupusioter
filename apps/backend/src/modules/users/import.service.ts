@@ -6,6 +6,13 @@ import { prisma } from '../../lib/prisma.js';
 import { hashPassword, generateStartPassword } from '../../lib/password.js';
 
 /**
+ * Email занят аккаунтом из самостоятельной регистрации (владение email не проверялось):
+ * это может быть и сам студент, и посторонний. Подсказываем админу, что делать.
+ */
+export const SELF_REGISTERED_EMAIL_TAKEN =
+  'Email занят аккаунтом с самостоятельной регистрацией (email не подтверждён). Найдите его в списке пользователей (метка «Саморегистрация»); если это не студент — сбросьте пароль и выдайте студенту стартовый';
+
+/**
  * Импорт студентов из CSV/Excel (FR-1.3, Приложение A).
  * Валидация строк, предпросмотр, отчёт об ошибках, частичное применение.
  */
@@ -82,8 +89,9 @@ export async function validateAndMaybeApply(
 
   // Предзагрузка существующих email и когорт
   const emails = rows.map((r) => (r.email ?? '').trim().toLowerCase()).filter(Boolean);
-  const existing = await prisma.user.findMany({ where: { email: { in: emails } }, select: { email: true } });
+  const existing = await prisma.user.findMany({ where: { email: { in: emails } }, select: { email: true, selfRegisteredAt: true } });
   const existingEmails = new Set(existing.map((u) => u.email));
+  const selfRegisteredEmails = new Set(existing.filter((u) => u.selfRegisteredAt).map((u) => u.email));
   const cohorts = await prisma.cohort.findMany({ select: { id: true, name: true } });
   const cohortByName = new Map(cohorts.map((c) => [c.name, c.id]));
 
@@ -97,7 +105,8 @@ export async function validateAndMaybeApply(
       for (const issue of parsed.error.issues) errors.push(issue.message);
     } else {
       if (seenEmails.has(parsed.data.email)) errors.push('Дубль email внутри файла');
-      if (existingEmails.has(parsed.data.email)) errors.push('Email уже существует в системе');
+      if (selfRegisteredEmails.has(parsed.data.email)) errors.push(SELF_REGISTERED_EMAIL_TAKEN);
+      else if (existingEmails.has(parsed.data.email)) errors.push('Email уже существует в системе');
       if (parsed.data.cohort && !cohortByName.has(parsed.data.cohort)) errors.push(`Когорта «${parsed.data.cohort}» не найдена`);
       seenEmails.add(parsed.data.email);
     }

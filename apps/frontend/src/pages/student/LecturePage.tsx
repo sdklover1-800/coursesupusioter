@@ -7,6 +7,7 @@ import { Button, Card } from '../../components/ui';
 import { LoadingRows } from '../../components/page';
 import { TranscriptView } from '../../components/TranscriptView';
 import { MiniQuiz } from '../../components/MiniQuiz';
+import { ContentError } from '../../components/enrollment';
 
 interface Lecture { id: string; title: string; youtubeVideoId: string; transcriptText: string }
 
@@ -17,7 +18,7 @@ export function LecturePage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['lecture', lectureId, enrollmentId],
     queryFn: () => api.get<{ lecture: Lecture }>(`/lectures/${lectureId}?enrollmentId=${enrollmentId}`),
   });
@@ -30,6 +31,7 @@ export function LecturePage() {
     },
   });
 
+  if (error) return <ContentError error={error} courseId={courseId} enrollmentId={enrollmentId} />;
   if (isLoading || !data) return <LoadingRows rows={3} />;
   const l = data.lecture;
 

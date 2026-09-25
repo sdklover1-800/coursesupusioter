@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import { issueCertificateIfAbsent } from '../certificates/certificate.service.js';
+import { isAdmitted } from '../enrollments/policy.js';
 
 /**
  * Пересчёт прогресса записи на курс (FR-8.2, FR-8.3).
@@ -17,6 +18,10 @@ export async function recomputeProgress(enrollmentId: string): Promise<{ percent
     },
   });
   if (!enrollment) return { percent: 0, completed: false };
+  // Неодобренная заявка (PENDING/REJECTED/WITHDRAWN): статус НЕ трогаем — иначе
+  // пересчёт (напр. после смены языка заявки) перевёл бы её в ACTIVE и открыл
+  // доступ к контенту в обход решения менеджера; сертификат тоже не выдаём.
+  if (!isAdmitted(enrollment.status)) return { percent: enrollment.progressPercent, completed: false };
 
   const modules = enrollment.languageVersion.modules;
   const allLectures = modules.flatMap((m) => m.lectures);

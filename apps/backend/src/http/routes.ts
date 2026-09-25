@@ -8,6 +8,8 @@ import { learnRoutes } from '../modules/learn/learn.routes.js';
 import { certificateRoutes } from '../modules/certificates/certificates.routes.js';
 import { dashboardRoutes } from '../modules/dashboards/dashboards.routes.js';
 import { researchRoutes } from '../modules/research/research.routes.js';
+import { catalogRoutes } from '../modules/catalog/catalog.routes.js';
+import { enrollmentRoutes } from '../modules/enrollments/enrollments.routes.js';
 
 /** Регистрация всех доменных маршрутов под префиксом /api. */
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
@@ -22,6 +24,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       await certificateRoutes(api);
       await dashboardRoutes(api);
       await researchRoutes(api);
+      await catalogRoutes(api); // публичный каталог (без входа)
+      await enrollmentRoutes(api); // заявки на курс и их рассмотрение
     },
     { prefix: '/api' },
   );

@@ -6,6 +6,8 @@ import { MAX_STUDENT_MESSAGE_CHARS } from '@edu/shared';
 import { api, postSse } from '../../lib/api';
 import { Button, Card, InquiryMeter, QuestionGlyph, Textarea } from '../../components/ui';
 import { LoadingRows, MeterBar } from '../../components/page';
+import { NotApprovedScreen } from '../../components/enrollment';
+import { isNotApproved } from '../../lib/catalog';
 
 interface Msg { id: string; role: 'AI' | 'STUDENT' | 'SYSTEM'; content: string; createdAt: string }
 interface SessionView {
@@ -32,6 +34,7 @@ export function PracticalPage() {
   const [waiting, setWaiting] = useState(false); // §5.7f: модель отвечает дольше обычного
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [blocked, setBlocked] = useState<unknown>(null); // 403 ENROLLMENT_NOT_APPROVED
   const typingStart = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -40,7 +43,7 @@ export function PracticalPage() {
   useEffect(() => {
     api.post<{ session: SessionView; messages: Msg[] }>(`/practical-tasks/${taskId}/sessions`, { enrollmentId })
       .then((r) => { setSession(r.session); setMessages(r.messages); })
-      .catch((e) => setError(e.message))
+      .catch((e) => { if (isNotApproved(e)) setBlocked(e); else setError(e.message); })
       .finally(() => setLoading(false));
   }, [taskId, enrollmentId]);
 
@@ -106,6 +109,7 @@ export function PracticalPage() {
   }
 
   if (loading) return <LoadingRows rows={4} />;
+  if (blocked) return <NotApprovedScreen courseId={courseId} enrollmentId={enrollmentId} error={blocked} />;
 
   return (
     <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col">

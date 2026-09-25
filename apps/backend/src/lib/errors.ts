@@ -20,5 +20,7 @@ export const Errors = {
   badRequest: (msg = 'Некорректный запрос', details?: unknown) => new AppError(400, 'BAD_REQUEST', msg, details),
   tooManyRequests: (msg = 'Слишком много запросов') => new AppError(429, 'TOO_MANY_REQUESTS', msg),
   upstream: (msg = 'Внешний сервис недоступен') => new AppError(503, 'UPSTREAM_UNAVAILABLE', msg),
+  /** Заявка на курс не одобрена — доступа к контенту нет (details: { status, courseId }). */
+  enrollmentNotApproved: (msg: string, details?: unknown) => new AppError(403, 'ENROLLMENT_NOT_APPROVED', msg, details),
   internal: (msg = 'Внутренняя ошибка') => new AppError(500, 'INTERNAL', msg),
 };

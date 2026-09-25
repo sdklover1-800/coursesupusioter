@@ -6,6 +6,7 @@ import { api } from '../../lib/api';
 import { Badge, Card, toast } from '../../components/ui';
 import { PageHeader, LoadingRows, MeterBar } from '../../components/page';
 import { MiniQuiz } from '../../components/MiniQuiz';
+import { ContentError } from '../../components/enrollment';
 
 interface CourseLang { id: string; language: string; title: string }
 
@@ -27,7 +28,7 @@ export function CourseLearnPage() {
   const { t } = useTranslation();
   const { courseId, enrollmentId } = useParams();
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['learn', courseId, enrollmentId],
     queryFn: () => api.get<LearnData>(`/courses/${courseId}/learn?enrollmentId=${enrollmentId}`),
   });
@@ -49,6 +50,8 @@ export function CourseLearnPage() {
   }
 
   if (isLoading) return <LoadingRows rows={6} />;
+  // 403 ENROLLMENT_NOT_APPROVED — дружелюбный экран со ссылкой на страницу курса
+  if (error) return <ContentError error={error} courseId={courseId} enrollmentId={enrollmentId} />;
   if (!data) return null;
   const base = `/learn/${courseId}/${enrollmentId}`;
   const langs = langsQuery.data?.items ?? [];

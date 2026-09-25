@@ -5,17 +5,24 @@ import { useState } from 'react';
 import { LANGUAGES, type Language, Role } from '@edu/shared';
 import { useAuth } from '../lib/auth';
 import { api, getAccessToken } from '../lib/api';
+import { usePendingRequestsCount } from '../lib/catalog';
 import i18n from '../i18n';
 import { Button, useTheme } from './ui';
 
-interface NavItem { to: string; label: string; icon: string }
+interface NavItem { to: string; label: string; icon: string; badge?: number }
 
-function navFor(role: string, t: (k: string) => string): NavItem[] {
+function navFor(role: string, t: (k: string) => string, pendingRequests: number): NavItem[] {
   if (role === Role.STUDENT) {
-    return [{ to: '/', label: t('nav.myCourses'), icon: '◎' }, { to: '/certificates', label: t('student.certificate'), icon: '✧' }];
+    return [
+      { to: '/', label: t('nav.myCourses'), icon: '◎' },
+      { to: '/catalog', label: t('catalog.nav'), icon: '◈' },
+      { to: '/certificates', label: t('student.certificate'), icon: '✧' },
+    ];
   }
   const manager: NavItem[] = [
     { to: '/manage/courses', label: t('nav.courses'), icon: '▤' },
+    // Заявки на курсы: бейдж — число ожидающих (обновляется раз в 60 с)
+    { to: '/manage/requests', label: t('requests.nav'), icon: '✉', badge: pendingRequests },
     { to: '/manage/dashboards', label: t('nav.dashboards'), icon: '◇' },
   ];
   if (role === Role.ADMIN) {
@@ -52,10 +59,10 @@ export function LanguageSwitcher() {
   );
 }
 
-function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
   return (
-    <button onClick={toggle} aria-label="theme" className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-fg hover:border-brand/50">
+    <button onClick={toggle} aria-label="theme" className={clsx('grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-fg hover:border-brand/50', className)}>
       {theme === 'dark' ? '☾' : '☀'}
     </button>
   );
@@ -66,8 +73,10 @@ export function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const isStaff = user?.role === Role.COURSE_MANAGER || user?.role === Role.ADMIN;
+  const pendingRequests = usePendingRequestsCount(!!isStaff);
   if (!user) return null;
-  const items = navFor(user.role, t);
+  const items = navFor(user.role, t, pendingRequests);
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
@@ -87,7 +96,12 @@ export function AppShell() {
               className={({ isActive }) => clsx('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors', isActive ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white')}
             >
               <span className="text-lg opacity-80">{it.icon}</span>
-              {it.label}
+              <span className="flex-1">{it.label}</span>
+              {!!it.badge && (
+                <span className="min-w-[1.375rem] rounded-full bg-spark px-1.5 text-center font-mono text-[11px] font-bold leading-[1.375rem] tabular-nums text-ink" aria-label={`${it.badge}`}>
+                  {it.badge > 99 ? '99+' : it.badge}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -107,7 +121,10 @@ export function AppShell() {
       {/* Main */}
       <div className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur lg:px-8">
-          <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setOpen(true)} aria-label="menu">☰</Button>
+          <Button variant="ghost" size="sm" className="relative lg:hidden" onClick={() => setOpen(true)} aria-label="menu">
+            ☰
+            {pendingRequests > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-spark ring-2 ring-surface" aria-hidden />}
+          </Button>
           <div className="flex-1" />
           <LanguageSwitcher />
           <ThemeToggle />

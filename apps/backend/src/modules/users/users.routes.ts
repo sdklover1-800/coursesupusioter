@@ -8,7 +8,8 @@ import { Errors } from '../../lib/errors.js';
 import { hashPassword, generateStartPassword } from '../../lib/password.js';
 import { paginationSchema, paginate, pageMeta } from '../../lib/pagination.js';
 import { audit } from '../../telemetry/events.js';
-import { parseImportFile, validateAndMaybeApply } from './import.service.js';
+import { revokeAllSessions } from '../../lib/sessions.js';
+import { parseImportFile, validateAndMaybeApply, SELF_REGISTERED_EMAIL_TAKEN } from './import.service.js';
 
 const langEnum = z.enum(LANGUAGES);
 
@@ -38,7 +39,8 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     });
     const data = parse(schema, req.body);
     const email = data.email.toLowerCase();
-    if (await prisma.user.findUnique({ where: { email } })) throw Errors.conflict('Email уже существует');
+    const taken = await prisma.user.findUnique({ where: { email }, select: { selfRegisteredAt: true } });
+    if (taken) throw Errors.conflict(taken.selfRegisteredAt ? SELF_REGISTERED_EMAIL_TAKEN : 'Email уже существует');
     if (data.cohortId && !(await prisma.cohort.findUnique({ where: { id: data.cohortId } }))) {
       throw Errors.badRequest('Когорта не найдена');
     }
@@ -66,7 +68,11 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       prisma.user.findMany({ where, ...paginate(p), orderBy: { createdAt: 'desc' } }),
       prisma.user.count({ where }),
     ]);
-    return { items: items.map(publicUser), meta: pageMeta(total, p) };
+    // selfRegisteredAt/isActive — для админа: саморегистрация (email не подтверждён), деактивация.
+    return {
+      items: items.map((u) => ({ ...publicUser(u), isActive: u.isActive, selfRegisteredAt: u.selfRegisteredAt?.toISOString() ?? null })),
+      meta: pageMeta(total, p),
+    };
   });
 
   // PATCH /admin/users/:id — роль, когорта, сброс пароля (FR-1.7).
@@ -93,9 +99,11 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       startPassword = generateStartPassword();
       update.passwordHash = await hashPassword(startPassword);
       update.mustChangePassword = true;
-      await prisma.refreshToken.updateMany({ where: { userId: id, revokedAt: null }, data: { revokedAt: new Date() } });
     }
     const updated = await prisma.user.update({ where: { id }, data: update });
+    // Сброс пароля и деактивация обрывают все сессии: без этого ротация refresh-токена
+    // продлевала бы сессию деактивированного аккаунта бесконечно.
+    if (data.resetPassword || data.isActive === false) await revokeAllSessions(id);
     await audit({ actorId: req.user!.id, action: 'USER_UPDATED', targetType: 'User', targetId: id, detail: { fields: Object.keys(update) } });
     return { user: publicUser(updated), ...(startPassword ? { startPassword } : {}) };
   });

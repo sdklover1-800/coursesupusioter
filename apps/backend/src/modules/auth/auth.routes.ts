@@ -5,9 +5,13 @@ import { prisma } from '../../lib/prisma.js';
 import { env } from '../../config/env.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
-import { verifyPassword, hashPassword } from '../../lib/password.js';
+import { verifyPassword, verifyPasswordConstantTime, hashPassword } from '../../lib/password.js';
 import { signAccessToken, generateRefreshToken, hashToken } from '../../lib/tokens.js';
-import { logEvent } from '../../telemetry/events.js';
+import { logEvent, audit } from '../../telemetry/events.js';
+import { logger } from '../../lib/logger.js';
+import { registerRateLimit } from '../../plugins/rateLimits.js';
+import { registerSchema, passwordPolicy, buildStudentCreateData } from './register.js';
+import { revokeAllSessions } from '../../lib/sessions.js';
 
 /**
  * ЭТАЛОННЫЙ модуль маршрутов (пример конвенций для остальных модулей).
@@ -42,6 +46,16 @@ function toPublicUser(u: {
   };
 }
 
+/** Аудит самостоятельной регистрации (актор — сам новый пользователь). Не бросает. */
+async function recordSelfRegistration(email: string, interfaceLanguage: string): Promise<void> {
+  try {
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    if (user) await audit({ actorId: user.id, action: 'USER_SELF_REGISTERED', targetType: 'User', targetId: user.id, detail: { interfaceLanguage } });
+  } catch (err) {
+    logger.error({ err }, 'Не удалось записать аудит самостоятельной регистрации');
+  }
+}
+
 async function issueSession(userId: string) {
   const { token, tokenHash } = generateRefreshToken();
   const rec = await prisma.refreshToken.create({
@@ -59,17 +73,32 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   }, async (req, reply) => {
     const { email, password } = parse(loginSchema, req.body);
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-    // Единое сообщение — не раскрываем существование email
-    const invalid = Errors.unauthorized('Неверный email или пароль');
-    if (!user || !user.isActive) throw invalid;
-    const ok = await verifyPassword(user.passwordHash, password);
-    if (!ok) throw invalid;
+    // Единое сообщение и единое время ответа — не раскрываем существование email:
+    // argon2 выполняется и для неизвестного email (над хешем-приманкой), и для
+    // деактивированного аккаунта; ранний выход до проверки пароля давал разницу ~30 мс.
+    const ok = await verifyPasswordConstantTime(user?.passwordHash, password);
+    if (!user || !user.isActive || !ok) throw Errors.unauthorized('Неверный email или пароль');
 
     const access = await signAccessToken({ sub: user.id, role: user.role, email: user.email });
     const { token } = await issueSession(user.id);
     reply.setCookie(REFRESH_COOKIE, token, cookieOptions());
     await logEvent({ eventType: EventType.USER_LOGIN, userId: user.id, cohortId: user.cohortId });
     return { accessToken: access, user: toPublicUser(user), mustChangePassword: user.mustChangePassword };
+  });
+
+  // POST /auth/register — самостоятельная регистрация студента (публичный каталог).
+  // Защита от перечисления пользователей (аудит безопасности): ответ ВСЕГДА
+  // 202 { ok: true } — и для нового, и для уже занятого email. Пароль хешируется
+  // в обеих ветках, вставка — INSERT … ON CONFLICT DO NOTHING (одинаковая стоимость,
+  // без исключения и лога ошибки на дубликат), аудит — вне пути ответа.
+  // Роль/когорта/активность из тела НЕ принимаются (registerSchema + белый список).
+  // Доступа к курсам регистрация не даёт: нужна одобренная заявка (ENROLLMENT_NOT_APPROVED).
+  app.post('/auth/register', { config: registerRateLimit }, async (req, reply) => {
+    const input = parse(registerSchema, req.body);
+    const passwordHash = await hashPassword(input.password);
+    const { count } = await prisma.user.createMany({ data: [buildStudentCreateData(input, passwordHash)], skipDuplicates: true });
+    if (count === 1) void recordSelfRegistration(input.email, input.interfaceLanguage ?? 'ru');
+    return reply.code(202).send({ ok: true });
   });
 
   // POST /auth/refresh — обновление токена с ротацией refresh (FR-1.6).
@@ -81,6 +110,13 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const tokenHash = hashToken(unsigned.value);
     const existing = await prisma.refreshToken.findUnique({ where: { tokenHash }, include: { user: true } });
     if (!existing || existing.revokedAt || existing.expiresAt < new Date()) {
+      throw Errors.unauthorized('Refresh-токен недействителен');
+    }
+    // Деактивированный аккаунт не продлевает сессию (иначе ротация refresh держала бы
+    // её бесконечно): отзываем все его refresh-токены и отказываем.
+    if (!existing.user.isActive) {
+      await revokeAllSessions(existing.userId);
+      reply.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
       throw Errors.unauthorized('Refresh-токен недействителен');
     }
     // Ротация: отзываем старый, выпускаем новый
@@ -106,14 +142,14 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /auth/password/change — смена пароля пользователем (FR-1.7).
   app.post('/auth/password/change', { preHandler: [app.authenticate] }, async (req) => {
-    const schema = z.object({ currentPassword: z.string().min(1), newPassword: z.string().min(8) });
+    const schema = z.object({ currentPassword: z.string().min(1), newPassword: passwordPolicy });
     const { currentPassword, newPassword } = parse(schema, req.body);
     const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
     if (!user) throw Errors.notFound();
     if (!(await verifyPassword(user.passwordHash, currentPassword))) throw Errors.badRequest('Текущий пароль неверен');
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword(newPassword), mustChangePassword: false } });
     // Инвалидируем все прочие refresh-сессии
-    await prisma.refreshToken.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date() } });
+    await revokeAllSessions(user.id);
     return { ok: true };
   });
 

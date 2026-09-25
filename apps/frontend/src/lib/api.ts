@@ -52,7 +52,9 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
 
   if (!res.ok) await throwFromResponse(res);
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  // 202/200 с пустым телом (например, POST /auth/register) — не падаем на JSON.parse
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 async function throwFromResponse(res: Response): Promise<never> {

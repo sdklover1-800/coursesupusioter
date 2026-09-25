@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { PublicUser } from '@edu/shared';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { safeNext } from '../lib/catalog';
 import { Button, Card } from '../components/ui';
 import { LanguageSwitcher } from '../components/AppShell';
 
@@ -12,21 +13,24 @@ export function ConsentPage() {
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // ?next — возврат к курсу, с которого пришли на гейт согласия
+  const next = safeNext(params.get('next')) ?? '/';
   const [version, setVersion] = useState('');
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user?.researchConsentAt) navigate('/', { replace: true });
+    if (user?.researchConsentAt) navigate(next, { replace: true });
     api.get<{ version: string }>('/admin/consent-info').then((r) => setVersion(r.version)).catch(() => setVersion(''));
-  }, [user, navigate]);
+  }, [user, navigate, next]);
 
   async function accept() {
     setLoading(true);
     try {
       const { user: updated } = await api.post<{ user: PublicUser }>('/me/consent', { version });
       setUser(updated);
-      navigate('/', { replace: true });
+      navigate(next, { replace: true });
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { ADMITTED_ENROLLMENT_STATUSES } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 
 /**
@@ -115,7 +116,12 @@ export async function buildCohortSummary(): Promise<(string | number)[][]> {
   const userToCohort = new Map<string, string>();
   for (const c of cohorts) for (const u of c.users) userToCohort.set(u.id, c.id);
 
-  const enrollments = await prisma.enrollment.findMany({ where: { userId: { in: [...userToCohort.keys()] } }, select: { userId: true, status: true } });
+  // Только допущенные к курсу (ACTIVE/COMPLETED): заявки PENDING/REJECTED — не участники
+  // эксперимента и не должны влиять на показатели завершаемости по когортам.
+  const enrollments = await prisma.enrollment.findMany({
+    where: { userId: { in: [...userToCohort.keys()] }, status: { in: [...ADMITTED_ENROLLMENT_STATUSES] } },
+    select: { userId: true, status: true },
+  });
   const sessions = await prisma.practicalSession.findMany({ where: { enrollment: { userId: { in: [...userToCohort.keys()] } } }, select: { status: true, enrollment: { select: { userId: true } } } });
 
   const agg = new Map<string, { enr: number; completed: number; passed: number; failed: number }>();

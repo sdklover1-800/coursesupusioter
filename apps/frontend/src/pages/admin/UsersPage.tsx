@@ -5,12 +5,15 @@ import { clsx } from 'clsx';
 import { api, ApiError } from '../../lib/api';
 import { Badge, Button, Card, Field, Input, Select, toast } from '../../components/ui';
 import { PageHeader, EmptyState, ErrorState, LoadingRows, StatCard } from '../../components/page';
+import { SelfRegisteredChip } from '../../components/enrollment';
 import { LANGUAGES, Role } from '@edu/shared';
 
 /* ── Типы ответов API ──────────────────────────────────── */
 interface PublicUser {
   id: string; email: string; name: string; role: string;
   interfaceLanguage: string; cohortId: string | null;
+  /** Самостоятельная регистрация (email не подтверждён); есть только в списке GET /admin/users */
+  selfRegisteredAt?: string | null;
 }
 interface UsersResponse { items: PublicUser[]; meta: { total: number; page: number; pages: number } }
 interface Cohort { id: string; name: string }
@@ -201,6 +204,7 @@ export function UsersPage() {
                           <td className="px-5 py-3">
                             <div className="font-semibold text-fg">{u.name}</div>
                             <div className="text-xs text-muted">{u.email}</div>
+                            {u.selfRegisteredAt && <SelfRegisteredChip className="mt-1" />}
                           </td>
                           <td className="px-5 py-3">
                             <div className="flex items-center gap-2">

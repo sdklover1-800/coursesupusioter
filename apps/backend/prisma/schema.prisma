@@ -56,10 +56,14 @@ enum Difficulty {
   HARD
 }
 
+// Запись на курс. PENDING/REJECTED — самостоятельная заявка студента из каталога,
+// ожидающая решения менеджера/админа; доступ к контенту — только ACTIVE/COMPLETED.
 enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   WITHDRAWN
+  PENDING
+  REJECTED
 }
 
 enum SessionStatus {
@@ -118,16 +122,20 @@ model User {
   // Стартовый пароль/сброс (FR-1.4, FR-1.7)
   mustChangePassword     Boolean   @default(false)
   isActive               Boolean   @default(true)
+  // Аккаунт создан самостоятельной регистрацией из каталога: владение email НЕ
+  // проверялось — в очереди заявок и списке пользователей помечается для админа.
+  selfRegisteredAt       DateTime?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
-  enrollments      Enrollment[]
-  createdCourses   Course[]         @relation("CourseCreatedBy")
-  generationJobs   GenerationJob[]
-  refreshTokens    RefreshToken[]
-  auditLogs        AuditLog[]       @relation("AuditActor")
-  teacherSessions  TeacherSession[] @relation("TeacherSessionLoggedBy")
-  events           EventLog[]
+  enrollments         Enrollment[]
+  reviewedEnrollments Enrollment[]     @relation("EnrollmentReviewer")
+  createdCourses      Course[]         @relation("CourseCreatedBy")
+  generationJobs      GenerationJob[]
+  refreshTokens       RefreshToken[]
+  auditLogs           AuditLog[]       @relation("AuditActor")
+  teacherSessions     TeacherSession[] @relation("TeacherSessionLoggedBy")
+  events              EventLog[]
 
   @@index([role])
   @@index([cohortId])
@@ -316,10 +324,17 @@ model Enrollment {
   course            Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
   languageVersionId String // выбранный язык прохождения (§4.3)
   languageVersion   CourseLanguageVersion @relation(fields: [languageVersionId], references: [id])
+  // ACTIVE по умолчанию — прямая запись менеджером (FR-8.1); заявка из каталога — PENDING.
   status            EnrollmentStatus      @default(ACTIVE)
   progressPercent   Float                 @default(0)
   startedAt         DateTime              @default(now())
   completedAt       DateTime?
+  // Заявка студента и решение по ней (одобрение/отклонение менеджером или админом)
+  requestedAt       DateTime?
+  reviewedAt        DateTime?
+  reviewedById      String?
+  reviewedBy        User?                 @relation("EnrollmentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewNote        String?
 
   lectureProgress   LectureProgress[]
   quizAttempts      QuizAttempt[]
@@ -328,6 +343,7 @@ model Enrollment {
 
   @@unique([userId, courseId]) // один enrollment на курс
   @@index([userId])
+  @@index([status])
 }
 
 model LectureProgress {

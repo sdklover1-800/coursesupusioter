@@ -7,7 +7,9 @@ import { Errors } from '../../lib/errors.js';
 import { requireConsent } from '../../plugins/consentGate.js';
 import { logEvent, audit } from '../../telemetry/events.js';
 import { recomputeProgress } from './progress.service.js';
-import { loadOwnedEnrollment, assertLectureInEnrollment } from './access.js';
+import { loadOwnedEnrollment, assertLectureInEnrollment, assertEnrollmentAdmitted } from './access.js';
+import { decideManagerEnroll, languageSwitchDecision } from '../enrollments/policy.js';
+import { studentEnrollmentSelect } from '../enrollments/views.js';
 
 const managerGuard = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
 const studentContent = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.STUDENT), requireConsent] });
@@ -16,15 +18,36 @@ export async function learnRoutes(app: FastifyInstance): Promise<void> {
   /* ── Менеджер/админ: запись студентов на курс (FR-8.1, §3.2) ── */
 
   // POST /enrollments — записать студента на курс с выбором языковой версии.
+  // Если студент уже подал заявку (PENDING/REJECTED) — прямая запись её одобряет.
   app.post('/enrollments', managerGuard(app), async (req) => {
     const data = parse(z.object({ userId: z.string(), courseId: z.string(), languageVersionId: z.string() }), req.body);
     const version = await prisma.courseLanguageVersion.findUnique({ where: { id: data.languageVersionId } });
     if (!version || version.courseId !== data.courseId) throw Errors.badRequest('Языковая версия не соответствует курсу');
     if (version.status !== 'PUBLISHED') throw Errors.badRequest('Языковая версия не опубликована');
+    const student = await prisma.user.findUnique({ where: { id: data.userId }, select: { isActive: true } });
+    if (!student) throw Errors.notFound('Пользователь не найден');
+    if (!student.isActive) throw Errors.conflict('Учётная запись студента деактивирована');
     const existing = await prisma.enrollment.findUnique({ where: { userId_courseId: { userId: data.userId, courseId: data.courseId } } });
-    if (existing) throw Errors.conflict('Студент уже записан на этот курс');
-    const enrollment = await prisma.enrollment.create({ data: { userId: data.userId, courseId: data.courseId, languageVersionId: data.languageVersionId } });
-    await audit({ actorId: req.user!.id, action: 'STUDENT_ENROLLED', targetType: 'Enrollment', targetId: enrollment.id, detail: { userId: data.userId, courseId: data.courseId } });
+    const decision = decideManagerEnroll(existing?.status ?? null);
+    if (decision === 'conflict') throw Errors.conflict('Студент уже записан на этот курс');
+
+    let enrollment;
+    if (decision === 'convert' && existing) {
+      const now = new Date();
+      // Условное обновление: заявку могли одновременно одобрить/отменить (TOCTOU)
+      const { count } = await prisma.enrollment.updateMany({
+        where: { id: existing.id, status: existing.status },
+        data: { status: 'ACTIVE', languageVersionId: data.languageVersionId, startedAt: now, reviewedAt: now, reviewedById: req.user!.id },
+      });
+      if (count === 0) throw Errors.conflict('Заявка уже изменилась, обновите страницу');
+      enrollment = await prisma.enrollment.findUniqueOrThrow({ where: { id: existing.id } });
+    } else {
+      enrollment = await prisma.enrollment.create({ data: { userId: data.userId, courseId: data.courseId, languageVersionId: data.languageVersionId } });
+    }
+    await audit({
+      actorId: req.user!.id, action: 'STUDENT_ENROLLED', targetType: 'Enrollment', targetId: enrollment.id,
+      detail: { userId: data.userId, courseId: data.courseId, ...(decision === 'convert' ? { fromRequest: existing?.status } : {}) },
+    });
     return { enrollment };
   });
 
@@ -41,12 +64,13 @@ export async function learnRoutes(app: FastifyInstance): Promise<void> {
 
   /* ── Студент: прохождение (FR-8.2, FR-8.4) ── */
 
-  // GET /me/courses — записанные курсы с прогрессом.
+  // GET /me/courses — записи на курсы с прогрессом, ВКЛЮЧАЯ заявки всех статусов
+  // (PENDING/REJECTED/WITHDRAWN) — клиент показывает их отдельными карточками.
   app.get('/me/courses', { preHandler: [app.authenticate, app.requireRole(Role.STUDENT)] }, async (req) => {
     const enrollments = await prisma.enrollment.findMany({
       where: { userId: req.user!.id },
-      include: { languageVersion: { select: { id: true, title: true, description: true, language: true } }, certificate: { select: { id: true, serialNumber: true } } },
-      orderBy: { startedAt: 'desc' },
+      select: studentEnrollmentSelect,
+      orderBy: [{ startedAt: 'desc' }, { id: 'asc' }],
     });
     return { items: enrollments };
   });
@@ -68,12 +92,21 @@ export async function learnRoutes(app: FastifyInstance): Promise<void> {
     const { languageVersionId } = parse(z.object({ languageVersionId: z.string() }), req.body);
     const enrollment = await prisma.enrollment.findUnique({ where: { id } });
     if (!enrollment || enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа к записи');
+    // Язык можно сменить у ожидающей заявки и у активного курса; у завершённого — нет
+    // (пересчёт под другую версию «раззавершил» бы курс), у отклонённой — только новой заявкой.
+    const decision = languageSwitchDecision(enrollment.status);
+    if (decision === 'not-approved') assertEnrollmentAdmitted(enrollment);
+    if (decision === 'completed') throw Errors.conflict('Курс уже завершён — смена языка недоступна');
     const target = await prisma.courseLanguageVersion.findUnique({ where: { id: languageVersionId } });
     if (!target || target.courseId !== enrollment.courseId) throw Errors.badRequest('Версия не относится к этому курсу');
     if (target.status !== 'PUBLISHED') throw Errors.badRequest('Версия не опубликована');
-    const updated = await prisma.enrollment.update({ where: { id }, data: { languageVersionId } });
-    // Прогресс пересчитывается под новую версию (у неё свои лекции/оценивания).
+    // Условие по статусу: заявку могли одобрить/отклонить между чтением и записью.
+    const { count } = await prisma.enrollment.updateMany({ where: { id, status: enrollment.status }, data: { languageVersionId } });
+    if (count === 0) throw Errors.conflict('Статус записи изменился, обновите страницу');
+    // Прогресс пересчитывается под новую версию (у неё свои лекции/оценивания);
+    // для заявки PENDING пересчёт статус не меняет (см. recomputeProgress).
     const progress = await recomputeProgress(id);
+    const updated = await prisma.enrollment.findUniqueOrThrow({ where: { id }, select: studentEnrollmentSelect });
     return { enrollment: updated, progress };
   });
 
@@ -81,8 +114,11 @@ export async function learnRoutes(app: FastifyInstance): Promise<void> {
   app.get('/courses/:id/learn', studentContent(app), async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const { enrollmentId } = parse(z.object({ enrollmentId: z.string() }), req.query);
+    // Владение + одобрение заявки + опубликованность версии — единым гейтом.
+    const owned = await loadOwnedEnrollment(req.user!.id, enrollmentId);
+    if (owned.courseId !== id) throw Errors.forbidden('Нет доступа к этой записи');
     const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId }, include: { lectureProgress: true, quizAttempts: true, practicalSessions: true } });
-    if (!enrollment || enrollment.userId !== req.user!.id || enrollment.courseId !== id) throw Errors.forbidden('Нет доступа к этой записи');
+    if (!enrollment) throw Errors.forbidden('Нет доступа к этой записи');
 
     const version = await prisma.courseLanguageVersion.findUnique({
       where: { id: enrollment.languageVersionId },

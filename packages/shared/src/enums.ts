@@ -65,13 +65,25 @@ export const Difficulty = {
 } as const;
 export type Difficulty = (typeof Difficulty)[keyof typeof Difficulty];
 
-/** Статус записи на курс (§10.1 Enrollment) */
+/**
+ * Статус записи на курс (§10.1 Enrollment).
+ * PENDING/REJECTED — самостоятельная заявка студента из каталога, ожидающая
+ * решения менеджера/админа или отклонённая. Прямая запись менеджером — ACTIVE.
+ */
 export const EnrollmentStatus = {
   ACTIVE: 'ACTIVE',
   COMPLETED: 'COMPLETED',
   WITHDRAWN: 'WITHDRAWN',
+  PENDING: 'PENDING',
+  REJECTED: 'REJECTED',
 } as const;
 export type EnrollmentStatus = (typeof EnrollmentStatus)[keyof typeof EnrollmentStatus];
+
+/**
+ * Статусы, дающие доступ к учебному контенту (лекции, тесты, практическое,
+ * сертификат) и учитываемые в дашбордах/исследовательской статистике.
+ */
+export const ADMITTED_ENROLLMENT_STATUSES = [EnrollmentStatus.ACTIVE, EnrollmentStatus.COMPLETED] as const;
 
 /** Статус сократической сессии (§5.4, §5.7) */
 export const SessionStatus = {

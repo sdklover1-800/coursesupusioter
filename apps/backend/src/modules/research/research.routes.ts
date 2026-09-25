@@ -8,6 +8,7 @@ import { audit, logEvent } from '../../telemetry/events.js';
 import { streamExportCsv, filenameFor, type ExportType } from './export.service.js';
 
 const adminOnly = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.ADMIN)] });
+const managerOrAdmin = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
 
 /** Поддержка научного исследования (§7, §11.4): когорты, занятия с преподавателем, экспорт. */
 export async function researchRoutes(app: FastifyInstance): Promise<void> {
@@ -26,6 +27,13 @@ export async function researchRoutes(app: FastifyInstance): Promise<void> {
   app.get('/admin/cohorts', guard, async () => {
     const cohorts = await prisma.cohort.findMany({ include: { _count: { select: { users: true, teacherSessions: true } } }, orderBy: { createdAt: 'asc' } });
     return { items: cohorts };
+  });
+
+  // GET /cohorts — краткий список когорт для выбора при одобрении заявки на курс
+  // (менеджер и админ; без счётчиков и описаний — полная версия в /admin/cohorts).
+  app.get('/cohorts', managerOrAdmin(app), async () => {
+    const items = await prisma.cohort.findMany({ select: { id: true, name: true, condition: true }, orderBy: { createdAt: 'asc' } });
+    return { items };
   });
 
   // PATCH /admin/cohorts/:id — правка когорты.

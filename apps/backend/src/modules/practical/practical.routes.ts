@@ -12,6 +12,7 @@ import { env, practicalTokenBudget } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
 import { withLock } from '../../lib/lock.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
+import { loadOwnedEnrollment, assertEnrollmentAdmitted } from '../learn/access.js';
 
 const managerGuard = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
 const studentContent = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.STUDENT), requireConsent] });
@@ -92,9 +93,10 @@ export async function practicalRoutes(app: FastifyInstance): Promise<void> {
   app.post('/practical-tasks/:id/sessions', { ...studentContent(app), config: llmRateLimit }, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const { enrollmentId } = parse(z.object({ enrollmentId: z.string() }), req.body);
+    // Владение + одобрение заявки (ACTIVE/COMPLETED) + опубликованность версии.
+    await loadOwnedEnrollment(req.user!.id, enrollmentId);
     const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId }, include: { languageVersion: true, user: true } });
-    if (!enrollment || enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа к записи');
-    if (enrollment.languageVersion.status !== 'PUBLISHED') throw Errors.forbidden('Курс недоступен');
+    if (!enrollment) throw Errors.forbidden('Нет доступа к записи');
 
     const task = await prisma.practicalTask.findUnique({ where: { id }, include: { module: { select: { courseLanguageVersionId: true } } } });
     if (!task) throw Errors.notFound('Задание не найдено');
@@ -127,6 +129,7 @@ export async function practicalRoutes(app: FastifyInstance): Promise<void> {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const session = await prisma.practicalSession.findUnique({ where: { id }, include: { enrollment: true, messages: { orderBy: { createdAt: 'asc' } } } });
     if (!session || session.enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа');
+    assertEnrollmentAdmitted(session.enrollment); // гейт одобрения заявки
     return { session: sessionView(session), messages: session.messages.map(msgView) };
   });
 
@@ -137,6 +140,7 @@ export async function practicalRoutes(app: FastifyInstance): Promise<void> {
     const body = parse(z.object({ message: z.string().default(''), typingMs: z.number().int().nonnegative().optional() }), req.body);
     const session = await prisma.practicalSession.findUnique({ where: { id }, include: { enrollment: { include: { user: true } } } });
     if (!session || session.enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа');
+    assertEnrollmentAdmitted(session.enrollment); // гейт одобрения заявки (до SSE/LLM)
 
     // Сериализуем ходы одной сессии (H5): параллельные запросы иначе обходят лимит
     // реплик и портят учёт токенов. Лок берём ДО hijack, чтобы конкурентный ход

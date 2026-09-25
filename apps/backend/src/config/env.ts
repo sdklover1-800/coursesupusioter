@@ -53,6 +53,10 @@ const envSchema = z.object({
 
   RATE_LIMIT_LOGIN_MAX: z.coerce.number().default(10),
   RATE_LIMIT_LLM_MAX: z.coerce.number().default(30),
+  // Самостоятельная регистрация: попыток в час с одного IP (защита от массовых аккаунтов)
+  RATE_LIMIT_REGISTER_MAX: z.coerce.number().int().positive().default(5),
+  // Публичный каталог (без входа): запросов в минуту с одного IP
+  RATE_LIMIT_PUBLIC_MAX: z.coerce.number().int().positive().default(120),
 
   // Трекинг ошибок (NFR-5.3). Пусто → Sentry выключен (no-op).
   SENTRY_DSN: z.string().optional().default(''),

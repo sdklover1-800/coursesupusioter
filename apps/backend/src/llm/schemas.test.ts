@@ -101,4 +101,19 @@ describe('practicalGenerationSchema (§5.3, Прил. C)', () => {
     expect(r.recommended_token_budget).toBe(9000);
     expect(r.recommended_max_ai_messages).toBe(22);
   });
+  it('рекомендации, вложенные в rubric (GPT-5.x), поднимаются на верхний уровень', () => {
+    const { recommended_token_budget: _b, recommended_max_ai_messages: _m, difficulty: _d, ...rest } = valid;
+    const r = practicalGenerationSchema.parse({
+      ...rest,
+      rubric: { ...valid.rubric, recommended_token_budget: 3200, recommended_max_ai_messages: 24, difficulty: 'HARD' },
+    });
+    expect(r.recommended_token_budget).toBe(3200);
+    expect(r.recommended_max_ai_messages).toBe(24);
+    expect(r.difficulty).toBe('HARD');
+    expect(Object.keys(r.rubric).sort()).toEqual(['answer_reached_criteria', 'key_points']);
+  });
+  it('значения верхнего уровня важнее вложенных в rubric', () => {
+    const r = practicalGenerationSchema.parse({ ...valid, rubric: { ...valid.rubric, recommended_token_budget: 1 } });
+    expect(r.recommended_token_budget).toBe(valid.recommended_token_budget);
+  });
 });

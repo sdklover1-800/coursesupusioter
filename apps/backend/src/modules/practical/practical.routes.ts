@@ -8,7 +8,7 @@ import { requireConsent } from '../../plugins/consentGate.js';
 import { orchestrator } from '../../llm/orchestrator.js';
 import { getGateway } from '../../llm/gateway.js';
 import { practicalGenSystemPrompt, practicalGenUserPrompt } from '../../llm/prompts.js';
-import { env } from '../../config/env.js';
+import { env, practicalTokenBudget } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
 import { withLock } from '../../lib/lock.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
@@ -81,7 +81,7 @@ export async function practicalRoutes(app: FastifyInstance): Promise<void> {
     );
     const updated = await prisma.practicalTask.update({
       where: { id },
-      data: { scenarioPrompt: data.student_facing_scenario, referenceSolution: data.reference_solution, rubricSpec: data.rubric as object, tokenBudget: data.recommended_token_budget, maxAiMessages: data.recommended_max_ai_messages, isAIGenerated: true, isEdited: false },
+      data: { scenarioPrompt: data.student_facing_scenario, referenceSolution: data.reference_solution, rubricSpec: data.rubric as object, tokenBudget: practicalTokenBudget(data.recommended_token_budget, language), maxAiMessages: data.recommended_max_ai_messages, isAIGenerated: true, isEdited: false },
     });
     return { task: updated };
   });

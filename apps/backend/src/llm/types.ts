@@ -18,7 +18,14 @@ export interface CompletionRequest {
   jsonMode?: boolean;
   /** Кешировать статичную часть system-инструкции (§5.6 prompt caching). */
   cacheSystem?: boolean;
+  /**
+   * Назначение вызова (§5.6): провайдер подбирает под него режим модели —
+   * например, уровень рассуждений у reasoning-моделей OpenAI. По умолчанию — generation.
+   */
+  purpose?: LlmPurpose;
 }
+
+export type LlmPurpose = 'generation' | 'dialog' | 'judge';
 
 export interface TokenUsage {
   inputTokens: number;

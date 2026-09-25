@@ -205,7 +205,7 @@ export class SocraticOrchestrator {
         answerReachedCriteria: rubric.answer_reached_criteria,
       });
       const { data, result } = await this.gateway.completeStructured(
-        { model: env.LLM_MODEL_DIALOG, system: sys, cacheSystem: true, maxTokens: 600, messages: this.toLlm(history, studentMsg) },
+        { model: env.LLM_MODEL_DIALOG, purpose: 'judge', system: sys, cacheSystem: true, maxTokens: 600, messages: this.toLlm(history, studentMsg) },
         socraticTurnSchema,
         'single_call',
       );
@@ -223,7 +223,7 @@ export class SocraticOrchestrator {
         answerReachedCriteria: rubric.answer_reached_criteria,
       });
       const judge = await this.gateway.completeStructured(
-        { model: env.LLM_MODEL_JUDGE, system: judgeSys, cacheSystem: true, maxTokens: 400, messages: this.toLlm(history, studentMsg) },
+        { model: env.LLM_MODEL_JUDGE, purpose: 'judge', system: judgeSys, cacheSystem: true, maxTokens: 400, messages: this.toLlm(history, studentMsg) },
         judgeOutputSchema,
         'judge',
       );
@@ -366,7 +366,7 @@ export class SocraticOrchestrator {
     });
     let acc = '';
     const res = await this.gateway.stream(
-      { model: env.LLM_MODEL_DIALOG, system: sys, cacheSystem: true, maxTokens: 300, messages: this.toLlm(params.history, params.studentMsg) },
+      { model: env.LLM_MODEL_DIALOG, purpose: 'dialog', system: sys, cacheSystem: true, maxTokens: 300, messages: this.toLlm(params.history, params.studentMsg) },
       (chunk) => {
         acc += chunk;
         params.onDelta(chunk);

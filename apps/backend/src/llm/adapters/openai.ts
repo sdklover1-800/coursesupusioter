@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta } from '../types.js';
 import { env } from '../../config/env.js';
+import { buildChatParams, type OpenAIParamOptions } from './openaiParams.js';
 
 /**
  * Адаптер OpenAI-совместимого API (GPT-mini-класс — основной кандидат §5.1
@@ -10,33 +11,36 @@ import { env } from '../../config/env.js';
 export class OpenAIAdapter implements LlmAdapter {
   readonly provider = 'openai';
   private client: OpenAI;
+  private opts: OpenAIParamOptions;
 
   constructor() {
     if (!env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY не задан');
-    this.client = new OpenAI({ apiKey: env.OPENAI_API_KEY, baseURL: env.OPENAI_BASE_URL });
-  }
-
-  private buildMessages(req: CompletionRequest): OpenAI.Chat.ChatCompletionMessageParam[] {
-    const msgs: OpenAI.Chat.ChatCompletionMessageParam[] = [];
-    if (req.system) msgs.push({ role: 'system', content: req.system });
-    for (const m of req.messages) {
-      if (m.role === 'system') msgs.push({ role: 'system', content: m.content });
-      else if (m.role === 'assistant') msgs.push({ role: 'assistant', content: m.content });
-      else msgs.push({ role: 'user', content: m.content });
-    }
-    return msgs;
+    // Встроенный fetch Node вместо node-fetch из SDK 4.x: тот на свежих Node
+    // обрывает чтение ответа (FetchError: Premature close).
+    this.client = new OpenAI({ apiKey: env.OPENAI_API_KEY, baseURL: env.OPENAI_BASE_URL, fetch: globalThis.fetch });
+    this.opts = {
+      effort: {
+        generation: env.OPENAI_REASONING_GENERATION,
+        dialog: env.OPENAI_REASONING_DIALOG,
+        judge: env.OPENAI_REASONING_JUDGE,
+      },
+      officialApi: /(^|\.)api\.openai\.com/.test(new URL(env.OPENAI_BASE_URL).host),
+    };
   }
 
   async complete(req: CompletionRequest): Promise<CompletionResult> {
-    const res = await this.client.chat.completions.create({
-      model: req.model,
-      max_tokens: req.maxTokens ?? 1024,
-      temperature: req.temperature ?? 0.4,
-      messages: this.buildMessages(req),
-      ...(req.jsonMode ? { response_format: { type: 'json_object' } } : {}),
-    });
+    // SDK 4.x не знает значений none/xhigh у reasoning_effort — API их принимает.
+    const params = buildChatParams(req, this.opts) as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming;
+    const res = await this.client.chat.completions.create(params);
+    const choice = res.choices[0];
+    const text = choice?.message?.content ?? '';
+    // Весь бюджет ушёл на рассуждения — пустой ответ не должен выглядеть как успех;
+    // шлюз повторит запрос, а в логе будет понятная причина.
+    if (!text && choice?.finish_reason === 'length') {
+      throw new Error(`OpenAI: пустой ответ — исчерпан max_completion_tokens (модель ${res.model})`);
+    }
     return {
-      text: res.choices[0]?.message?.content ?? '',
+      text,
       usage: {
         inputTokens: res.usage?.prompt_tokens ?? 0,
         outputTokens: res.usage?.completion_tokens ?? 0,
@@ -47,14 +51,12 @@ export class OpenAIAdapter implements LlmAdapter {
   }
 
   async streamComplete(req: CompletionRequest, onDelta: StreamDelta): Promise<CompletionResult> {
-    const stream = await this.client.chat.completions.create({
-      model: req.model,
-      max_tokens: req.maxTokens ?? 1024,
-      temperature: req.temperature ?? 0.4,
-      messages: this.buildMessages(req),
+    const params = {
+      ...buildChatParams(req, this.opts),
       stream: true,
       stream_options: { include_usage: true },
-    });
+    } as OpenAI.Chat.ChatCompletionCreateParamsStreaming;
+    const stream = await this.client.chat.completions.create(params);
     let text = '';
     let inputTokens = 0;
     let outputTokens = 0;

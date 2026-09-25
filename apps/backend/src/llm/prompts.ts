@@ -61,6 +61,8 @@ export function practicalGenSystemPrompt(language: Language, difficulty: Difficu
     '- recommended_token_budget (число), recommended_max_ai_messages (число): для полноценного сократического диалога рекомендуй 20–25 реплик и токен-бюджет с запасом;',
     '- difficulty: строка VERY_EASY | EASY | MEDIUM | HARD (не объект).',
     'Верни СТРОГО JSON по схеме (Приложение C). Без markdown вне JSON. Не превышай ~1500 слов суммарно.',
+    'Структура (rubric содержит ТОЛЬКО key_points и answer_reached_criteria; остальные поля — на верхнем уровне):',
+    '{"student_facing_scenario": "...", "reference_solution": "...", "rubric": {"key_points": ["..."], "answer_reached_criteria": "..."}, "recommended_token_budget": 0, "recommended_max_ai_messages": 0, "difficulty": "MEDIUM"}',
   ].join('\n');
 }
 

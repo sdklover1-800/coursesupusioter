@@ -105,7 +105,7 @@ chmod 600 .env.prod
 Домен уже проставлен (`SITE_ADDRESS=eduopen.kz`, `WWW_ADDRESS=www.eduopen.kz`,
 `FRONTEND_ORIGIN=https://eduopen.kz`). Заполнить нужно секреты и почту:
 `ACME_EMAIL`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_ACCESS_SECRET`,
-`JWT_REFRESH_SECRET`, `COOKIE_SECRET`, `ANTHROPIC_API_KEY`.
+`JWT_REFRESH_SECRET`, `COOKIE_SECRET`, `OPENAI_API_KEY` (или `ANTHROPIC_API_KEY` при `LLM_PROVIDER=anthropic`).
 
 ```bash
 # Секреты (каждый — отдельным вызовом)
@@ -113,6 +113,12 @@ openssl rand -base64 48
 ```
 
 `LLM_PROVIDER=mock` на проде недопустим — студенты получат заглушки вместо диалога.
+
+Проверить ключ и модели после запуска (текст, JSON-режим судьи, потоковый диалог):
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api node dist/scripts/llm-ping.js
+```
 
 ## 4. Запуск
 

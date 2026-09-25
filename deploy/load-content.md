@@ -53,10 +53,37 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
   node dist/scripts/clean-transcripts.js --apply
 ```
 
+## 3.5. Перенос итогового практического в последний модуль
+
+Нужен один раз после добавления разделов IV–V: практическое «на весь курс»
+осталось в разделе III с тех пор, когда модулей было три. Скрипт переносит его
+в последний модуль, сохраняя id задания (сессии студентов не рвутся), а
+освободившийся модуль переводит в тип QUIZ.
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
+  node dist/scripts/move-final-practical.js            # предпросмотр
+# затем то же с --apply
+```
+
 ## 4. Генерация материалов (тесты и мини-квизы)
 
-Запускается через API менеджером курса — фоновые задачи (FR-7.1).
-Требует рабочий `ANTHROPIC_API_KEY` в `.env.prod`.
+Одной командой — ставит задачи по всем языковым версиям и ждёт результата.
+Требует рабочий ключ провайдера LLM в `.env.prod` (`OPENAI_API_KEY` при `LLM_PROVIDER=openai`;
+проверка — `node dist/scripts/llm-ping.js`) и поднятый сервис `worker`.
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
+  node dist/scripts/generate-materials.js --regen-practical
+```
+
+Стратегия `KEEP`: догенерируется только недостающее, готовые материалы и ручные
+правки менеджера не затрагиваются (FR-7.5) — команду можно повторять.
+Флаг `--regen-practical` перегенерирует итоговое практическое (`OVERWRITE`),
+чтобы эталон охватывал все 15 лекций, а не только те, что были при первой генерации.
+
+<details>
+<summary>То же вручную через API</summary>
 
 ```bash
 TOKEN=$(curl -s https://eduopen.kz/api/auth/login -H 'Content-Type: application/json' \
@@ -75,8 +102,9 @@ for V in <id_ru> <id_kk> <id_en>; do
 done
 ```
 
-Статус: `GET /api/generation-jobs/<jobId>`. Стратегия `KEEP` не перезаписывает
-уже готовые материалы и ручные правки менеджера (FR-7.5).
+Статус: `GET /api/generation-jobs/<jobId>`.
+
+</details>
 
 ## 5. Публикация
 

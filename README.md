@@ -69,7 +69,7 @@ npm run dev:frontend          # SPA на http://localhost:5173
 | Менеджер курсов | `manager@edu.kz` | `Manager123!` |
 | Студент | `student@edu.kz` | `Student123!` |
 
-> `LLM_PROVIDER=mock` — детерминированный оффлайн-режим: генерация и диалог работают **без реальных вызовов LLM и без передачи данных наружу**. Для реальной модели задайте `LLM_PROVIDER=anthropic|openai` и ключ.
+> `LLM_PROVIDER=mock` — детерминированный оффлайн-режим: генерация и диалог работают **без реальных вызовов LLM и без передачи данных наружу**. Для реальной модели задайте `LLM_PROVIDER=openai|anthropic` (или `auto` — по наличию ключа) и ключ; проверка — `npm run llm:ping --workspace @edu/backend`.
 
 ---
 

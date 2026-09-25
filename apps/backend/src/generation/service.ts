@@ -7,7 +7,7 @@ import {
 } from '@edu/shared';
 import { prisma } from '../lib/prisma.js';
 import { getGateway } from '../llm/gateway.js';
-import { env } from '../config/env.js';
+import { env, practicalTokenBudget } from '../config/env.js';
 import { logger } from '../lib/logger.js';
 import {
   quizGenSystemPrompt,
@@ -218,7 +218,7 @@ async function generatePracticalForModule(p: {
       referenceSolution: data.reference_solution,
       rubricSpec: data.rubric as object,
       difficulty,
-      tokenBudget: data.recommended_token_budget,
+      tokenBudget: practicalTokenBudget(data.recommended_token_budget, p.language),
       maxAiMessages: data.recommended_max_ai_messages,
       systemPromptTemplateId: PROMPT_VERSION,
       isAIGenerated: true,
@@ -232,7 +232,7 @@ async function generatePracticalForModule(p: {
             referenceSolution: data.reference_solution,
             rubricSpec: data.rubric as object,
             difficulty,
-            tokenBudget: data.recommended_token_budget,
+            tokenBudget: practicalTokenBudget(data.recommended_token_budget, p.language),
             maxAiMessages: data.recommended_max_ai_messages,
             isAIGenerated: true,
             isEdited: false,

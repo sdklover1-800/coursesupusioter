@@ -18,13 +18,21 @@ const envSchema = z.object({
   JWT_REFRESH_TTL: z.coerce.number().default(1209600),
   COOKIE_SECRET: z.string().min(16),
 
-  LLM_PROVIDER: z.enum(['mock', 'anthropic', 'openai']).default('mock'),
-  LLM_MODEL_GENERATION: z.string().default('claude-haiku-4-5-20251001'),
-  LLM_MODEL_DIALOG: z.string().default('claude-haiku-4-5-20251001'),
-  LLM_MODEL_JUDGE: z.string().default('claude-haiku-4-5-20251001'),
+  // auto — OpenAI, если задан его ключ, иначе Anthropic, иначе mock.
+  LLM_PROVIDER: z.enum(['mock', 'anthropic', 'openai', 'auto']).default('mock'),
+  // Пусто — модель по умолчанию для выбранного провайдера (см. DEFAULT_MODELS).
+  LLM_MODEL_GENERATION: z.string().default(''),
+  LLM_MODEL_DIALOG: z.string().default(''),
+  LLM_MODEL_JUDGE: z.string().default(''),
   ANTHROPIC_API_KEY: z.string().optional().default(''),
   OPENAI_API_KEY: z.string().optional().default(''),
   OPENAI_BASE_URL: z.string().default('https://api.openai.com/v1'),
+  // Уровень рассуждений reasoning-моделей OpenAI (GPT-5.x, o-серия) по назначению вызова.
+  // none — без рассуждений: быстрее всего и допускает temperature (нужно живому диалогу);
+  // пусто — параметр не передаётся (для моделей без рассуждений и совместимых эндпоинтов).
+  OPENAI_REASONING_GENERATION: z.enum(['', 'none', 'low', 'medium', 'high', 'xhigh']).default('low'),
+  OPENAI_REASONING_DIALOG: z.enum(['', 'none', 'low', 'medium', 'high', 'xhigh']).default('none'),
+  OPENAI_REASONING_JUDGE: z.enum(['', 'none', 'low', 'medium', 'high', 'xhigh']).default('low'),
   ORCHESTRATION_MODE: z.enum(['TUTOR_JUDGE', 'SINGLE_CALL']).default('TUTOR_JUDGE'),
   LLM_ZERO_RETENTION: z.coerce.boolean().default(true),
   LLM_MAX_CONCURRENCY: z.coerce.number().default(25),
@@ -58,8 +66,42 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+/** Модели по умолчанию для провайдера — чтобы смена LLM_PROVIDER не оставляла чужие id. */
+export const DEFAULT_MODELS = {
+  anthropic: 'claude-haiku-4-5-20251001',
+  openai: 'gpt-5.4-mini',
+  mock: 'mock',
+} as const;
+
+export type ResolvedProvider = keyof typeof DEFAULT_MODELS;
+
+export function resolveProvider(e: Pick<z.infer<typeof envSchema>, 'LLM_PROVIDER' | 'OPENAI_API_KEY' | 'ANTHROPIC_API_KEY'>): ResolvedProvider {
+  if (e.LLM_PROVIDER !== 'auto') return e.LLM_PROVIDER;
+  if (e.OPENAI_API_KEY) return 'openai';
+  if (e.ANTHROPIC_API_KEY) return 'anthropic';
+  return 'mock';
+}
+
+const provider = resolveProvider(parsed.data);
+const defaultModel = DEFAULT_MODELS[provider];
+
+export const env = {
+  ...parsed.data,
+  LLM_PROVIDER: provider,
+  LLM_MODEL_GENERATION: parsed.data.LLM_MODEL_GENERATION || defaultModel,
+  LLM_MODEL_DIALOG: parsed.data.LLM_MODEL_DIALOG || defaultModel,
+  LLM_MODEL_JUDGE: parsed.data.LLM_MODEL_JUDGE || defaultModel,
+};
 export const isProd = env.NODE_ENV === 'production';
+
+/**
+ * Бюджет практического задания: рекомендацию модели не опускаем ниже потолка языка.
+ * Модель не знает, что в потолок сессии входит и повторно отправляемая история диалога,
+ * и советует 2–3 тыс. токенов — с таким бюджетом сессия обрывается на 1–2 ходу.
+ */
+export function practicalTokenBudget(recommended: number, language: string): number {
+  return Math.max(recommended, tokenCeilingFor(language));
+}
 
 /** Токен-потолок по языку (§5.6). */
 export function tokenCeilingFor(language: string): number {

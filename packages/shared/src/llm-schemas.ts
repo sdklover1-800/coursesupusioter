@@ -119,14 +119,31 @@ const optionalDifficulty = z.preprocess(
 // Числа иногда приходят строками — коэрсим.
 const coerceIntPositive = z.coerce.number().int().positive();
 
-export const practicalGenerationSchema: z.ZodType<PracticalGeneration, z.ZodTypeDef, unknown> = z.object({
-  student_facing_scenario: z.string().min(1),
-  reference_solution: z.string().min(1),
-  rubric: practicalRubricSchema,
-  recommended_token_budget: coerceIntPositive,
-  recommended_max_ai_messages: coerceIntPositive,
-  difficulty: optionalDifficulty,
-});
+// Модель иногда вкладывает рекомендации внутрь rubric (GPT-5.x) — поднимаем их на верхний уровень.
+const HOISTED_FROM_RUBRIC = ['recommended_token_budget', 'recommended_max_ai_messages', 'difficulty'] as const;
+const hoistFromRubric = (v: unknown): unknown => {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return v;
+  const obj = v as Record<string, unknown>;
+  const rubric = obj.rubric;
+  if (!rubric || typeof rubric !== 'object' || Array.isArray(rubric)) return v;
+  const out: Record<string, unknown> = { ...obj };
+  for (const k of HOISTED_FROM_RUBRIC) {
+    if (out[k] === undefined && (rubric as Record<string, unknown>)[k] !== undefined) out[k] = (rubric as Record<string, unknown>)[k];
+  }
+  return out;
+};
+
+export const practicalGenerationSchema: z.ZodType<PracticalGeneration, z.ZodTypeDef, unknown> = z.preprocess(
+  hoistFromRubric,
+  z.object({
+    student_facing_scenario: z.string().min(1),
+    reference_solution: z.string().min(1),
+    rubric: practicalRubricSchema,
+    recommended_token_budget: coerceIntPositive,
+    recommended_max_ai_messages: coerceIntPositive,
+    difficulty: optionalDifficulty,
+  }),
+);
 
 /* ── Приложение D: per-turn вывод сократического цикла ─────────── */
 

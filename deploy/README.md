@@ -91,9 +91,12 @@ EOF
 chmod 600 /root/.ssh/config
 
 ssh -T git@github.com   # должно поздороваться названием репозитория
-git clone git@github.com:sdklover1-800/coursesupusioter.git /opt/edu-platform
-cd /opt/edu-platform
+git clone git@github.com:sdklover1-800/coursesupusioter.git /root/coursesupusioter
+cd /root/coursesupusioter
 ```
+
+> Боевой стенд eduopen.kz запущен из `/root/coursesupusioter` (там же `.env.prod`).
+> Каталог `/opt/edu-platform` на сервере — старая неиспользуемая копия.
 
 ## 3. Конфигурация
 
@@ -173,7 +176,7 @@ unset ADMIN_PASSWORD
 git push
 
 # на сервере
-cd /opt/edu-platform
+cd /root/coursesupusioter
 git pull
 docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 ```

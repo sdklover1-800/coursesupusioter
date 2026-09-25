@@ -4,8 +4,16 @@
 контейнером. Все они **идемпотентны**: повторный запуск ничего не дублирует,
 существующие материалы, видео и прогресс студентов не трогаются.
 
-Каждый скрипт по умолчанию работает в режиме **предпросмотра** — пишет, что
-изменится, и ничего не меняет. Запись включает флаг `--apply`.
+Большинство скриптов по умолчанию работает в режиме **предпросмотра** — пишет,
+что изменится, и ничего не меняет. Запись включает флаг `--apply`.
+
+Репозиторий на сервере — `/root/coursesupusioter` (оттуда запущен compose).
+Команды ниже выполняются в этом каталоге; для краткости:
+
+```bash
+cd /root/coursesupusioter
+C="docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm -T -v /root/eduopen-content:/content:ro api"
+```
 
 ## 0. Файлы с контентом
 
@@ -18,69 +26,65 @@
 
 ```bash
 # с рабочей машины
-scp docs/media/lectures15.json docs/media/lecture-videos.csv root@89.35.124.197:/opt/eduopen/content/
+ssh root@89.35.124.197 'mkdir -p /root/eduopen-content'
+scp docs/media/lectures15.json docs/media/lecture-videos.csv root@89.35.124.197:/root/eduopen-content/
+# контейнер работает не от root — каталог должен читаться всеми
+ssh root@89.35.124.197 'chmod 755 /root/eduopen-content && chmod 644 /root/eduopen-content/*'
 ```
 
-## 1. Лекции 11–15 (разделы IV–V)
+## 1. Курс и лекции
 
-Добавляет модули и лекции в существующий курс, не пересоздавая его.
+**Пустая база** (первая загрузка) — создаёт курс сразу со всеми 15 лекциями
+в 5 разделах; итоговое практическое — в последнем разделе:
 
 ```bash
-cd /opt/eduopen
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm \
-  -v /opt/eduopen/content:/content:ro api \
-  node dist/scripts/add-lectures.js /content/lectures15.json --from 11          # предпросмотр
-# затем то же с --apply
+$C node dist/scripts/import-lectures.js /content/lectures15.json
+```
+
+**Курс уже есть с лекциями 1–10** — добавляет разделы IV–V, не пересоздавая курс,
+затем переносит итоговое практическое в последний модуль (id задания сохраняется,
+сессии студентов не рвутся; освободившийся модуль становится QUIZ):
+
+```bash
+$C node dist/scripts/add-lectures.js /content/lectures15.json --from 11          # предпросмотр, затем --apply
+$C node dist/scripts/move-final-practical.js                                     # предпросмотр, затем --apply
 ```
 
 ## 2. YouTube-ссылки
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm \
-  -v /opt/eduopen/content:/content:ro api \
-  node dist/scripts/set-lecture-videos.js /content/lecture-videos.csv --apply
+$C node dist/scripts/set-lecture-videos.js /content/lecture-videos.csv --apply
 ```
 
 Проверка: в конце печатает «Лекций всё ещё с заглушкой: 0».
 
-## 3. Чистка артефактов .docx (необязательно)
+## 3. Чистка артефактов .docx
 
 Убирает из расшифровок мусор исходников («Show more», служебные инструкции,
 иноязычные «хвосты»).
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
-  node dist/scripts/clean-transcripts.js --apply
+$C node dist/scripts/clean-transcripts.js            # предпросмотр
+$C node dist/scripts/clean-transcripts.js --apply
 ```
 
-## 3.5. Перенос итогового практического в последний модуль
+## 4. Генерация материалов (тесты, мини-квизы, практическое)
 
-Нужен один раз после добавления разделов IV–V: практическое «на весь курс»
-осталось в разделе III с тех пор, когда модулей было три. Скрипт переносит его
-в последний модуль, сохраняя id задания (сессии студентов не рвутся), а
-освободившийся модуль переводит в тип QUIZ.
-
-```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
-  node dist/scripts/move-final-practical.js            # предпросмотр
-# затем то же с --apply
-```
-
-## 4. Генерация материалов (тесты и мини-квизы)
-
-Одной командой — ставит задачи по всем языковым версиям и ждёт результата.
-Требует рабочий ключ провайдера LLM в `.env.prod` (`OPENAI_API_KEY` при `LLM_PROVIDER=openai`;
-проверка — `node dist/scripts/llm-ping.js`) и поднятый сервис `worker`.
+Одной командой — ставит задачи по всем языковым версиям и ждёт результата
+(~5 минут на весь курс). Требует рабочий ключ провайдера LLM в `.env.prod`
+(`OPENAI_API_KEY` при `LLM_PROVIDER=openai`) и поднятый сервис `worker`.
+Сначала проверьте ключ:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm api \
-  node dist/scripts/generate-materials.js --regen-practical
+$C node dist/scripts/llm-ping.js
+$C node dist/scripts/generate-materials.js --regen-practical
 ```
 
 Стратегия `KEEP`: догенерируется только недостающее, готовые материалы и ручные
 правки менеджера не затрагиваются (FR-7.5) — команду можно повторять.
-Флаг `--regen-practical` перегенерирует итоговое практическое (`OVERWRITE`),
-чтобы эталон охватывал все 15 лекций, а не только те, что были при первой генерации.
+Флаг `--regen-practical` генерирует итоговое практическое (`OVERWRITE`) — при первой
+загрузке он обязателен, иначе практического не будет. `--lang ru` ограничивает
+одной языковой версией — чтобы повторить упавшую задачу.
 
 <details>
 <summary>То же вручную через API</summary>
@@ -109,9 +113,11 @@ done
 ## 5. Публикация
 
 Публиковать можно только версию, где у каждой лекции есть видео и расшифровка,
-а у каждого модуля — готовое оценивание (валидация FR-2.9).
+а у каждого модуля — готовое оценивание (валидация FR-2.9, та же, что в API).
 
 ```bash
-curl -s -X POST https://eduopen.kz/api/language-versions/<id>/publish \
-  -H "Authorization: Bearer $TOKEN"
+$C node dist/scripts/publish-course.js            # что готово и что мешает
+$C node dist/scripts/publish-course.js --apply
 ```
+
+Через API (нужен пароль менеджера): `POST /api/language-versions/<id>/publish`.

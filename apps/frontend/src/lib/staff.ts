@@ -566,12 +566,12 @@ export interface QuizItemsResponse {
 }
 
 /** Анализ заданий; 403 (дашборд доступен только автору курса) → null без ошибки. */
-export function useQuizItems(quizId: string | undefined | null, enabled = true) {
+export function useQuizItems(quizId: string | undefined | null, enabled = true, includeArchived = false) {
   return useQuery({
-    queryKey: staffKeys.quizItems(quizId ?? ''),
+    queryKey: [...staffKeys.quizItems(quizId ?? ''), includeArchived ? 'archived' : 'active'] as const,
     queryFn: async () => {
       try {
-        return await api.get<QuizItemsResponse>(`/dashboards/quizzes/${quizId}/items`);
+        return await api.get<QuizItemsResponse>(`/dashboards/quizzes/${quizId}/items${includeArchived ? '?includeArchived=1' : ''}`);
       } catch (e) {
         if (e instanceof ApiError && (e.status === 403 || e.status === 404)) return null;
         throw e;

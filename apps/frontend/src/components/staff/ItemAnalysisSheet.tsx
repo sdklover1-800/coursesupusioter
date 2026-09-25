@@ -13,7 +13,8 @@ import { MetaChip, SampleSize } from './primitives';
  */
 export function ItemAnalysisSheet({ quizId, courseId, onClose }: { quizId: string | null; courseId: string | null; onClose: () => void }) {
   const { t } = useTranslation();
-  const items = useQuizItems(quizId);
+  // С архивом: ответы старых попыток относятся к заменённым вопросам банка
+  const items = useQuizItems(quizId, true, true);
   const edit = useQuizEdit(quizId ?? undefined, true);
   const byId = new Map((edit.data?.quiz.questions ?? []).map((q) => [q.id, q]));
   const data = items.data;
@@ -48,7 +49,7 @@ export function ItemAnalysisSheet({ quizId, courseId, onClose }: { quizId: strin
           </div>
           <p className="text-small text-fg-2">{t('dashboard.items.hint')}</p>
           <ol className="space-y-3">
-            {data.items.map((s, i) => {
+            {[...data.items].sort((a, b) => Number(a.archived) - Number(b.archived)).map((s, i) => {
               const q = byId.get(s.questionId);
               return (
                 <li key={s.questionId} className="rounded-xl border border-border p-4">
@@ -62,6 +63,7 @@ export function ItemAnalysisSheet({ quizId, courseId, onClose }: { quizId: strin
                     {s.canonicalKey && <span className="num text-small text-fg-2">{s.canonicalKey}</span>}
                     {s.openIssues > 0 && <MetaChip icon="flag" tone="danger">{t('manager.qe.reports', { count: s.openIssues })}</MetaChip>}
                     {s.reviewPending && <MetaChip icon="flag" tone="spark">{t('manager.qe.reviewPending')}</MetaChip>}
+                    {s.archived && <MetaChip icon="history" tone="muted">{t('manager.qe.archived')}</MetaChip>}
                   </div>
                   {s.n > 0 && (
                     <div className="mt-3 pl-5">

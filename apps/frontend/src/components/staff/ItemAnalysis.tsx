@@ -37,7 +37,7 @@ export function DistractorBar({ stat, options, correct }: { stat: ItemStatRow; o
   const total = stat.n || 1;
   const segments = [
     ...stat.optionCounts.map((c, i) => ({ key: `o${i}`, count: c, label: optionLetter(i), text: options[i] ?? '', isKey: correct.includes(i), fill: correct.includes(i) ? 'bg-teal' : DISTRACTOR_FILLS[i % DISTRACTOR_FILLS.length]! })),
-    ...(stat.unansweredCount > 0 ? [{ key: 'none', count: stat.unansweredCount, label: '—', text: t('manager.item.unanswered'), isKey: false, fill: 'bg-surface-2 bg-inquiry-grid' }] : []),
+    ...(stat.unansweredCount > 0 ? [{ key: 'none', count: stat.unansweredCount, label: '—', text: t('manager.item.unanswered'), isKey: false, fill: 'bg-fg-2/35' }] : []),
   ];
   return (
     <div>

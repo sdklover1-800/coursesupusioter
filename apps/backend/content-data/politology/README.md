@@ -1,0 +1,21 @@
+# Проверенные артефакты контента политологии (CONTENT-repair)
+
+Эти файлы — источник правды для фазы 2 контент-скриптов (`apps/backend/src/scripts/content`,
+порядок и команды — в его README). На проде скрипты применяют их `--from <файл>` без вызовов LLM.
+Каждый файл создан `--draft` (gpt-5.4-mini через BE4 generation/drafts), прочитан и поправлен
+человеком; правки рецензента перечислены в `meta.reviewEdits` / `meta.reviewNotes`.
+
+| Файл | Скрипт | Содержание |
+|---|---|---|
+| `kk-transcripts.v1.json` | kk-transcripts | kk-01: оригинал / исправленный текст / пометки по 7 разделам; kk-07: вставляемый раздел 3 «Авторитаризм» |
+| `graded-bank.v1.json` | graded-bank | канонический банк: `ru/kk/en → M1..M4 → 8 вопросов × 4 варианта`, общие `canonicalKey polit:M<i>:Q<n>`, гейты по языкам |
+| `canonical-practical.v1.json` | canonical-practical | «Полисия» `polisia-v1`: условие, эталон, рубрика (9 тезисов 1:1) на ru/kk/en |
+| `overlaps.v1.json` | overlaps | мини-квизы kk L1, kk L7, ru L2 целиком (+ замены пересечений с оцениваемыми — в этом прогоне их 0) |
+| `course-final.v1.json` | course-final | итоговый мини-квиз: 15 вопросов на язык, по одному на лекцию |
+| `rationales.v1.json` | rationales | обоснования вариантов для 126 старых вопросов мини-квизов (со снимком формулировки/вариантов/ключа) |
+| `summaries.v1.json` | summaries | краткие содержания 45 лекций |
+| `descriptions.v1.json` | descriptions | описания курса ru/kk/en — ЧЕРНОВИК, `meta.approved: false`, не применять до согласования |
+| `llm-spend.json` | все `--draft` | журнал расхода LLM на черновики |
+
+Источник вопроса хранится как позиция лекции (`source: {module, lecture, number}`), а не как id —
+файлы переносимы между стендами.

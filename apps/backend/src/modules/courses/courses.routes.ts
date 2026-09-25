@@ -8,6 +8,7 @@ import { extractYoutubeId } from '../../lib/youtube.js';
 import { audit } from '../../telemetry/events.js';
 import { enqueueGeneration } from '../../generation/enqueue.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
+import { publishCheckInclude, publishProblems } from './publishValidation.js';
 
 const langEnum = z.enum(LANGUAGES);
 const managerOnly = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
@@ -239,24 +240,11 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
   // POST /language-versions/:id/publish — публикация с валидацией (FR-2.9, FR-3.5).
   app.post('/language-versions/:id/publish', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
-    const version = await prisma.courseLanguageVersion.findUnique({
-      where: { id },
-      include: { modules: { include: { lectures: true, quiz: { include: { questions: true } }, practicalTask: true } } },
-    });
+    const version = await prisma.courseLanguageVersion.findUnique({ where: { id }, include: publishCheckInclude });
     if (!version) throw Errors.notFound('Версия не найдена');
 
     // Валидация перед публикацией (FR-2.9)
-    const problems: string[] = [];
-    if (version.modules.length === 0) problems.push('Нет модулей');
-    for (const m of version.modules) {
-      if (m.lectures.length === 0) problems.push(`Модуль «${m.title}»: нет лекций`);
-      for (const l of m.lectures) {
-        if (!l.youtubeVideoId) problems.push(`Лекция «${l.title}»: не задано видео`);
-        if (!l.transcriptText?.trim()) problems.push(`Лекция «${l.title}»: пустая расшифровка`);
-      }
-      if (m.assessmentType === 'QUIZ' && (!m.quiz || m.quiz.questions.length === 0)) problems.push(`Модуль «${m.title}»: нет готового теста`);
-      if (m.assessmentType === 'PRACTICAL' && !m.practicalTask) problems.push(`Модуль «${m.title}»: нет практического задания`);
-    }
+    const problems = publishProblems(version);
     if (problems.length > 0) throw Errors.validation('Версия не готова к публикации', { problems });
 
     const updated = await prisma.courseLanguageVersion.update({ where: { id }, data: { status: 'PUBLISHED', publishedAt: new Date() } });

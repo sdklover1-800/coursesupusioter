@@ -1,135 +1,170 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, ApiError } from '../../lib/api';
-import { Badge, Button, Card, toast } from '../../components/ui';
-import { PageHeader, EmptyState, ErrorState, LoadingRows } from '../../components/page';
-import type { Role } from '@edu/shared';
+import { clsx } from 'clsx';
+import { ApiError } from '../../lib/api';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import {
+  EXPORT_FILENAMES, EXPORT_TYPES, courseTitle, downloadExport, useAdminCohorts, useCourseOptions,
+  type ExportFilter, type ExportType,
+} from '../../lib/staffAdmin';
+import { Badge, Button, Card, Field, Icon, Input, Select, toast } from '../../components/ui';
+import { PageHeader } from '../../components/page';
+import { Notice, Th } from '../../components/staff/admin/bits';
+import { EXPORT_DICTIONARY } from '../../components/staff/admin/exportDictionary';
 
-/* Типы выгрузок исследовательских данных (FR-R.4). */
-const EXPORTS: { type: string; labelKey: string }[] = [
-  { type: 'events', labelKey: 'admin.exportEvents' },
-  { type: 'sessions', labelKey: 'admin.exportSessions' },
-  { type: 'rubric', labelKey: 'admin.exportRubric' },
-  { type: 'quiz_attempts', labelKey: 'admin.exportQuiz' },
-  { type: 'cohort_summary', labelKey: 'admin.exportCohorts' },
-];
+const EMPTY: ExportFilter = { courseId: '', cohortId: '', from: '', to: '' };
 
-interface AuditEntry {
-  id: string;
-  action: string;
-  createdAt: string;
-  actor: { name: string; email: string; role: Role };
-  targetType: string | null;
-  targetId: string | null;
-}
-
-/** Экспорт исследовательских данных в CSV + журнал аудита (FR-R.4, NFR-2.9). ADMIN. */
+/**
+ * Экспорт исследовательских данных в CSV (FR-R.4, FE5 §8). ADMIN.
+ * Фильтры (курс, когорта, период) уходят query-параметрами во все файлы; у каждого файла —
+ * словарь данных (столбцы в порядке CSV, новые столбцы 2.0 отмечены). Журнал аудита — на /admin/audit.
+ */
 export function ExportPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  useDocumentTitle(t('admin.export'));
+  const [filter, setFilter] = useState<ExportFilter>(EMPTY);
+  const courses = useCourseOptions();
+  const cohorts = useAdminCohorts();
+
+  const rangeInvalid = !!filter.from && !!filter.to && filter.from > filter.to;
+  const active = Object.values(filter).some(Boolean);
 
   const exportM = useMutation({
-    mutationFn: (type: string) => api.download(`/admin/export?type=${type}`, `${type}.csv`),
-    onError: (err) => toastError(err, t('errors.generic')),
-  });
-
-  const audit = useQuery({
-    queryKey: ['audit'],
-    queryFn: () => api.get<{ items: AuditEntry[] }>('/admin/audit?limit=100'),
+    mutationFn: (type: ExportType) => downloadExport(type, filter),
+    onSuccess: (_d, type) => toast(t('admin.exportPage.downloaded', { file: EXPORT_FILENAMES[type] }), 'teal'),
+    onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
   });
 
   return (
     <>
-      <PageHeader eyebrow="Research" title={t('nav.export')} subtitle={t('admin.export')} />
+      <PageHeader eyebrow={t('admin.eyebrow')} title={t('admin.export')} subtitle={t('admin.exportPage.subtitle')} />
 
-      {/* ── Секция экспорта ─────────────────────────────── */}
-      <section className="mb-10">
-        <Card className="mb-4 flex items-start gap-3 border-teal/30 !py-4">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-teal/15 text-teal">◈</span>
-          <p className="text-sm text-muted">{t('consent.point2')}</p>
-        </Card>
+      <Notice tone="brand" icon="lock" className="mb-6">
+        {t('admin.exportPage.privacy')}
+      </Notice>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {EXPORTS.map((e) => {
-            const busy = exportM.isPending && exportM.variables === e.type;
-            return (
-              <Card key={e.type} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">⤓</span>
-                  <div className="font-semibold">{t(e.labelKey)}</div>
+      {/* Фильтры — для всех файлов */}
+      <Card className="mb-6">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-fg">{t('admin.exportPage.filtersTitle')}</h2>
+            <p className="mt-0.5 text-body text-fg-2">{t('admin.exportPage.filtersHint')}</p>
+          </div>
+          {active && (
+            <Button variant="ghost" size="sm" onClick={() => setFilter(EMPTY)}>
+              {t('admin.resetFilters')}
+            </Button>
+          )}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Field label={t('admin.exportPage.course')}>
+            <Select value={filter.courseId} onChange={(e) => setFilter({ ...filter, courseId: e.target.value })}>
+              <option value="">{t('admin.exportPage.allCourses')}</option>
+              {(courses.data ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {courseTitle(c, i18n.language)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t('admin.cohort')}>
+            <Select value={filter.cohortId} onChange={(e) => setFilter({ ...filter, cohortId: e.target.value })}>
+              <option value="">{t('admin.exportPage.allCohorts')}</option>
+              {(cohorts.data?.items ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t('admin.from')}>
+            <Input type="date" value={filter.from} max={filter.to || undefined} onChange={(e) => setFilter({ ...filter, from: e.target.value })} />
+          </Field>
+          <Field label={t('admin.to')} hint={t('admin.exportPage.toHint')} error={rangeInvalid ? t('admin.rangeInvalid') : undefined}>
+            <Input type="date" value={filter.to} min={filter.from || undefined} onChange={(e) => setFilter({ ...filter, to: e.target.value })} />
+          </Field>
+        </div>
+      </Card>
+
+      {/* Файлы выгрузки со словарём данных */}
+      <ul className="space-y-4">
+        {EXPORT_TYPES.map((type) => {
+          const spec = EXPORT_DICTIONARY[type];
+          const busy = exportM.isPending && exportM.variables === type;
+          return (
+            <li key={type} className="card overflow-hidden">
+              <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:p-6">
+                <span className="hidden h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand sm:grid">
+                  <Icon name="file-text" size={20} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h2 className="text-title text-fg">{t(`admin.exportPage.types.${type}.title`)}</h2>
+                    {spec.newFile && <Badge tone="brand">{t('admin.exportPage.newFile')}</Badge>}
+                  </div>
+                  <p className="mt-1 max-w-[62ch] text-meta text-fg-2">
+                    {t('admin.exportPage.rowIs', { row: t(`admin.exportPage.types.${type}.row`) })}
+                  </p>
+                  <code className="mt-1.5 inline-block font-mono text-sm text-fg-2">{EXPORT_FILENAMES[type]}</code>
                 </div>
-                <code className="font-mono text-xs text-muted">{e.type}.csv</code>
                 <Button
                   variant="secondary"
-                  className="mt-auto w-full"
+                  className="shrink-0 sm:self-center"
                   loading={busy}
-                  disabled={exportM.isPending}
-                  onClick={() => exportM.mutate(e.type)}
+                  disabled={exportM.isPending || rangeInvalid}
+                  onClick={() => exportM.mutate(type)}
                 >
-                  {t('common.download')}
+                  {!busy && <Icon name="download" size={18} />}
+                  {t('admin.exportPage.download')}
                 </Button>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
+              </div>
 
-      {/* ── Секция аудита ───────────────────────────────── */}
-      <section>
-        <h2 className="mb-4 text-lg font-semibold">{t('admin.audit')}</h2>
-        {audit.isLoading ? (
-          <LoadingRows rows={6} />
-        ) : audit.isError ? (
-          <ErrorState message={(audit.error as ApiError)?.message ?? t('errors.generic')} />
-        ) : !audit.data?.items.length ? (
-          <EmptyState title={t('common.empty')} />
-        ) : (
-          <Card className="!p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted">
-                    <th className="px-5 py-3">{t('admin.actor')}</th>
-                    <th className="px-5 py-3">{t('admin.action')}</th>
-                    <th className="px-5 py-3">Объект</th>
-                    <th className="px-5 py-3">{t('admin.when')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {audit.data.items.map((a) => (
-                    <tr key={a.id} className="align-top hover:bg-brand-soft/40">
-                      <td className="px-5 py-3">
-                        <div className="font-semibold text-fg">{a.actor.name}</div>
-                        <div className="text-xs text-muted">{a.actor.email}</div>
-                        <Badge tone="muted" className="mt-1">{t(`roles.${a.actor.role}`)}</Badge>
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className="font-mono text-xs text-fg">{a.action}</span>
-                      </td>
-                      <td className="px-5 py-3">
-                        {a.targetType ? (
-                          <span className="font-mono text-xs text-muted">
-                            {a.targetType}
-                            {a.targetId ? ` · ${a.targetId}` : ''}
-                          </span>
-                        ) : (
-                          <span className="text-muted">—</span>
-                        )}
-                      </td>
-                      <td className="whitespace-nowrap px-5 py-3 font-mono text-xs tabular-nums text-muted">
-                        {new Date(a.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        )}
-      </section>
+              {/* Словарь данных — нативный аккордеон */}
+              <details className="group border-t border-border">
+                <summary className="flex min-h-[3rem] cursor-pointer list-none items-center gap-2 px-5 py-3 text-body font-semibold text-fg hover:bg-brand-soft/30 sm:px-6 [&::-webkit-details-marker]:hidden">
+                  <Icon name="chevron-down" size={18} className="text-fg-2 transition-transform group-open:rotate-180" />
+                  {t('admin.exportPage.dictionary')}
+                  <span className="font-normal text-fg-2">· {t('admin.exportPage.columns', { count: spec.columns.length })}</span>
+                </summary>
+                <div className="px-5 pb-5 sm:px-6">
+                  {spec.newFrom !== undefined && <p className="mb-3 max-w-[70ch] text-body text-fg-2">{t('admin.exportPage.appended')}</p>}
+                  <div className="overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full min-w-[560px] text-body">
+                      <thead className="border-b border-border bg-surface-2/60">
+                        <tr>
+                          <Th className="w-12">#</Th>
+                          <Th className="w-[20rem]">{t('admin.exportPage.colName')}</Th>
+                          <Th>{t('admin.exportPage.colMeaning')}</Th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {spec.columns.map(([col, key], i) => {
+                          const isNew = spec.newFrom !== undefined && i >= spec.newFrom;
+                          return (
+                            <tr key={col} className={clsx('align-top', isNew && 'bg-brand-soft/25')}>
+                              <td className="num px-4 py-2.5 text-fg-2">{i + 1}</td>
+                              <td className="px-4 py-2.5">
+                                <code className="break-all font-mono text-sm font-medium text-fg">{col}</code>
+                                {isNew && (
+                                  <Badge tone="brand" className="ml-2 align-middle">
+                                    {t('admin.exportPage.newCol')}
+                                  </Badge>
+                                )}
+                              </td>
+                              <td className="px-4 py-2.5 text-fg-2">{t(`admin.exportPage.cols.${key}`)}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
-}
-
-function toastError(err: unknown, fallback: string) {
-  toast(err instanceof ApiError ? err.message : fallback, 'danger');
 }

@@ -34,17 +34,19 @@ export const lecture = {
   meta: { video: 'Видео {{duration}}', reading: 'конспект ≈ {{min}} мин чтения' },
   contract: 'Чтобы лекция засчиталась: посмотрите видео или прочитайте конспект и отметьте «Пройдено»',
   contractDone: 'Лекция пройдена и засчитана в прогресс курса',
+  contractReading: 'Чтобы лекция засчиталась: прочитайте конспект и отметьте «Пройдено»',
 
   tabs: { label: 'Материалы лекции', transcript: 'Конспект', summary: 'Кратко', terms: 'Термины', miniQuiz: 'Мини-квиз' },
 
   readingMode: 'Видео появится позже — лекция доступна в режиме чтения',
   videoError: 'Видео не загрузилось. Проверьте соединение — конспект доступен ниже.',
-  player: 'Видеолекция',
+  player: 'Видеолекция', navBar: 'Навигация по лекции',
 
   outline: {
     title: 'Содержание курса', open: 'Содержание', collapse: 'Скрыть содержание', expand: 'Показать содержание',
     prevModule: 'Предыдущий модуль', nextModule: 'Следующий модуль', modules: 'Модули курса', allModules: 'Все модули',
     lecturesDone: 'Лекции: {{done}} из {{total}}',
+    moduleQuizN: 'Модульный тест {{roman}}',
     moduleQuiz: 'Модульный тест', practical: 'Итоговый практикум', miniQuiz: 'Мини-квиз',
   },
   questions_one: '{{count}} вопрос', questions_few: '{{count}} вопроса', questions_many: '{{count}} вопросов', questions_other: '{{count}} вопроса',

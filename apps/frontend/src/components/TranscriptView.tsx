@@ -40,6 +40,11 @@ export interface TranscriptViewProps {
   searchInputId?: string;
   /** Классы липкой панели поиска (смещение top и поля под контейнер страницы) */
   searchBarClassName?: string;
+  /** Доп. классы панели, пока поиск пуст (страница лекции: на мобильных не липнет — место под текст) */
+  searchBarIdleClassName?: string;
+  /** Мини-карта секций справа на xl (страница лекции). Выкл. по умолчанию: в листах/превью
+   *  ширина контейнера меньше окна, и колонка отняла бы место у текста */
+  minimap?: boolean;
   /** Режим чтения: оглавление — липкая колонка справа (lg+) вместо карточки */
   stickyToc?: boolean;
   /** Готовый разбор (страница уже разобрала текст для полосы разделов) */
@@ -56,7 +61,7 @@ type RangesByKey = Map<string, Range[]>;
 
 export function TranscriptView({
   text, currentTime, onSeek, follow = false, compact = false, query: queryProp, onQueryChange, searchInputId,
-  searchBarClassName, stickyToc = false, parsed: parsedProp,
+  searchBarClassName, searchBarIdleClassName, minimap = false, stickyToc = false, parsed: parsedProp,
 }: TranscriptViewProps) {
   const { t } = useTranslation();
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -191,7 +196,7 @@ export function TranscriptView({
   const tocItems = sections.filter((s) => s.heading || s.startSec !== null);
   const showTocCard = tocItems.length > 1;
   const [tocOpen, setTocOpen] = useState(!compact);
-  const showMinimap = !compact && timeline.length > 1;
+  const showMinimap = (minimap || stickyToc) && !compact && timeline.length > 1;
   const sectionTitle = (s: TranscriptSection) => s.heading ?? t('lecture.sectionN', { n: s.index + 1 });
   const bodySize = compact ? 'text-body-lg' : 'text-transcript';
 
@@ -199,7 +204,13 @@ export function TranscriptView({
     <div className={clsx(showMinimap && (stickyToc ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10' : 'xl:grid xl:grid-cols-[minmax(0,1fr)_13rem] xl:gap-10'))}>
       <article className="min-w-0">
         {/* Липкая панель поиска */}
-        <div className={clsx('sticky z-10 -mt-1 mb-6 bg-card/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/85', searchBarClassName ?? 'top-0')}>
+        <div
+          className={clsx(
+            'sticky z-10 -mt-1 mb-6 bg-card/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/85',
+            searchBarClassName ?? 'top-0',
+            query.trim().length < 2 && searchBarIdleClassName,
+          )}
+        >
           <TranscriptSearch
             query={query}
             onQueryChange={setQuery}
@@ -366,7 +377,7 @@ export function TranscriptView({
                           isActive ? 'w-6 bg-spark' : past ? 'w-4 bg-fg-2/50' : 'w-4 bg-border-strong',
                         )}
                       />
-                      <span className={clsx('line-clamp-2 text-small group-hover:text-fg', isActive ? 'font-semibold text-fg' : 'text-fg-2')}>
+                      <span className={clsx('line-clamp-2 text-sm group-hover:text-fg', isActive ? 'font-semibold text-fg' : 'text-fg-2')}>
                         {sectionTitle(s)}
                       </span>
                     </button>

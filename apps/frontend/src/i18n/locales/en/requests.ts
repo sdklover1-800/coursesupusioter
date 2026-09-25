@@ -35,4 +35,27 @@ export const requests: Loc<typeof ruRequests> = {
   cohortBulkManager: 'Only students without a cohort get it; requests from students in another cohort will be skipped.',
   cohortBulkAdmin: 'An assigned cohort can be changed only if the student is not taking other courses; otherwise the request is skipped.',
   skippedBulk: 'Not approved: {{count}} — their cohort can’t be changed. They remain selected: approve them without changing the cohort.',
+  // FE5 §10
+  eyebrow: 'Moderation', cohort: 'Cohort', requestedOn: 'Requested {{date}}',
+  tab: { PENDING: 'Pending', APPROVED: 'Approved', REJECTED: 'Declined', ALL: 'All' },
+  empty: { PENDING: 'No new requests', APPROVED: 'No approved requests', REJECTED: 'No declined requests', ALL: 'No requests yet' },
+  confirmCohort: {
+    title: 'Assign an experiment group?',
+    body: 'This student already has study data without a group ({{enrollments}} enrolments, {{attempts}} attempts). Assign the group “{{cohort}}”?',
+    bodyBulk_one: '{{count}} student already has study data without a group. Assign the group “{{cohort}}” and approve the request?',
+    bodyBulk_other: '{{count}} students already have study data without a group. Assign the group “{{cohort}}” and approve the requests?',
+    recorded: 'This will be recorded in the research log.',
+    confirm: 'Assign and approve',
+  },
+  skipped: {
+    title_one: '{{count}} request not approved', title_other: '{{count}} requests not approved',
+    approveConfirmed: 'Approve with confirmation ({{count}})',
+  },
+  skipReason: {
+    confirm: 'has study data without a group — the group assignment needs confirmation',
+    locked: 'groups are locked — an administrator changes the group',
+    inactive: 'account is deactivated',
+    forbidden: 'already in a group — only an administrator can change it',
+    conflict: 'studies in their group on another course — a change would distort the data',
+  },
 };

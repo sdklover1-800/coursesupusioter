@@ -67,7 +67,7 @@ export function EndOfLectureOverlay({
         <Icon name="x" size={20} />
       </button>
       <div className="w-full max-w-md text-center">
-        <span className="hidden rounded-full bg-white/10 px-2.5 py-0.5 text-small font-semibold text-white/90 sm:inline-block">
+        <span className="hidden rounded-full bg-white/10 px-2.5 py-0.5 text-sm font-semibold text-white/90 sm:inline-block">
           {t('lecture.lectureOf', { n: lectureNumber, total: lecturesTotal })}
         </span>
         <h2 id={titleId} className="text-body-lg font-semibold text-white sm:mt-2 sm:font-display sm:text-display-md">

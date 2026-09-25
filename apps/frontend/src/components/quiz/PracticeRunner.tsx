@@ -346,7 +346,7 @@ export function PracticeRunner(props: PracticeRunnerProps) {
       <h2 className="font-sans text-title tracking-normal">{t('quiz.practice.lockedTitle')}</h2>
       <p className="max-w-[62ch] text-body text-fg-2">{t('quiz.practice.locked')}</p>
       {lockedHref && (
-        <Link to={lockedHref} className={buttonClass('secondary', 'md')}>
+        <Link to={lockedHref} className={buttonClass('secondary', 'md', '!h-auto min-h-[2.75rem] py-2 text-center')}>
           {t('quiz.practice.lockedLink')}
         </Link>
       )}

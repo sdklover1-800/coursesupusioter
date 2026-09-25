@@ -17,8 +17,24 @@ const APPLY = process.argv.includes('--apply');
 const ARTIFACTS: RegExp[] = [
   /^\s*Show (more|less)\s*$/gim,
   /\bShow (more|less)\b/gi,
-  /^.*\bпереведи\s+на\s+(казахский|английский|русский)\b.*$/gim,
+  // \b в JS — только ASCII: у кириллицы границу слова задаём явно
+  /^.*(?<![\p{L}])переведи\s+на\s+(казахский|английский|русский)(?![\p{L}]).*$/gimu,
   /^.*\btranslate\s+(to|into)\s+\w+\b.*$/gim,
+  // Реплики чат-ассистента и сессии перевода, попавшие в расшифровки (CONTENT-repair 1a:
+  // en-01, en-02, ru-02, kk-02). Полный ремонт этих лекций — scripts/content/fix-transcripts.ts.
+  /^\s*этот же текст, также с хронометражем.*$/gimu,
+  /^\s*Orchestrated translation\b.*$/gim,
+  /^\s*Готово\s*[—–-]\s.*переведён.*$/gimu,
+  /^\s*Document\s*·\s*MD\s*$/gimu,
+  /^\s*отправь\s+(в\s+окно\s+диалога|текст\s+в\s+диалоговое\s+окно)\s*$/gimu,
+  /^\s*Resolved to deliver\b.*$/gim,
+  /^\s*Вот текст лекции\s.*$/gimu,
+  /^\s*Лекция\s+\d+\s+блот\s*\d+\s+kz\s*$/gimu,
+  /^\s*ЛЕКЦИЯ\s*№\s*\d+\s*-\s*казақша\s*$/gimu,
+  /^\s*Created a file, read a file\s*$/gim,
+  /^\s*Присылайте\s.*$/gimu,
+  /^\s*Recognized request to share\b.*$/gim,
+  /^\s*Конечно\s*[—–-]\s*вот\s.*$/gimu,
 ];
 
 const KK = /[әғқңөұүһі]/g;

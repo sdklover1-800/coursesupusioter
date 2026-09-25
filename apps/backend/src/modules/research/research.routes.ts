@@ -46,7 +46,17 @@ export async function researchRoutes(app: FastifyInstance): Promise<void> {
   app.patch('/admin/cohorts/:id', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const data = parse(z.object({ name: z.string().min(1).optional(), condition: z.string().min(1).optional(), description: z.string().optional() }), req.body);
+    const before = await prisma.cohort.findUnique({ where: { id } });
+    if (!before) throw Errors.notFound('Когорта не найдена');
+    if (data.name && data.name !== before.name && (await prisma.cohort.findUnique({ where: { name: data.name } }))) {
+      throw Errors.conflict('Когорта с таким именем уже есть');
+    }
     const cohort = await prisma.cohort.update({ where: { id }, data });
+    // Смена условия эксперимента меняет интерпретацию данных всех студентов когорты — в аудит с from/to (NFR-2.9)
+    await audit({
+      actorId: req.user!.id, action: 'COHORT_UPDATED', targetType: 'Cohort', targetId: id,
+      detail: { fields: Object.keys(data), ...(data.condition && data.condition !== before.condition ? { condition: { from: before.condition, to: data.condition } } : {}) },
+    });
     return { cohort };
   });
 

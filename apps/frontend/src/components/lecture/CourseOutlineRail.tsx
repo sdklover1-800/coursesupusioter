@@ -128,16 +128,21 @@ export function OutlineRows({
               <Link {...common} className={clsx(base, 'pl-3')}>
                 {bar}
                 <KindIcon kind="LECTURE" done={r.completed} size={24} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline gap-2">
-                    <span className="num shrink-0 text-fg-2">{r.number}</span>
-                    <span className={clsx('line-clamp-2 text-body', r.current ? 'font-semibold text-fg' : 'text-fg')}>{r.title}</span>
+                <span className="flex min-w-0 flex-1 items-baseline gap-2">
+                  <span className="num shrink-0 text-fg-2">{r.number}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className={clsx('line-clamp-3 text-body', r.current ? 'font-semibold text-fg' : 'text-fg')}>{r.title}</span>
+                    {/* Одна мета-строка под названием (§8): длительность и статус — название не теряет ширину */}
+                    {(r.durationSec || r.completed || r.inProgress) && (
+                      <span className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                        {r.durationSec ? <TimeChip seconds={r.durationSec} className="shrink-0" /> : null}
+                        {(r.completed || r.inProgress) && (
+                          <StatusIcon state={r.completed ? 'DONE' : 'IN_PROGRESS'} size={14} withLabel className="[&>span]:!text-sm [&>span]:!font-medium [&>span]:!text-fg-2" />
+                        )}
+                      </span>
+                    )}
                   </span>
-                  {(r.completed || r.inProgress) && (
-                    <StatusIcon state={r.completed ? 'DONE' : 'IN_PROGRESS'} size={14} withLabel className="mt-0.5 [&>span]:!font-medium [&>span]:!text-fg-2" />
-                  )}
                 </span>
-                {r.durationSec ? <TimeChip seconds={r.durationSec} className="shrink-0" /> : null}
               </Link>
             </li>
           );
@@ -168,9 +173,7 @@ export function OutlineRows({
                 {bar}
                 <KindIcon kind="MODULE_QUIZ" size={24} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-body font-medium text-fg">
-                    {t('lecture.outline.moduleQuiz')} {r.roman}
-                  </span>
+                  <span className="block text-body font-medium text-fg">{t('lecture.outline.moduleQuizN', { roman: r.roman })}</span>
                   <ModeBadge mode="graded" className="mt-1" />
                 </span>
                 <StatusIcon state={r.state} size={20} />
@@ -193,7 +196,7 @@ export function OutlineRows({
   );
 }
 
-/** Рельс справа от плеера (lg+): высота как у сцены, внутренняя прокрутка. */
+/** Рельс справа от плеера (xl+; на lg — лист OutlineSheet): высота как у сцены, внутренняя прокрутка. */
 export function CourseOutlineRail({
   modules, currentModuleId, onCollapse, className,
 }: {
@@ -254,7 +257,7 @@ export function CourseOutlineRail({
             <div className="line-clamp-2 text-body font-semibold leading-snug text-fg">
               <span className="font-display">{mod.roman}</span> · {mod.title}
             </div>
-            <div className="mt-0.5 text-small text-fg-2">{progressText}</div>
+            <div className="mt-0.5 text-sm text-fg-2">{progressText}</div>
           </div>
           <button
             type="button"

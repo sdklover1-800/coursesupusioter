@@ -10,6 +10,7 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, Icon, SegmentedControl, Skeleton, buttonClass } from '../../components/ui';
 import { EmptyState, ErrorState } from '../../components/page';
 import { StatusPill } from '../../components/enrollment';
+import { keepTogether } from '../../components/course/labels';
 
 type LangFilter = 'all' | (typeof LANGUAGES)[number];
 
@@ -53,9 +54,9 @@ export function CatalogPage() {
   return (
     <>
       {/* Hero: на ink — тёмная палитра токенов (fg-2 = #C4C5DA, ≥ 14px — §8) */}
-      <section data-theme="dark" className="relative mb-8 overflow-hidden rounded-2xl bg-ink px-5 py-8 text-fg sm:px-10 sm:py-10">
+      <section className="relative mb-8 overflow-hidden rounded-2xl bg-ink px-5 py-8 sm:px-10 sm:py-10">
         <div className="bg-inquiry-grid absolute inset-0 opacity-25" aria-hidden />
-        <div className="relative">
+        <div data-theme="dark" className="relative text-fg">
           <p className="eyebrow">{t('catalog.eyebrow')}</p>
           <h1 className="mt-2 max-w-2xl font-display text-display-xl">{t('catalog.title')}</h1>
           <p className="mt-3 max-w-[62ch] text-body-lg text-fg-2">{t('catalog.subtitle')}</p>
@@ -101,10 +102,12 @@ export function CatalogPage() {
           {langs.length > 1 && (
             <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="text-label font-semibold text-fg" id="catalog-lang-filter">{t('catalog.filterLabel')}</span>
-              <div className="-mx-4 max-w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:max-w-full sm:px-0">
+              {/* Телефон: сетка 2×2 (kk-подписи длиннее — ряд из четырёх не помещается в 390px), от sm — один ряд */}
+              <div className="w-full sm:w-auto">
                 <SegmentedControl<LangFilter>
                   ariaLabel={t('catalog.filterLabel')}
                   tone="brand"
+                  className="grid w-full grid-cols-2 !rounded-2xl sm:inline-flex sm:w-auto sm:!rounded-full"
                   value={filter}
                   onChange={setFilter}
                   options={[
@@ -155,7 +158,7 @@ function CourseCard({ course, enrollment, lang }: { course: CatalogItem; enrollm
   const meta = [
     t('course.count.modules', { count: v.moduleCount }),
     t('course.count.lectures', { count: v.lectureCount }),
-    v.durationSec ? formatDuration(v.durationSec, 'human') : null,
+    v.durationSec ? keepTogether(formatDuration(v.durationSec, 'human')) : null,
     v.hasCertificate ? t('catalog.metaCertificate') : null,
   ]
     .filter(Boolean)

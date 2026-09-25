@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +38,14 @@ export function QuizPage() {
   const lobbyQ = useQuizLobby(quizId, enrollmentId);
   const learnQ = useLearnView(courseId, enrollmentId);
   const ctx = useQuizContext(lobbyQ.data, learnQ.data);
+
+  // Смена экрана (лобби → попытка → результат, тренировка) — с начала страницы: путь тот же,
+  // меняются только параметры, и SPA сохранила бы прокрутку лобби («Начать попытку» внизу
+  // на мобильных) — навигатор и начало вопроса оказались бы под FocusBar.
+  const screenKey = `${quizId}|${runId ?? ''}|${attemptId ?? ''}|${practice ? (onlyGraded ? 'graded' : 'practice') : ''}`;
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [screenKey]);
 
   if (lobbyQ.error) return <ContentError error={lobbyQ.error} courseId={courseId} enrollmentId={enrollmentId} />;
   if (!lobbyQ.data) return <LoadingRows rows={4} />;

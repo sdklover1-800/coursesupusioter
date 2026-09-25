@@ -119,7 +119,7 @@ export const course = {
     quizzes: 'Модульные тесты',
     practical: 'Практикум',
     remaining: 'Осталось видео',
-    passed: 'сдан',
+    passed: 'Сдан',
   },
   certificate: {
     title: 'Сертификат',

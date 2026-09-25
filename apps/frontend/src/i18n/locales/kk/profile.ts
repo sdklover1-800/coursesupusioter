@@ -13,7 +13,7 @@ export const profile: Loc<typeof ruProfile> = {
   interfaceLanguage: 'Интерфейс тілі',
   interfaceLanguageHint: 'Курсты оқыту тілі курс бетінде өзгертіледі.',
   theme: 'Тақырып',
-  themeLight: 'Жарық', themeDark: 'Қараңғы', themeSystem: 'Жүйедегідей',
+  themeLight: 'Ашық', themeDark: 'Қараңғы', themeSystem: 'Жүйедегідей',
   a11y: 'Нашар көретіндерге арналған нұсқа',
   a11yHint: 'Қаріп үлкенірек, жиектер контрастты, анимациясыз.',
   password: 'Құпия сөзді өзгерту',

@@ -53,9 +53,10 @@ export function ProgressCard({
         </ProgressRing>
         <dl className="min-w-0 flex-1 space-y-1.5">
           {rows.map((r) => (
-            <div key={r.key} className="flex items-baseline justify-between gap-3">
-              <dt className="text-meta text-fg-2">{r.label}</dt>
-              <dd className="shrink-0 text-fg">{r.value}</dd>
+            // kk-значения длиннее («Тапсырылды»): при нехватке места значение переносится вправо, а не вылезает за карточку
+            <div key={r.key} className="flex flex-wrap items-baseline justify-between gap-x-3">
+              <dt className="min-w-0 text-meta text-fg-2">{r.label}</dt>
+              <dd className="ml-auto text-right text-fg">{r.value}</dd>
             </div>
           ))}
         </dl>
@@ -64,7 +65,7 @@ export function ProgressCard({
         <p className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-meta text-fg-2">
           <Icon name="clock" size={16} />
           <span>
-            {t('course.progress.remaining')} <span className="font-medium text-fg">{formatDuration(progress.remainingSec, 'human')}</span>
+            {t('course.progress.remaining')} <span className="whitespace-nowrap font-medium text-fg">{formatDuration(progress.remainingSec, 'human')}</span>
           </span>
         </p>
       )}

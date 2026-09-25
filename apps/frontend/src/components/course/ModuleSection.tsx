@@ -7,7 +7,7 @@ import { routes } from '../../lib/learn';
 import { useFormat } from '../../lib/format';
 import { Icon, KindIcon, ModeBadge, StatusIcon, TimeChip, type StatusState } from '../ui';
 import { ModuleQuizCard, NextTag, PracticalCard } from './AssessmentCards';
-import { cleanModuleTitle, cleanTitle, moduleCompleted, romanOf } from './labels';
+import { cleanModuleTitle, cleanTitle, keepTogether, moduleCompleted, romanOf } from './labels';
 
 /**
  * Модуль в программе курса (Yandex Practicum — липкая колонка модуля): слева (lg, sticky)
@@ -39,7 +39,7 @@ export function ModuleSection({
   const listId = `module-lectures-${m.id}`;
   const titleId = `module-title-${m.id}`;
   const state: StatusState = completed ? 'DONE' : done > 0 || current || m.state !== 'NOT_STARTED' ? 'IN_PROGRESS' : 'NOT_STARTED';
-  const meta = [t('course.count.lectures', { count: total }), m.durationSec ? formatDuration(m.durationSec, 'human') : null]
+  const meta = [t('course.count.lectures', { count: total }), m.durationSec ? keepTogether(formatDuration(m.durationSec, 'human')) : null]
     .filter(Boolean)
     .join(' · ');
 
@@ -146,7 +146,7 @@ function LectureRow({
       <div className="relative flex items-start gap-3 px-3 py-3 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-brand sm:px-4">
         {isNext && <span className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-spark" aria-hidden />}
         <KindIcon kind="LECTURE" size={24} done={l.completed} current={isNext} className="mt-0.5" />
-        <span className="num mt-0.5 w-9 shrink-0 text-fg-2" aria-hidden>
+        <span className="num mt-0.5 hidden w-9 shrink-0 text-fg-2 sm:inline" aria-hidden>
           {t('course.lectureNo', { n: l.lectureNumber })}
         </span>
         <div className="min-w-0 flex-1">
@@ -163,16 +163,22 @@ function LectureRow({
           </Link>
           {l.summary && <p className="mt-0.5 line-clamp-1 text-meta text-fg-2">{l.summary}</p>}
           {inProgress && <p className="mt-0.5 text-meta text-fg-2">{t('course.syllabus.resumeAt', { time: formatDuration(l.positionSec, 'clock') })}</p>}
+          {/* Телефон: номер, длительность и «Далее» — строкой под названием, чтобы не сжимать его */}
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 sm:hidden">
+            <span className="num text-fg-2" aria-hidden>{t('course.lectureNo', { n: l.lectureNumber })}</span>
+            {l.durationSec ? <TimeChip seconds={l.durationSec} /> : null}
+            {isNext && <span aria-hidden><NextTag /></span>}
+          </div>
         </div>
         {(isNext || l.durationSec) && (
-          <div className="flex shrink-0 flex-col items-end gap-1">
-            {isNext && <NextTag />}
+          <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
+            {isNext && <span aria-hidden><NextTag /></span>}
             {l.durationSec ? <TimeChip seconds={l.durationSec} /> : null}
           </div>
         )}
       </div>
       {l.miniQuizId && (
-        <div className="pb-2.5 pl-[3.75rem] pr-3 sm:pl-[4.25rem] sm:pr-4">
+        <div className="pb-2.5 pl-11 pr-3 sm:pl-[4.25rem] sm:pr-4">
           <Link
             to={routes.lecture(courseId, enrollmentId, l.id, { hash: 'mini-quiz' })}
             className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg px-2 py-1.5 text-meta text-fg-2 transition-colors hover:bg-brand-soft/50 hover:text-fg"

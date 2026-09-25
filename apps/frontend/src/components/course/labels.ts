@@ -227,14 +227,22 @@ export function totalDuration(modules: Pick<LearnModule, 'durationSec'>[]): numb
   return modules.length ? sum : null;
 }
 
-/** Оставшееся время паузы: «23 ч 41 мин» (без «≈»). Меньше минуты → null. */
+/**
+ * Неразрывные пробелы внутри короткой величины («≈ 5 ч 58 мин», «23 ч 41 мин»): в мета-строке
+ * длительность не должна рваться посередине (§8 — переносить можно, но не внутри значения).
+ */
+export function keepTogether(s: string): string {
+  return s.replace(/ /g, '\u00a0');
+}
+
+/** Оставшееся время паузы: «23 ч 41 мин» (без «≈», неразрывно). Меньше минуты → null. */
 export function humanLeft(ms: number, lng: string): string | null {
   const minutes = Math.ceil(ms / 60_000);
   if (minutes <= 1) return null;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   const u = lng === 'kk' ? { h: 'сағ', m: 'мин' } : lng === 'en' ? { h: 'h', m: 'min' } : { h: 'ч', m: 'мин' };
-  return [h > 0 ? `${h} ${u.h}` : '', m > 0 ? `${m} ${u.m}` : ''].filter(Boolean).join(' ');
+  return keepTogether([h > 0 ? `${h} ${u.h}` : '', m > 0 ? `${m} ${u.m}` : ''].filter(Boolean).join(' '));
 }
 
 /**

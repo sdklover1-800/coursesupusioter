@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { forwardRef, type KeyboardEvent, type ReactNode } from 'react';
+import { forwardRef, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../icons';
 
@@ -122,7 +122,7 @@ function TileBody({ text, rationale, tags }: { text: string; rationale?: string 
           ))}
         </span>
       )}
-      {rationale && <span className="mt-1.5 block text-sm leading-[1.5] text-fg-2">{rationale}</span>}
+      {rationale && <span className="mt-1.5 block text-body text-fg-2">{rationale}</span>}
     </span>
   );
 }
@@ -164,12 +164,3 @@ export const OptionTile = forwardRef<HTMLButtonElement, OptionTileProps>(functio
     </button>
   );
 });
-
-/** Вложенный слот под списком вариантов (строка инструкции и т.п.). */
-export function OptionInstruction({ id, children }: { id?: string; children: ReactNode }) {
-  return (
-    <p id={id} className="mt-1.5 text-body text-fg-2">
-      {children}
-    </p>
-  );
-}

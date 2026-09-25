@@ -12,7 +12,7 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { formatDuration } from '../../lib/format';
 import { activeSectionAt, parseTranscript, readingMinutes, type TranscriptSection } from '../../lib/transcript';
 import { YT_STATE } from '../../lib/youtube';
-import { Breadcrumb, toast } from '../../components/ui';
+import { Breadcrumb, Kbd, toast } from '../../components/ui';
 import { Icon } from '../../components/icons';
 import { LoadingRows } from '../../components/page';
 import { ContentError } from '../../components/enrollment';
@@ -109,6 +109,9 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
   const parsed = useMemo(() => parseTranscript(lecture.transcriptText), [lecture.transcriptText]);
   const timeline = useMemo(() => parsed.sections.filter((s) => s.onTimeline), [parsed]);
   const isLg = useMediaQuery('(min-width: 1024px)');
+  // Рельс содержания — с xl: на lg боковое меню оболочки (248px) оставляет ~710px, и плеер
+  // рядом с рельсом 340px сжался бы до ~350px. На lg «Содержание» открывает лист.
+  const isXl = useMediaQuery('(min-width: 1280px)');
 
   /* ── Точка старта: ?t= или сохранённая позиция (> 30 с и не у самого конца), A14 ── */
   const start = useRef<{ sec: number; resumed: boolean } | null>(null);
@@ -259,7 +262,7 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
     writeFlag(OUTLINE_KEY, v);
   };
   const onOutlineButton = () => {
-    if (isLg && !readingMode) setCollapsed(false);
+    if (isXl && !readingMode) setCollapsed(false);
     else setSheetOpen(true);
   };
 
@@ -271,8 +274,21 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
       if (isTypingTarget(e.target)) return;
-      if (e.target instanceof Element && e.target.closest('[role="dialog"][aria-modal="true"], [role="menu"]')) return;
+      // Диалоги, меню и мини-квиз (у него свои клавиши; N не должна уводить из начатой тренировки)
+      if (e.target instanceof Element && e.target.closest('[role="dialog"][aria-modal="true"], [role="menu"], #mini-quiz')) return;
       const a = keyActions.current;
+      // «/» и «?»: и по символу (любая раскладка), и по физической клавише
+      if (e.key === '?' || (e.code === 'Slash' && e.shiftKey)) {
+        e.preventDefault();
+        setHelpOpen((o) => !o);
+        return;
+      }
+      if (e.key === '/' || (e.code === 'Slash' && !e.shiftKey)) {
+        e.preventDefault();
+        setTab('transcript');
+        window.requestAnimationFrame(() => document.getElementById(SEARCH_INPUT_ID)?.focus());
+        return;
+      }
       // e.code — физическая клавиша: работает и в русской/казахской раскладке
       switch (e.code) {
         case 'KeyK':
@@ -295,15 +311,6 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
           e.preventDefault();
           a.goNext();
           break;
-        case 'Slash':
-          e.preventDefault();
-          if (e.shiftKey) {
-            setHelpOpen((o) => !o);
-            break;
-          }
-          setTab('transcript');
-          window.requestAnimationFrame(() => document.getElementById(SEARCH_INPUT_ID)?.focus());
-          break;
         default:
           break;
       }
@@ -314,10 +321,14 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
 
   /* ── Мета: «Видео ≈ 22 мин · конспект ≈ 11 мин чтения» ── */
   const durationSec = lecture.durationSec ?? (player.duration > 0 ? player.duration : null);
+  // Полоса разделов — по реальной длине ролика (durationSec в БД может быть номинальным)
+  const stripDuration = player.duration > 0 ? player.duration : lecture.durationSec ?? 0;
   const metaParts = [
     !readingMode && durationSec ? t('lecture.meta.video', { duration: formatDuration(durationSec, 'human', i18n.language) }) : null,
     parsed.wordCount > 0 ? t('lecture.meta.reading', { min: readingMinutes(parsed.wordCount) }) : null,
   ].filter(Boolean);
+  // Без видео строка начинается со второй части («конспект ≈ …») — первая буква заглавная
+  const metaText = metaParts.join(' · ').replace(/^\p{Ll}/u, (c) => c.toUpperCase());
   const roman = moduleRoman(lecture.module.orderIndex);
 
   const crumbs = [
@@ -353,7 +364,7 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
           readingMode ? 'px-4 py-4' : 'max-sm:sticky max-sm:top-[env(safe-area-inset-top,0px)] max-sm:z-[35]',
         )}
       >
-        <div className={clsx(railOpen && 'lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6')}>
+        <div className={clsx(railOpen && 'xl:grid xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-6')}>
           <div className="min-w-0">
             {readingMode ? (
               <ReadingModeBanner />
@@ -384,8 +395,8 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
             )}
             {!readingMode && timeline.length > 1 && (
               <>
-                <ChapterStrip sections={timeline} duration={durationSec ?? 0} currentTime={player.currentTime} onSeek={seek} className="mt-3 hidden sm:flex" />
-                <ChapterStrip sections={timeline} duration={durationSec ?? 0} currentTime={player.currentTime} onSeek={seek} variant="mobile" className="sm:hidden" />
+                <ChapterStrip sections={timeline} duration={stripDuration} currentTime={player.currentTime} onSeek={seek} className="mt-3 hidden sm:flex" />
+                <ChapterStrip sections={timeline} duration={stripDuration} currentTime={player.currentTime} onSeek={seek} variant="mobile" className="sm:hidden" />
               </>
             )}
             <LectureActionBar
@@ -398,15 +409,14 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
               activeSection={active}
               onSeekSection={seekSection}
               next={nextTarget}
-              outline={{ onClick: onOutlineButton, expanded: sheetOpen, className: railOpen ? 'lg:hidden' : undefined }}
-              onHelp={readingMode ? undefined : () => setHelpOpen(true)}
+              outline={{ onClick: onOutlineButton, expanded: sheetOpen, className: railOpen ? 'xl:hidden' : undefined }}
               wide={!railOpen}
             />
           </div>
           {railOpen && (
-            <div className="relative hidden min-h-0 lg:block">
+            <div className="relative hidden min-h-0 xl:block">
               <CourseOutlineRail
-                className="lg:absolute lg:inset-0"
+                className="xl:absolute xl:inset-0"
                 modules={outline}
                 currentModuleId={lecture.module.id}
                 onCollapse={() => setCollapsed(true)}
@@ -423,8 +433,20 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
         </div>
         <h1 className="mt-1 text-display-lg text-fg">{displayTitle}</h1>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          {metaParts.length > 0 && <p className="text-meta text-fg-2">{metaParts.join(' · ')}</p>}
-          <ReportIssueButton targetType="LECTURE" targetId={lecture.id} context="LECTURE" enrollmentId={enrollmentId} compact />
+          {metaText && <p className="text-meta text-fg-2">{metaText}</p>}
+          <div className="flex items-center gap-1">
+            {!readingMode && (
+              <button
+                type="button"
+                onClick={() => setHelpOpen(true)}
+                className="hidden h-9 items-center gap-2 rounded-lg px-2 text-sm text-fg-2 transition-colors hover:bg-brand-soft/60 hover:text-fg lg:inline-flex"
+              >
+                <Kbd>?</Kbd>
+                {t('lecture.keys.open')}
+              </button>
+            )}
+            <ReportIssueButton targetType="LECTURE" targetId={lecture.id} context="LECTURE" enrollmentId={enrollmentId} compact />
+          </div>
         </div>
         <div
           className={clsx(
@@ -433,7 +455,7 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
           )}
         >
           <Icon name={completedNow ? 'check' : 'info'} size={18} className="mt-0.5" />
-          <p>{completedNow ? t('lecture.contractDone') : t('lecture.contract')}</p>
+          <p>{completedNow ? t('lecture.contractDone') : readingMode ? t('lecture.contractReading') : t('lecture.contract')}</p>
         </div>
 
         <div className="mt-6">
@@ -455,6 +477,8 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
                     onQueryChange={setQuery}
                     searchInputId={SEARCH_INPUT_ID}
                     searchBarClassName={clsx('-mx-5 px-5 sm:-mx-8 sm:px-8', transcriptTop)}
+                    searchBarIdleClassName="max-sm:static"
+                    minimap
                     stickyToc={readingMode}
                   />
                 </div>
@@ -490,9 +514,10 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
         </div>
       </div>
 
-      {/* Мобильная нижняя панель: [‹] [☰ II · 2/3] [✓] [Далее ›] — поверх панели вкладок оболочки */}
+      {/* Мобильная нижняя панель: [‹] [☰ II · 2/3] [✓] [Далее ›] — поверх панели вкладок оболочки.
+          Высота 64px (а не 56): панель вкладок оболочки — h-16, иначе её край выглядывает сверху */}
       <nav
-        aria-label={t('lecture.player')}
+        aria-label={t('lecture.navBar')}
         className="fixed inset-x-0 bottom-0 z-[35] border-t border-border bg-card pb-[env(safe-area-inset-bottom,0px)] sm:hidden"
       >
         <div className="grid h-16 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem_minmax(0,1.3fr)] items-center gap-2 px-3">

@@ -7,7 +7,7 @@ import { api, ApiError } from '../../lib/api';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, Icon, Input, Spinner } from '../../components/ui';
-import { languageName } from '../../components/course/labels';
+import { cleanModuleTitle, languageName, romanOf } from '../../components/course/labels';
 
 /** Номер как на сертификате: без пробелов, верхним регистром (сервер регистр не различает). */
 const normalize = (s: string) => s.replace(/\s+/g, '').toUpperCase();
@@ -153,8 +153,13 @@ function ValidResult({ result: r }: { result: Extract<VerifyResult, { valid: tru
           <div className="grid gap-1 py-3 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4">
             <dt className="text-meta text-fg-2">{t('verify.modules')}</dt>
             <dd>
-              <ol className="list-decimal space-y-1 pl-5 text-body text-fg marker:text-fg-2" lang={r.language}>
-                {r.moduleTitles.map((m, i) => <li key={`${i}-${m}`}>{m}</li>)}
+              <ol className="space-y-1.5 text-body text-fg" lang={r.language}>
+                {r.moduleTitles.map((m, i) => (
+                  <li key={`${i}-${m}`} className="flex gap-2">
+                    <span className="w-7 shrink-0 font-display font-semibold text-fg-2">{romanOf(i)}</span>
+                    <span className="min-w-0">{cleanModuleTitle(m)}</span>
+                  </li>
+                ))}
               </ol>
             </dd>
           </div>

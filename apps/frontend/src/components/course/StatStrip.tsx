@@ -25,7 +25,7 @@ export function StatStrip({ cells, className, tone = 'light' }: { cells: StatCel
       )}
     >
       {cells.map((c) => (
-        <div key={c.key} className={clsx('flex min-w-0 flex-col gap-1 px-4 py-3', tone === 'dark' ? 'bg-ink' : 'bg-card')}>
+        <div key={c.key} className={clsx('flex min-w-0 flex-col gap-1 px-4 py-3 odd:last:col-span-2 sm:odd:last:col-span-1', tone === 'dark' ? 'bg-[rgb(22,24,43)]' : 'bg-card')}>
           {/* Для скринридера подпись идёт первой, визуально — значение сверху */}
           <dt className="order-2 text-label text-fg-2">{c.label}</dt>
           <dd className="order-1 font-display text-display-md tabular-nums text-fg">{c.value}</dd>

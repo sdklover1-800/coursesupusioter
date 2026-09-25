@@ -21,7 +21,7 @@ export interface NavTarget {
  * «Далее» — рекомендация: порядок изучения свободный (USER_DECISIONS §3).
  */
 export function LectureActionBar({
-  prev, completed, completing, onComplete, sections, activeSection, onSeekSection, next, outline, onHelp, wide, className,
+  prev, completed, completing, onComplete, sections, activeSection, onSeekSection, next, outline, wide, className,
 }: {
   prev: NavTarget | null;
   completed: boolean;
@@ -34,7 +34,6 @@ export function LectureActionBar({
   next: NavTarget;
   /** Кнопка «Содержание» (лист на планшете, раскрыть свёрнутый рельс на десктопе) */
   outline?: { onClick: () => void; expanded?: boolean; className?: string };
-  onHelp?: () => void;
   /** Сцена без рельса (или очень широкий экран): в «пилюле» помещается название раздела */
   wide?: boolean;
   className?: string;
@@ -76,7 +75,7 @@ export function LectureActionBar({
               <span className="shrink-0 text-fg-2">
                 {t('lecture.chapterWord')} <span className="num">{k}/{timed.length}</span>
               </span>
-              <span className={clsx('truncate', wide ? 'hidden lg:inline' : 'hidden 2xl:inline')}>{chapterHeading}</span>
+              <span className={clsx('truncate', wide ? 'hidden xl:inline' : 'hidden 2xl:inline')}>{chapterHeading}</span>
               <Icon name="chevron-down" size={16} className="shrink-0 text-fg-2" />
             </span>
           }
@@ -97,17 +96,6 @@ export function LectureActionBar({
       )}
 
       <div className="ml-auto flex items-center gap-2">
-        {onHelp && (
-          <button
-            type="button"
-            onClick={onHelp}
-            aria-label={t('lecture.keys.open')}
-            title={t('lecture.keys.open')}
-            className="hidden h-9 w-9 place-items-center rounded-xl text-fg-2 transition-colors hover:bg-white/10 hover:text-fg lg:grid"
-          >
-            <span className="num text-base">?</span>
-          </button>
-        )}
         {outline && (
           <Button variant="secondary" size="sm" onClick={outline.onClick} aria-expanded={outline.expanded} className={clsx('px-3', outline.className)}>
             <Icon name="menu" size={18} />

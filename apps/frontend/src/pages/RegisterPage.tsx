@@ -95,7 +95,7 @@ export function RegisterPage() {
       <p className="mt-1 text-body text-fg-2 lg:hidden">{t('register.subtitle')}</p>
 
       {/* Ошибка сервера — в заранее зарезервированном месте: появление не сдвигает поля */}
-      <div className="flex min-h-[4.25rem] items-center py-2" aria-live="assertive">
+      <div className="mb-3 mt-4 flex min-h-[2.875rem] items-center" aria-live="assertive">
         {serverError && (
           <div id="register-error" role="alert" className="flex w-full items-start gap-2 rounded-xl border border-danger/30 bg-danger/8 px-4 py-2.5 text-body font-medium text-danger-ink">
             <Icon name="alert" size={18} className="mt-0.5 shrink-0" />

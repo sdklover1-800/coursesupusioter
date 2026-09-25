@@ -40,7 +40,8 @@ export function ChapterStrip({
         const isCurrent = currentTime >= start && currentTime < end;
         const time = formatDuration(start, 'clock', i18n.language);
         const heading = s.heading ?? t('lecture.sectionN', { n: s.index + 1 });
-        const edge = i === 0 ? 'left-0' : i === timed.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2';
+        // Подсказка растёт от края сегмента внутрь полосы — не вылезает за сцену (и за окно на планшете)
+        const edge = (start + end) / 2 < total / 2 ? 'left-0' : 'right-0';
         return (
           <button
             key={s.index}
@@ -67,7 +68,8 @@ export function ChapterStrip({
               <span
                 role="tooltip"
                 className={clsx(
-                  'pointer-events-none absolute bottom-full z-10 mb-1.5 max-w-[20rem] truncate whitespace-nowrap rounded-md bg-card px-2 py-1 text-small text-fg opacity-0 shadow-float transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100',
+                  // Скрыта через display (не opacity): невидимая подсказка не должна расширять страницу
+                  'pointer-events-none absolute bottom-full z-10 mb-1.5 hidden max-w-[20rem] truncate whitespace-nowrap rounded-md bg-card px-2 py-1 text-sm text-fg shadow-float ring-1 ring-white/15 group-hover:block group-focus-visible:block',
                   edge,
                 )}
               >

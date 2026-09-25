@@ -32,17 +32,19 @@ export const lecture: Loc<typeof ruLecture> = {
   meta: { video: 'Video {{duration}}', reading: 'notes ≈ {{min}} min read' },
   contract: 'For the lecture to count: watch the video or read the notes, then mark it “Completed”',
   contractDone: 'Lecture completed and counted towards your course progress',
+  contractReading: 'For the lecture to count: read the notes, then mark it “Completed”',
 
   tabs: { label: 'Lecture materials', transcript: 'Notes', summary: 'Summary', terms: 'Terms', miniQuiz: 'Mini-quiz' },
 
   readingMode: 'The video will be added later — the lecture is available in reading mode',
   videoError: 'The video did not load. Check your connection — the notes are available below.',
-  player: 'Video lecture',
+  player: 'Video lecture', navBar: 'Lecture navigation',
 
   outline: {
     title: 'Course contents', open: 'Contents', collapse: 'Hide contents', expand: 'Show contents',
     prevModule: 'Previous module', nextModule: 'Next module', modules: 'Course modules', allModules: 'All modules',
     lecturesDone: 'Lectures: {{done}} of {{total}}',
+    moduleQuizN: 'Module test {{roman}}',
     moduleQuiz: 'Module test', practical: 'Final practical', miniQuiz: 'Mini-quiz',
   },
   questions_one: '{{count}} question', questions_other: '{{count}} questions',

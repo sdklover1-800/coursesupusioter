@@ -40,7 +40,7 @@ export function TranscriptSearch({
 
   return (
     <div role="search" className={clsx('flex flex-wrap items-center gap-x-3 gap-y-2', className)}>
-      <div className="relative min-w-0 flex-1 basis-56">
+      <div className="relative min-w-0 flex-1 basis-40">
         <Icon name="search" size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-2" />
         <input
           id={inputId}
@@ -67,12 +67,8 @@ export function TranscriptSearch({
       </div>
       {active && (
         <div className="flex shrink-0 items-center gap-1">
-          <span className="min-w-[4.5rem] text-center text-sm text-fg-2" aria-live="polite">
-            {total > 0 ? (
-              <span className="num">{t('lecture.search.count', { current: current + 1, total })}</span>
-            ) : (
-              t('lecture.search.none')
-            )}
+          <span className="min-w-[3.5rem] text-center text-sm text-fg-2" aria-live="polite">
+            {total > 0 ? <NumText text={t('lecture.search.count', { current: current + 1, total })} /> : t('lecture.search.none')}
           </span>
           <button
             type="button"
@@ -99,6 +95,24 @@ export function TranscriptSearch({
   );
 }
 
+/** Числа в строке — моноширинные (.num), слова — Onest (§12 «читаемость»): «3 из 12». */
+export function NumText({ text }: { text: string }) {
+  const parts = text.split(/(\d+(?:[:/.]\d+)*)/);
+  return (
+    <>
+      {parts.map((p, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className="num">
+            {p}
+          </span>
+        ) : (
+          p
+        ),
+      )}
+    </>
+  );
+}
+
 /** Переключатель «Следить за видео» (role=switch). */
 export function FollowToggle({ on, onChange, className }: { on: boolean; onChange: (v: boolean) => void; className?: string }) {
   const { t } = useTranslation();
@@ -111,7 +125,7 @@ export function FollowToggle({ on, onChange, className }: { on: boolean; onChang
       className={clsx('inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-2 text-sm font-medium text-fg-2 transition-colors hover:text-fg', className)}
     >
       <span className={clsx('relative inline-block h-5 w-9 rounded-full transition-colors', on ? 'bg-brand-fill' : 'bg-border-strong')} aria-hidden>
-        <span className={clsx('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', on ? 'translate-x-[1.125rem]' : 'translate-x-0.5')} />
+        <span className={clsx('absolute left-0 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', on ? 'translate-x-[1.125rem]' : 'translate-x-0.5')} />
       </span>
       {t('lecture.follow')}
     </button>

@@ -32,7 +32,7 @@ export function ReviewItem({
   return (
     <article id={`q-${index}`} aria-labelledby={promptId} className="card scroll-mt-40 p-4 sm:p-6">
       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-label tabular-nums text-fg-2">{t('quiz.question')} {index}</span>
+        <span className="text-label text-fg-2">{t('quiz.question')} {index}</span>
         <span className={clsx('inline-flex items-center gap-1 text-label font-semibold', item.isCorrect ? 'text-teal-ink' : 'text-danger-ink')}>
           <Icon name={item.isCorrect ? 'check' : 'x'} size={15} strokeWidth={2.5} />
           {item.isCorrect ? t('quiz.review.itemCorrect') : t('quiz.review.itemWrong')}
@@ -63,7 +63,7 @@ export function ReviewItem({
       {item.explanation && (
         <div className="mt-4 rounded-xl bg-surface-2 px-4 py-3">
           <div className="text-label font-semibold text-fg">{t('quiz.review.why')}</div>
-          <p className="mt-1 text-sm leading-[1.6] text-fg/80">{item.explanation}</p>
+          <p className="mt-1 text-body leading-[1.6] text-fg-2">{item.explanation}</p>
         </div>
       )}
 
@@ -71,7 +71,7 @@ export function ReviewItem({
         {src ? (
           <Link
             to={routes.lecture(courseId, enrollmentId, src.lectureId, { t: src.seconds ?? undefined })}
-            className="inline-flex min-h-[2.25rem] items-center gap-1.5 rounded-lg text-sm font-medium text-brand hover:underline"
+            className="inline-flex min-h-[2.25rem] items-center gap-1.5 rounded-lg text-body font-medium text-brand hover:underline"
           >
             <Icon name="play" size={14} fill="currentColor" />
             <span>

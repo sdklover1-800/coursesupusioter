@@ -15,7 +15,7 @@ import { LinkButton, LockIcon, StatusPill } from '../../components/enrollment';
 import { ResumeHero } from '../../components/course/ResumeHero';
 import { ProgressCard } from '../../components/course/ProgressCard';
 import { CertificateCard } from '../../components/course/CertificateCard';
-import { languageName } from '../../components/course/labels';
+import { keepTogether, languageName } from '../../components/course/labels';
 
 /**
  * Главная студента (screen_specs «Student dashboard»): приветствие; герой «Продолжить»
@@ -166,7 +166,7 @@ function MyCourseCard({ e }: { e: MyEnrollment }) {
     languageName(t, e.languageVersion.language),
     counts ? t('course.count.modules', { count: counts.modules }) : null,
     counts ? t('course.count.lectures', { count: counts.lectures }) : null,
-    counts?.durationSec ? formatDuration(counts.durationSec, 'human') : null,
+    counts?.durationSec ? keepTogether(formatDuration(counts.durationSec, 'human')) : null,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -243,7 +243,8 @@ function RequestCard({ e }: { e: MyEnrollment }) {
 
   return (
     <Card className={clsx('flex flex-col !p-5', pending && 'border-spark/40')}>
-      <div className="flex items-start justify-between gap-3">
+      {/* Телефон: статус над названием — узкая колонка рядом с плашкой рвала бы название на 3–4 строки */}
+      <div className="flex flex-col-reverse items-start gap-2 sm:flex-row sm:justify-between sm:gap-3">
         <h3 className="min-w-0 text-title" lang={e.languageVersion.language}>
           <Link to={`/catalog/${e.courseId}`} className="rounded hover:text-brand">{e.languageVersion.title}</Link>
         </h3>

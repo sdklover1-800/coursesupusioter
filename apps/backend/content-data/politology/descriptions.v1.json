@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "version": 1,
+    "createdAt": "2026-09-25T18:36:54.129Z",
+    "llm": {
+      "calls": 3,
+      "inputTokens": 5950,
+      "outputTokens": 842,
+      "costUsd": 0.0082515
+    },
+    "approved": false,
+    "warnings": [],
+    "reviewEdits": [
+      "kk: результаты обучения переписаны рецензентом — в черновике глагол стоял в начале фразы («Түсіндіресіз саясаттанудың…», калька порядка слов) и «Анализдейсіз»; теперь SOV и «талдай аласыз»"
+    ]
+  },
+  "ru": "Курс знакомит с основными понятиями, теориями и методами политологии, а также с её местом среди смежных общественных наук. В нём рассматриваются история политической мысли, природа власти, государство, политические режимы, партии, группы интересов, политическая культура и лидерство. Отдельное внимание уделяется политическим конфликтам, кризисам, электоральным процессам, анализу и прогнозированию, а также базовым подходам к мировой политике и международным отношениям. Курс предназначен для тех, кто хочет получить систематическое представление о том, как устроены политические институты, как функционируют политические процессы и какими методами они изучаются.\n\nРезультаты обучения:\n• Объяснять объект, предмет и методы политологии.\n• Сопоставлять основные политические учения и современные теоретические школы.\n• Анализировать природу власти, легитимность и функции государства.\n• Различать политические режимы, партии, группы интересов и модели представительства.\n• Оценивать политическую культуру, социализацию, лидерство и элиты.\n• Применять базовые методы политического анализа и прогнозирования.\n\n15 лекций · ≈ 5,5 ч видео · 4 теста по разделам · итоговое практическое задание с ИИ-тьютором · сертификат",
+  "kk": "Бұл курс саясаттану ғылымының негізгі ұғымдарын, зерттеу нысандарын және әдіснамалық тәсілдерін таныстырады. Сіз саяси ілімдердің тарихи дамуын, билік пен саяси жүйенің құрылымын, мемлекет пен саяси режимдердің ерекшеліктерін меңгересіз. Курс саяси партиялар, мүдделі топтар, саяси мәдениет, көшбасшылық, қақтығыстар және саяси процестердің негізгі заңдылықтарын қамтиды. Сондай-ақ Сіз саяси талдау, болжау және халықаралық саясаттың базалық теорияларын қолдануды үйренесіз.\n\nОқыту нәтижелері:\n• Саясаттанудың объектісін, пәнін және негізгі зерттеу әдістерін түсіндіре аласыз.\n• Саяси ілімдердің тарихи және заманауи теориялық бағыттарын салыстыра аласыз.\n• Саяси биліктің, саяси жүйенің, мемлекет пен саяси режимдердің ерекшеліктерін талдай аласыз.\n• Сайлау жүйелерінің, саяси партиялардың, мүдделі топтар мен азаматтық қоғамның рөлін бағалай аласыз.\n• Саяси мәдениет, көшбасшылық, қақтығыс және дағдарыс туралы білімді нақты жағдайларды талдауда қолдана аласыз.\n• Саяси талдау мен болжаудың қарапайым құралдарын және халықаралық қатынастар теорияларын қолдана аласыз.\n\n15 дәріс · ≈ 5,5 сағ бейне · 4 бөлім тесті · ЖИ-тьютормен қорытынды практикалық тапсырма · сертификат",
+  "en": "This course introduces the main concepts, theories, institutions, and processes of political science. It is intended for students who need a broad foundation in political analysis and an understanding of how political power, the state, regimes, parties, elections, and interest groups are studied. The course also covers political culture, leadership, conflict, forecasting, and major approaches to world politics and international relations. It develops basic analytical skills for comparing political systems and interpreting political events and texts.\n\nLearning outcomes:\n• Define the scope, methods, and major traditions of political science.\n• Compare key theories of political thought and modern political theory.\n• Analyze political power, the state, and different types of political regimes.\n• Examine the roles of parties, elections, interest groups, and civil society in political systems.\n• Assess political culture, leadership, conflict, and processes of political change.\n• Apply basic methods of political analysis and forecast political developments.\n\n15 lectures · ≈ 5.5 h of video · 4 module quizzes · final practical task with the AI tutor · certificate"
+}

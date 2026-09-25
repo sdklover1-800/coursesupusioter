@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "version": 1,
+    "createdAt": "2026-09-25T18:22:46.917Z",
+    "canonicalRef": "polisia-v1",
+    "llm": {
+      "calls": 2,
+      "inputTokens": 2889,
+      "outputTokens": 2368,
+      "costUsd": 0.01282275
+    },
+    "warnings": {
+      "kk": [],
+      "en": []
+    },
+    "reviewEdits": [
+      "en: «Polisya» → «Polisia» (3×; как в калибровочных фикстурах BE3)",
+      "kk тезис 7: «Келіспеушіліктің жасырын күйден дағдарысқа және ықтимал нәтижелерге дейінгі логикасын көрсету маңызды.» → «Шиеленістің өршу логикасын көрсету маңызды: жасырын қақтығыстан дағдарысқа және ықтимал нәтижелерге дейін.» (единый термин «қақтығыс», как в тезисе 5 и лекции 13)",
+      "kk тезис 4: «Заңдылық» → «Легалдылық» (термин лекции 4 kk: «легитимділік пен легалдылық»)",
+      "kk эталон: «Легитимділікті заңдылықтан» → «Легитимділікті легалдылықтан» (заңдылық = «закономерность» в том же тексте)"
+    ]
+  },
+  "ru": {
+    "title": "Итоговое практическое задание",
+    "scenarioPrompt": "Представьте, что в вымышленной стране «Полисия» после спорных выборов начались протесты, власть ужесточила контроль над СМИ, а затем заявила о «реформе государства» и намерении изменить избирательную систему. Ваша задача: не описывать события по отдельности, а объяснить их как единый политический процесс. Сократически выведите, какие элементы курса нужно применить, чтобы ответить на три вопроса: 1) что здесь является объектом и предметом анализа политолога; 2) какой тип режима, партийной и избирательной системы, а также какой источник легитимности и механизм власти наиболее вероятны; 3) какие теории помогут объяснить, почему конфликт возник, как может развиваться и к чему приведёт во внутренней и внешней политике. Итогом должен стать связный краткий политологический диагноз и обоснованный прогноз.",
+    "referenceSolution": "Для анализа нужно последовательно соединить уровни курса. Сначала определить, что объектом выступает политическая сфера Полисии в целом, а предметом — закономерности власти, институтов, политического поведения, режима и конфликта. Затем по признакам распознать режим: если есть ограниченный плюрализм, контроль над выборами и СМИ, но без тотального проникновения во все сферы жизни, это авторитаризм; если есть массовая идеология, тотальная пропаганда, террор и попытка контролировать частную жизнь, это тоталитаризм. Избирательная система по последствиям для партийной системы, вероятнее всего, либо мажоритарная с тенденцией к сокращению числа партий, либо смешанная/пропорциональная, если власть пытается институционально перераспределить представительство; партийная система будет зависеть от этого дизайна и от глубины социальных расколов. Легитимность нужно отличать от легальности: власть может формально быть законной, но утратить признание общества, то есть стать нелегитимной; в таком случае она будет опираться прежде всего на принуждение, авторитет и манипуляцию, а не на добровольное признание. Конфликт следует трактовать как политический, потому что предметом является власть и правила её распределения; его можно объяснять через теории конфликта, кризисов развития и революций: кризис легитимности и участия, относительная депривация, слабость каналов выражения требований и отсутствие «клапанов безопасности» повышают риск эскалации. Если протесты институционально не канализируются, возможен переход от конфликта к кризису и далее к революционной ситуации либо к авторитарной консолидации. Для более широкого прогноза пригодны также политическая культура и социализация (степень доверия к власти и готовность участвовать), элитные теории (раскол внутри правящего класса), а для внешней политики — реализм, если режим ищет силовую поддержку и балансирование, или конструктивизм, если он пытается переопределить идентичность и образ врага. Итоговый диагноз: в Полисии, вероятно, нарастает кризис легитимности авторитарного режима, власть отвечает усилением контроля и реформой институтов для сохранения доминирования, а исход зависит от того, сумеют ли протесты и элитные расколы перерасти в устойчивую альтернативу либо будут погашены через принуждение и ограниченную институциональную адаптацию.",
+    "rubricSpec": {
+      "key_points": [
+        "Нужно различить объект и предмет политологии и применить это различение к кейсу.",
+        "Следует корректно определить вероятный тип политического режима по признакам, а не по названию конституции.",
+        "Нужно связать режим с типом избирательной и партийной системы и показать их взаимное влияние.",
+        "Необходимо отличать легальность от легитимности и указать, на каких ресурсах и механизмах держится власть.",
+        "Следует объяснить конфликт как борьбу за власть и правила игры, а не просто как «беспорядки».",
+        "Нужно использовать хотя бы две-три теоретические рамки курса: конфликт/кризис/революция, политическая культура и социализация, элиты, режимы, институты.",
+        "Важно показать логику эскалации: от латентного конфликта к кризису и возможным исходам.",
+        "Нужно связать внутреннюю динамику с возможными внешнеполитическими последствиями и, при необходимости, упомянуть одну из парадигм МО.",
+        "Ответ должен быть не перечнем терминов, а связным политологическим диагнозом и прогнозом."
+      ],
+      "answer_reached_criteria": "Студент пришёл к ответу, если он последовательно и без внутренних противоречий объясняет кейс через уровень объекта/предмета, тип режима, институты, легитимность, конфликт и прогноз, увязывая это в единую аргументированную схему."
+    },
+    "introMessage": null
+  },
+  "kk": {
+    "title": "Қорытынды практикалық тапсырма",
+    "scenarioPrompt": "Елестетіңіз: ойдан шығарылған «Полисия» елінде даулы сайлаудан кейін наразылықтар басталып, билік бұқаралық ақпарат құралдарына бақылауды күшейтті, содан соң «мемлекетті реформалау» және сайлау жүйесін өзгерту ниетін мәлімдеді. Сіздің міндетіңіз — оқиғаларды бөлек-бөлек сипаттау емес, оларды біртұтас саяси үдеріс ретінде түсіндіру. Сократтық тәсілмен талқылап, жауап беру үшін курстың қандай элементтерін қолдану қажет екенін шығарыңыз: 1) бұл жерде саясаттанушының талдауының объектісі мен пәні не; 2) саяси режимнің, партиялық және сайлау жүйесінің қандай түрі, сондай-ақ легитимділіктің қандай қайнар көзі мен билік механизмі ең ықтимал; 3) қақтығыстың неге пайда болғанын, қалай дамуы мүмкін екенін және ішкі әрі сыртқы саясатта неге әкелетінін түсіндіруге қандай теориялар көмектеседі. Нәтижесінде саясаттанулық қысқа әрі тұтас диагноз және негізделген болжам жасалуы тиіс.",
+    "referenceSolution": "Талдау үшін курстың деңгейлерін бірізді түрде байланыстыру қажет. Алдымен объекті ретінде Полисияның саяси саласы тұтастай алынатынын, ал пәні ретінде биліктің, институттардың, саяси мінез-құлықтың, режимнің және қақтығыстың заңдылықтары қарастырылатынын анықтау керек. Одан кейін белгілеріне қарай режимді тану керек: егер шектеулі плюрализм, сайлау мен бұқаралық ақпарат құралдарын бақылау бар, бірақ өмірдің барлық саласына тотальды ену жоқ болса, бұл авторитаризм; егер жаппай идеология, тотальды үгіт-насихат, террор және жеке өмірді бақылауға талпыныс болса, бұл тоталитаризм. Сайлау жүйесі партиялық жүйеге тигізетін салдары бойынша, биліктің институционалдық өкілдікті қайта бөлуге талпынысына қарай, ықтимал түрде не мажоритарлық, партиялар санын қысқартуға бейім жүйе, не аралас/пропорционалды жүйе болады; партиялық жүйе осы жобалауға және әлеуметтік жіктердің тереңдігіне тәуелді болады. Легитимділікті легалдылықтан ажырату керек: билік формалды тұрғыдан заңды болғанымен, қоғамның мойындауын жоғалтып, яғни легитимділігінен айырылуы мүмкін; мұндай жағдайда ол ерікті мойындауға емес, ең алдымен мәжбүрлеуге, беделге және манипуляцияға сүйенеді. Қақтығысты саяси қақтығыс ретінде түсіндіру қажет, өйткені пәні билік пен оны бөлу ережелері болып табылады; оны қақтығыс, даму дағдарыстары және революциялар теориялары арқылы түсіндіруге болады: легитимділік пен қатысу дағдарысы, салыстырмалы депривация, талаптарды білдіру арналарының әлсіздігі және «қауіпсіздік клапандарының» болмауы шиеленістің күшеюі қаупін арттырады. Егер наразылықтар институционалдық тұрғыдан арнаға түспесе, қақтығыстан дағдарысқа, одан әрі революциялық жағдайға не авторитарлық шоғырлануға өтуі мүмкін. Кеңірек болжам жасау үшін саяси мәдениет пен әлеуметтену де пайдалы: билікке сенім деңгейі мен қатысуға дайындық; элиталар теориялары: билеуші топ ішіндегі жіктелу; ал сыртқы саясат үшін, егер режим күштік қолдау мен тепе-теңдік іздесе, реализм немесе ол өзіндік болмыс пен жау бейнесін қайта анықтауға тырысса, конструктивизм қолайлы. Қорытынды диагноз: Полисияда, ықтимал түрде, авторитарлық режимнің легитимділік дағдарысы күшейіп келеді, билік үстемдігін сақтау үшін бақылауды күшейту және институттарды реформалау арқылы жауап беріп отыр, ал нәтиже наразылықтар мен элиталық жіктелулердің орнықты баламаға айнала алу-алмауына не мәжбүрлеу мен шектеулі институционалдық бейімделу арқылы басылып-жаншылуына тәуелді.",
+    "rubricSpec": {
+      "key_points": [
+        "Саясаттанудың объектісі мен пәнін ажыратып, осы айырмашылықты кейске қолдану қажет.",
+        "Конституцияның атауына емес, белгілеріне сүйеніп, ықтимал саяси режим түрін дұрыс анықтау керек.",
+        "Режимді сайлау және партиялық жүйе түрімен байланыстырып, олардың өзара ықпалын көрсету қажет.",
+        "Легалдылық пен легитимділікті ажыратып, билік қандай ресурстар мен тетіктерге сүйенетінін көрсету қажет.",
+        "Қақтығысты жай ғана «тәртіпсіздік» ретінде емес, билік үшін және ойын ережелері үшін күрес ретінде түсіндіру қажет.",
+        "Курс бойынша кемінде екі-үш теориялық шеңберді қолдану қажет: қақтығыс/дағдарыс/революция, саяси мәдениет пен әлеуметтену, элиталар, режимдер, институттар.",
+        "Шиеленістің өршу логикасын көрсету маңызды: жасырын қақтығыстан дағдарысқа және ықтимал нәтижелерге дейін.",
+        "Ішкі динамиканы ықтимал сыртқы саяси салдарлармен байланыстырып, қажет болғанда халықаралық қатынастардың бір парадигмасын атау қажет.",
+        "Жауап терминдер тізбегі емес, тұтас саясаттанулық диагноз және болжам болуы тиіс."
+      ],
+      "answer_reached_criteria": "Студент жауапқа келді деп есептеледі, егер ол істі объект/пән деңгейі, режим түрі, институттар, легитимділік, қақтығыс және болжам арқылы бірізді әрі ішкі қайшылықсыз түсіндіріп, мұның бәрін біртұтас, дәлелді схемаға тоғыстырса."
+    },
+    "introMessage": null
+  },
+  "en": {
+    "title": "Final practical task",
+    "scenarioPrompt": "Imagine that in the fictional country of Polisia, after disputed elections, protests began, the authorities tightened control over the media, and then announced a “state reform” and an intention to change the electoral system. Your task is not to describe the events separately, but to explain them as a single political process. Socratically derive which elements of the course need to be applied in order to answer three questions: 1) what here is the object and subject of the political scientist’s analysis; 2) what type of regime, party system, and electoral system, as well as what source of legitimacy and mechanism of power are most likely; 3) which theories will help explain why the conflict arose, how it may develop, and what it will lead to in domestic and foreign policy. The result should be a coherent, brief political-science diagnosis and a reasoned forecast.",
+    "referenceSolution": "For the analysis, it is necessary to connect the levels of the course step by step. First, determine that the object is the political sphere of Polisia as a whole, and the subject is the patterns of power, institutions, political behavior, regime, and conflict. Then identify the regime by its features: if there is limited pluralism, control over elections and the media, but no total penetration into all spheres of life, this is authoritarianism; if there is a mass ideology, total propaganda, terror, and an attempt to control private life, this is totalitarianism. The electoral system, in terms of its effects on the party system, is most likely either majoritarian with a tendency to reduce the number of parties, or mixed/proportional if the authorities are trying to redistribute representation institutionally; the party system will depend on this design and on the depth of social cleavages. Legitimacy must be distinguished from legality: power may be formally lawful but lose social recognition, that is, become illegitimate; in that case it will rely primarily on coercion, authority, and manipulation rather than voluntary recognition. The conflict should be treated as political, because the subject is power and the rules of its distribution; it can be explained through theories of conflict, development crises, and revolutions: a crisis of legitimacy and participation, relative deprivation, weak channels for expressing demands, and a lack of “safety valves” increase the risk of escalation. If protests are not institutionally channeled, a transition from conflict to crisis and then to a revolutionary situation, or to authoritarian consolidation, is possible. For a broader forecast, political culture and socialization are also useful (the level of trust in power and willingness to participate), as are elite theories (a split within the ruling class), and for foreign policy realism, if the regime seeks force-based support and balancing, or constructivism, if it tries to redefine identity and the image of the enemy. The final diagnosis is: in Polisia, a crisis of legitimacy of the authoritarian regime is probably deepening, the authorities are responding with stronger control and institutional reform to preserve dominance, and the outcome depends on whether protests and elite splits can grow into a stable alternative or will be suppressed through coercion and limited institutional adaptation.",
+    "rubricSpec": {
+      "key_points": [
+        "It is necessary to distinguish the object and subject of political science and apply this distinction to the case.",
+        "It is necessary to correctly determine the likely type of political regime by its features, not by the name of the constitution.",
+        "It is necessary to connect the regime with the type of electoral and party system and show their mutual influence.",
+        "It is necessary to distinguish legality from legitimacy and indicate on which resources and mechanisms power rests.",
+        "It is necessary to explain the conflict as a struggle for power and the rules of the game, not simply as “unrest.”",
+        "It is necessary to use at least two or three theoretical frameworks from the course: conflict/crisis/revolution, political culture and socialization, elites, regimes, institutions.",
+        "It is important to show the logic of escalation: from latent conflict to crisis and possible outcomes.",
+        "It is necessary to connect internal dynamics with possible foreign-policy consequences and, if needed, mention one of the paradigms of international relations.",
+        "The answer should not be a list of terms, but a coherent political-science diagnosis and forecast."
+      ],
+      "answer_reached_criteria": "The student has reached the answer if they consistently and without internal contradictions explain the case through the level of object/subject, the type of regime, institutions, legitimacy, conflict, and forecast, linking this into a single reasoned scheme."
+    },
+    "introMessage": null
+  }
+}

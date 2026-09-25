@@ -96,9 +96,9 @@ export function CatalogCoursePage() {
       <BackLink />
 
       {/* Шапка курса: на ink — тёмная палитра токенов */}
-      <section data-theme="dark" className="relative overflow-hidden rounded-2xl bg-ink px-5 py-8 text-fg sm:px-10 sm:py-10">
+      <section className="relative overflow-hidden rounded-2xl bg-ink px-5 py-8 sm:px-10 sm:py-10">
         <div className="bg-inquiry-grid absolute inset-0 opacity-25" aria-hidden />
-        <div className="relative">
+        <div data-theme="dark" className="relative text-fg">
           {course.versions.length > 1 && (
             <div role="radiogroup" aria-label={t('catalog.courseLanguage')} className="mb-6 flex flex-wrap items-center gap-2">
               <span className="eyebrow mr-1">{t('catalog.courseLanguage')}</span>
@@ -137,36 +137,38 @@ export function CatalogCoursePage() {
         </div>
       </section>
 
-      {/* Мобильные: действие → «В курсе» и программа → сертификат; lg: справа действие и сертификат */}
+      {/* Мобильные: действие → «В курсе» и программа → сертификат (order); lg: слева программа,
+          справа одной колонкой действие и сертификат (обёртка display: contents до lg) */}
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <aside className="lg:col-start-2 lg:row-start-1">
-          <EnrollPanel course={course} version={version} onVersionChange={setVersionId} enrollment={enrollment} enrollmentLoading={mine.isLoading} />
-        </aside>
-
-        <div className="min-w-0 space-y-6 lg:col-start-1 lg:row-span-2 lg:row-start-1">
+        <div className="order-2 min-w-0 space-y-6 lg:order-none lg:col-start-1 lg:row-start-1">
           <Included course={course} lectureCount={lectureCount} quizCount={quizModules.length} hasPractical={hasPractical} hasMini={hasMini} />
           <Syllabus version={version} modules={modules} locked={locked} />
         </div>
 
-        <div className="space-y-6 lg:col-start-2 lg:row-start-2">
-          <Card className="!p-5">
-            <h2 className="font-sans text-title">{t('catalog.certificatePreview')}</h2>
-            <CertificatePreview title={version.title} sample className="mt-3" />
-            <p className="mt-3 text-meta text-fg-2">{rule}</p>
-          </Card>
-          <HowToGetCertificate quizzes={quizModules.length > 0} practical={hasPractical} />
-          {SYLLABUS_URL && (
-            <a
-              href={SYLLABUS_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="card flex items-center gap-3 !p-4 text-body font-semibold text-brand transition-colors hover:border-brand/50"
-            >
-              <Icon name="file-text" size={20} />
-              <span className="flex-1">{t('catalog.syllabusLink')}</span>
-              <Icon name="external-link" size={16} />
-            </a>
-          )}
+        <div className="contents lg:col-start-2 lg:row-start-1 lg:block lg:space-y-6">
+          <aside className="order-1 lg:order-none">
+            <EnrollPanel course={course} version={version} onVersionChange={setVersionId} enrollment={enrollment} enrollmentLoading={mine.isLoading} />
+          </aside>
+          <div className="order-3 space-y-6 lg:order-none">
+            <Card className="!p-5">
+              <h2 className="font-sans text-title">{t('catalog.certificatePreview')}</h2>
+              <CertificatePreview title={version.title} sample className="mt-3" />
+              <p className="mt-3 text-meta text-fg-2">{rule}</p>
+            </Card>
+            <HowToGetCertificate quizzes={quizModules.length > 0} practical={hasPractical} />
+            {SYLLABUS_URL && (
+              <a
+                href={SYLLABUS_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="card flex items-center gap-3 !p-4 text-body font-semibold text-brand transition-colors hover:border-brand/50"
+              >
+                <Icon name="file-text" size={20} />
+                <span className="flex-1">{t('catalog.syllabusLink')}</span>
+                <Icon name="external-link" size={16} />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </>

@@ -1,342 +1,448 @@
-import { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Difficulty, QuestionType } from '@edu/shared';
-import { api } from '../../lib/api';
-import { Badge, Button, Card, Field, Input, Select, Textarea, toast } from '../../components/ui';
+import { Difficulty, QuestionType, QuizScoringRule } from '@edu/shared';
+import {
+  apiErrorMessage, findQuizPlace, romanNumeral, useAddQuestion, useBulkIssueStatus, useCourseDetail, useDeleteQuestion,
+  useQuestionPatch, useQuizEdit, useQuizItems, useQuizSettings, useRegenerateQuestion, useReviewIssueMap,
+  useSetIssueStatus, type EditQuestion, type QuizEdit,
+} from '../../lib/staff';
+import { formatPercent } from '../../lib/format';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { Breadcrumb, Button, Card, ConfirmDialog, Field, Input, ModeBadge, toast, type Crumb } from '../../components/ui';
+import { Icon } from '../../components/icons';
 import { PageHeader, LoadingRows, EmptyState, ErrorState } from '../../components/page';
+import { PolicyPanel, settingsDraftOf, settingsPatch, type SettingsDraft } from '../../components/staff/PolicyPanel';
+import { QuestionRow, questionDraftOf, questionPatch, type QuestionDraft } from '../../components/staff/QuestionRow';
+import { NoteDialog } from '../../components/staff/NoteDialog';
+import { LeaveGuard, SaveBar } from '../../components/staff/SaveBar';
+import { Notice, SampleSize, SectionTitle } from '../../components/staff/primitives';
 
-interface EditQuestion {
-  id: string;
-  type: string;
-  prompt: string;
-  options: string[];
-  correctOptionIds: number[];
-  explanation: string;
-  difficulty: string;
-  isAIGenerated: boolean;
-  isEdited: boolean;
-  orderIndex: number;
-}
+/** Оцениваемый тест модуля (политика попыток); мини-квизы — тренировка без порога и попыток. */
+const isGradedQuiz = (q: QuizEdit) => q.isGraded && q.kind === 'MODULE_FINAL';
 
-interface QuizEditData {
-  quiz: {
-    id: string;
-    title: string;
-    passThreshold: number;
-    maxAttempts: number;
-    questions: EditQuestion[];
-  };
-}
-
-const fail = (e: Error) => toast(e.message, 'danger');
-
-/** Глубокое редактирование теста: настройки + вопросы (FR-7.3). */
+/**
+ * Редактор теста (FR-7.3; FE5 §2): хлебные крошки «Курс › Модуль › Тест», факты,
+ * панель «Что видит студент», замороженный тест (есть попытки), строки вопросов с
+ * экспертной проверкой и анализом заданий, архив, общая панель «Сохранить все (n)»
+ * и защита от ухода. Удаление/перегенерация и пакетное закрытие — через ConfirmDialog.
+ */
 export function QuizEditorPage() {
   const { t } = useTranslation();
   const { quizId } = useParams();
-  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const location = useLocation();
   const qc = useQueryClient();
+  const courseParam = params.get('course');
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['quiz-edit', quizId],
-    queryFn: () => api.get<QuizEditData>(`/quizzes/${quizId}/edit`),
-    enabled: !!quizId,
+  const [showArchived, setShowArchived] = useState(false);
+  const { data, isLoading, isError, error } = useQuizEdit(quizId, showArchived);
+  const quiz = data?.quiz;
+  const course = useCourseDetail(courseParam);
+  const place = useMemo(() => (quiz ? findQuizPlace(course.data?.course, quiz.id) : null), [course.data, quiz]);
+  const language = place?.version.language;
+  const graded = quiz ? isGradedQuiz(quiz) : false;
+  const items = useQuizItems(quizId, graded);
+  const statById = useMemo(() => new Map((items.data?.items ?? []).map((s) => [s.questionId, s])), [items.data]);
+  const anyReview = !!quiz?.questions.some((q) => q.reviewPending && !q.archivedAt);
+  const reviewMap = useReviewIssueMap(anyReview, place?.course.id ?? null);
+
+  const [settingsDraft, setSettingsDraft] = useState<SettingsDraft | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, QuestionDraft>>({});
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ q: EditQuestion; n: number } | null>(null);
+  const [regenTarget, setRegenTarget] = useState<{ q: EditQuestion; n: number } | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{ q: EditQuestion; n: number } | null>(null);
+  const [bulkReviewOpen, setBulkReviewOpen] = useState(false);
+
+  const saveSettings = useQuizSettings(quizId);
+  const patchQuestion = useQuestionPatch();
+  const addQuestion = useAddQuestion(quizId);
+  const deleteQuestion = useDeleteQuestion(quizId);
+  const regenerate = useRegenerateQuestion(quizId);
+  const setIssues = useSetIssueStatus();
+  const bulkIssues = useBulkIssueStatus();
+
+  // Якорь #q-<id> (из входящих жалоб): развернуть вопрос и прокрутить к нему
+  useEffect(() => {
+    const m = location.hash.match(/^#q-(.+)$/);
+    if (!m || !quiz) return;
+    const id = m[1]!;
+    if (!quiz.questions.some((q) => q.id === id)) {
+      // Вопрос мог уйти в архив (жалоба на старую версию) — показать архив и искать там
+      if (!showArchived) setShowArchived(true);
+      return;
+    }
+    setExpanded((s) => new Set(s).add(id));
+    const timer = window.setTimeout(() => document.getElementById(`q-${id}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 80);
+    return () => window.clearTimeout(timer);
+  }, [location.hash, quiz?.id, quiz?.questions.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const placeLabel = place
+    ? place.kind === 'MODULE'
+      ? t('manager.qe.placeModule', { roman: romanNumeral(place.module!.orderIndex) })
+      : place.kind === 'LECTURE'
+        ? t('manager.qe.placeLecture', { n: place.lectureNumber ?? '' })
+        : t('manager.qe.placeFinal')
+    : null;
+  useDocumentTitle(quiz ? `${quiz.title} · ${t('manager.quizEditor')}` : t('manager.quizEditor'));
+
+  const crumbs: Crumb[] = [{ label: t('manager.courses'), to: '/manage/courses' }];
+  if (place) {
+    crumbs.push({ label: place.version.title, to: `/manage/courses/${place.course.id}?version=${place.version.id}` });
+    if (placeLabel) crumbs.push({ label: placeLabel });
+  }
+  crumbs.push({ label: graded ? t('manager.qe.crumbQuiz') : t('manager.qe.crumbMini') });
+
+  if (isLoading) return <><Breadcrumb items={crumbs} className="mb-3" /><LoadingRows rows={5} /></>;
+  if (isError || !quiz) return <><Breadcrumb items={crumbs} className="mb-3" /><ErrorState message={apiErrorMessage(error, t)} /></>;
+
+  const active = quiz.questions.filter((q) => !q.archivedAt).sort((a, b) => a.orderIndex - b.orderIndex);
+  const archived = quiz.questions.filter((q) => q.archivedAt);
+  const sDraft = settingsDraft ?? settingsDraftOf(quiz);
+  const sCheck = settingsPatch(quiz, sDraft, t);
+  const settingsDirty = Object.keys(sCheck.patch).length > 0;
+  const qChecks = active.map((q) => {
+    const d = drafts[q.id];
+    const check = d ? questionPatch(q, d) : null;
+    return { q, draft: d ?? questionDraftOf(q), dirty: !!check && Object.keys(check.patch).length > 0, check };
   });
+  const dirtyCount = (settingsDirty ? 1 : 0) + qChecks.filter((c) => c.dirty).length;
+  const hasErrors =
+    Object.keys(sCheck.errors).length > 0 ||
+    qChecks.some((c) => c.dirty && c.check && Object.keys(c.check.errors).length > 0);
+  const reviewIds = (qid: string) => reviewMap.data?.[qid] ?? [];
+  const allReviewIds = active.flatMap((q) => (q.reviewPending ? reviewIds(q.id) : []));
+  const reviewQuestionCount = active.filter((q) => q.reviewPending).length;
+  const passCount = Math.ceil(quiz.passThreshold * active.length - 1e-9);
+  const cooldownText =
+    quiz.effectiveCooldownMinutes === 0
+      ? t('manager.qe.noPause')
+      : t('manager.qe.pause', { hours: +(quiz.effectiveCooldownMinutes / 60).toFixed(1) });
 
-  const addQuestion = useMutation({
-    mutationFn: () =>
-      api.post(`/quizzes/${quizId}/questions`, {
+  function toggle(id: string) {
+    setExpanded((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+
+  function refresh() {
+    void qc.invalidateQueries({ queryKey: ['quiz-edit', quizId] });
+    void qc.invalidateQueries({ queryKey: ['quiz-items', quizId] });
+    if (place) void qc.invalidateQueries({ queryKey: ['course', place.course.id] });
+  }
+
+  async function saveAll() {
+    if (!quiz) return;
+    if (hasErrors) {
+      toast(t('manager.save.fixErrors'), 'danger');
+      setExpanded((s) => {
+        const n = new Set(s);
+        for (const c of qChecks) if (c.dirty && c.check && Object.keys(c.check.errors).length) n.add(c.q.id);
+        return n;
+      });
+      return;
+    }
+    setSaving(true);
+    let ok = 0;
+    const failed: string[] = [];
+    if (settingsDirty) {
+      try {
+        await saveSettings.mutateAsync(sCheck.patch);
+        setSettingsDraft(null);
+        ok++;
+      } catch (err) {
+        failed.push(`${t('manager.policy.title')}: ${apiErrorMessage(err, t)}`);
+      }
+    }
+    for (const c of qChecks) {
+      if (!c.dirty || !c.check) continue;
+      try {
+        await patchQuestion.mutateAsync({ id: c.q.id, patch: c.check.patch });
+        setDrafts((d) => {
+          const n = { ...d };
+          delete n[c.q.id];
+          return n;
+        });
+        ok++;
+      } catch (err) {
+        failed.push(`${t('manager.qe.questionN', { n: active.indexOf(c.q) + 1 })}: ${apiErrorMessage(err, t)}`);
+      }
+    }
+    setSaving(false);
+    refresh();
+    if (failed.length) toast(`${t('manager.save.partial', { count: failed.length })} ${failed.join(' · ')}`, 'danger', { duration: 9000 });
+    else if (ok) toast(t('manager.save.done', { count: ok }), 'teal');
+  }
+
+  function discard() {
+    setSettingsDraft(null);
+    setDrafts({});
+  }
+
+  function addNew() {
+    const lng = language ?? undefined;
+    addQuestion.mutate(
+      {
         type: QuestionType.SINGLE_CHOICE,
-        prompt: 'Новый вопрос',
-        options: ['A', 'B'],
+        prompt: t('manager.qe.newPrompt', { lng }),
+        options: [0, 1, 2, 3].map((i) => t('manager.qe.newOption', { lng, letter: String.fromCharCode(65 + i) })),
         correctOptionIds: [0],
         difficulty: Difficulty.MEDIUM,
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['quiz-edit', quizId] });
-      toast(t('common.success'));
-    },
-    onError: fail,
-  });
+      },
+      {
+        onSuccess: (res) => {
+          toast(t('manager.qe.added'), 'teal');
+          setExpanded((s) => new Set(s).add(res.question.id));
+        },
+        onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
+      },
+    );
+  }
 
-  const header = (
-    <PageHeader
-      title={t('manager.quizEditor')}
-      action={
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => navigate(-1)}>{t('common.back')}</Button>
-          <Button variant="spark" onClick={() => addQuestion.mutate()} loading={addQuestion.isPending}>
-            {t('manager.addQuestion')}
-          </Button>
-        </div>
-      }
-    />
-  );
-
-  if (isLoading) return <>{header}<LoadingRows rows={5} /></>;
-  if (isError || !data) return <>{header}<ErrorState message={t('errors.generic')} /></>;
-
-  const { quiz } = data;
+  const facts = graded
+    ? [
+        t('manager.qe.factQuestions', { count: active.length }),
+        t('manager.qe.factThreshold', { value: formatPercent(quiz.passThreshold), pass: passCount, total: active.length }),
+        t('manager.qe.factAttempts', { count: quiz.maxAttempts }),
+        t('manager.qe.factScoring', { rule: quiz.scoringRule === QuizScoringRule.FIRST ? t('manager.policy.scoringFIRST').toLowerCase() : t('manager.policy.scoringBEST').toLowerCase() }),
+        cooldownText,
+      ]
+    : [t('manager.qe.factQuestions', { count: active.length })];
 
   return (
     <>
-      {header}
+      <Breadcrumb items={crumbs} className="mb-3" />
+      <PageHeader
+        eyebrow={placeLabel ?? t('manager.quizEditor')}
+        title={quiz.title}
+        action={<ModeBadge mode={graded ? 'graded' : 'practice'} long={!graded} />}
+      />
+      <p className="-mt-3 mb-6 text-meta text-fg-2" lang={undefined}>
+        {facts.join(' · ')}
+        {graded && items.data && (
+          <>
+            {' · '}
+            <SampleSize n={items.data.n} className="align-middle" />
+          </>
+        )}
+      </p>
 
-      <SettingsCard quiz={quiz} quizId={quiz.id} />
+      {quiz.frozen && (
+        <Notice tone="ink" icon="lock" className="mb-6" title={t('manager.qe.frozenTitle')}>
+          {t('manager.qe.frozenBody', { count: quiz.attemptCount })}
+        </Notice>
+      )}
 
-      {quiz.questions.length === 0 ? (
-        <EmptyState
-          title={t('common.empty')}
-          action={
-            <Button variant="spark" onClick={() => addQuestion.mutate()} loading={addQuestion.isPending}>
+      <Card className="mb-6 !p-4 sm:!p-6">
+        <Field label={graded ? t('manager.qe.titleLabel') : t('manager.qe.titleLabelMini')} error={sCheck.errors.title}>
+          <Input lang={language} value={sDraft.title} onChange={(e) => setSettingsDraft({ ...sDraft, title: e.target.value })} />
+        </Field>
+      </Card>
+
+      {graded && <PolicyPanel quiz={quiz} draft={sDraft} errors={sCheck.errors} onChange={setSettingsDraft} />}
+
+      <SectionTitle
+        hint={graded ? t('manager.qe.listHint') : t('manager.qe.listHintMini')}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {reviewQuestionCount > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setBulkReviewOpen(true)} disabled={!allReviewIds.length}>
+                <Icon name="check" size={16} />
+                {t('manager.qe.markAllReviewed', { count: reviewQuestionCount })}
+              </Button>
+            )}
+            <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-xl px-2 text-body font-medium text-fg hover:bg-brand-soft/50">
+              <input type="checkbox" className="h-4 w-4 accent-[rgb(var(--brand))]" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
+              {t('manager.qe.showArchive')}
+            </label>
+            <Button variant="secondary" size="sm" onClick={addNew} loading={addQuestion.isPending} disabled={quiz.frozen} title={quiz.frozen ? t('manager.qe.addFrozen') : undefined}>
+              <Icon name="plus" size={16} />
               {t('manager.addQuestion')}
             </Button>
-          }
+          </div>
+        }
+      >
+        {t('manager.qe.questionsTitle', { count: active.length })}
+      </SectionTitle>
+
+      {reviewQuestionCount > 0 && (
+        <Notice tone="spark" icon="flag" className="mb-4" title={t('manager.qe.reviewBannerTitle', { count: reviewQuestionCount })}>
+          {t('manager.qe.reviewBannerBody')}
+        </Notice>
+      )}
+
+      {active.length === 0 ? (
+        <EmptyState
+          title={t('manager.qe.empty')}
+          hint={quiz.frozen ? undefined : t('manager.qe.emptyHint')}
+          action={quiz.frozen ? undefined : <Button onClick={addNew} loading={addQuestion.isPending}>{t('manager.addQuestion')}</Button>}
         />
       ) : (
-        <div className="space-y-4">
-          {quiz.questions.map((q, i) => (
-            <QuestionCard key={q.id} question={q} quizId={quiz.id} index={i} />
+        <ol className="space-y-2.5">
+          {qChecks.map((c, i) => (
+            <QuestionRow
+              key={c.q.id}
+              question={c.q}
+              index={i + 1}
+              draft={c.draft}
+              dirty={c.dirty}
+              expanded={expanded.has(c.q.id)}
+              onToggle={() => toggle(c.q.id)}
+              onChange={(d) => setDrafts((all) => ({ ...all, [c.q.id]: d }))}
+              lectures={quiz.lectures}
+              stat={statById.get(c.q.id)}
+              reviewCount={reviewIds(c.q.id).length}
+              language={language}
+              canDelete={!quiz.frozen}
+              onReviewed={() => setReviewTarget({ q: c.q, n: i + 1 })}
+              onRegenerate={() => setRegenTarget({ q: c.q, n: i + 1 })}
+              onDelete={() => setDeleteTarget({ q: c.q, n: i + 1 })}
+            />
           ))}
-        </div>
+        </ol>
       )}
-    </>
-  );
-}
 
-/* ── Настройки теста ────────────────────────────────────── */
-function SettingsCard({ quiz, quizId }: { quiz: QuizEditData['quiz']; quizId: string }) {
-  const { t } = useTranslation();
-  const qc = useQueryClient();
-
-  const [title, setTitle] = useState(quiz.title);
-  const [passThreshold, setPassThreshold] = useState(String(quiz.passThreshold));
-  const [maxAttempts, setMaxAttempts] = useState(String(quiz.maxAttempts));
-
-  const sig = JSON.stringify([quiz.title, quiz.passThreshold, quiz.maxAttempts]);
-  const [seen, setSeen] = useState(sig);
-  useEffect(() => {
-    if (sig !== seen) {
-      setTitle(quiz.title);
-      setPassThreshold(String(quiz.passThreshold));
-      setMaxAttempts(String(quiz.maxAttempts));
-      setSeen(sig);
-    }
-  }, [sig, seen, quiz.title, quiz.passThreshold, quiz.maxAttempts]);
-
-  const save = useMutation({
-    mutationFn: () =>
-      api.patch(`/quizzes/${quizId}`, {
-        title,
-        passThreshold: Number(passThreshold),
-        maxAttempts: Number(maxAttempts),
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['quiz-edit', quizId] });
-      toast(t('common.success'));
-    },
-    onError: fail,
-  });
-
-  return (
-    <Card className="mb-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <Field label={t('quiz.title')}>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-          </Field>
-        </div>
-        <Field label={t('quiz.passThreshold')} hint="0 – 1">
-          <Input
-            type="number"
-            min={0}
-            max={1}
-            step={0.05}
-            value={passThreshold}
-            onChange={(e) => setPassThreshold(e.target.value)}
-            className="font-mono tabular-nums"
-          />
-        </Field>
-        <Field label={t('quiz.attempts')}>
-          <Input
-            type="number"
-            min={1}
-            step={1}
-            value={maxAttempts}
-            onChange={(e) => setMaxAttempts(e.target.value)}
-            className="font-mono tabular-nums"
-          />
-        </Field>
-      </div>
-      <div className="mt-4 flex justify-end">
-        <Button onClick={() => save.mutate()} loading={save.isPending}>{t('common.save')}</Button>
-      </div>
-    </Card>
-  );
-}
-
-/* ── Карточка вопроса ───────────────────────────────────── */
-function QuestionCard({ question, quizId, index }: { question: EditQuestion; quizId: string; index: number }) {
-  const { t } = useTranslation();
-  const qc = useQueryClient();
-
-  const [type, setType] = useState(question.type);
-  const [prompt, setPrompt] = useState(question.prompt);
-  const [options, setOptions] = useState<string[]>(question.options);
-  const [correct, setCorrect] = useState<number>(question.correctOptionIds[0] ?? 0);
-  const [difficulty, setDifficulty] = useState(question.difficulty);
-  const [explanation, setExplanation] = useState(question.explanation ?? '');
-
-  // Ресинхронизация локальной формы, когда серверные данные изменились
-  // (перегенерация / сохранение), но без затирания правок других вопросов.
-  const sig = JSON.stringify([
-    question.type, question.prompt, question.options,
-    question.correctOptionIds, question.difficulty, question.explanation,
-  ]);
-  const [seen, setSeen] = useState(sig);
-  useEffect(() => {
-    if (sig !== seen) {
-      setType(question.type);
-      setPrompt(question.prompt);
-      setOptions(question.options);
-      setCorrect(question.correctOptionIds[0] ?? 0);
-      setDifficulty(question.difficulty);
-      setExplanation(question.explanation ?? '');
-      setSeen(sig);
-    }
-  }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const isTF = type === QuestionType.TRUE_FALSE;
-  const invalidTF = isTF && options.length !== 2;
-
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['quiz-edit', quizId] });
-
-  const save = useMutation({
-    mutationFn: () =>
-      api.patch(`/quiz-questions/${question.id}`, {
-        type, prompt, options, correctOptionIds: [correct], explanation, difficulty,
-      }),
-    onSuccess: () => { invalidate(); toast(t('common.success')); },
-    onError: fail,
-  });
-  const remove = useMutation({
-    mutationFn: () => api.del(`/quiz-questions/${question.id}`),
-    onSuccess: () => { invalidate(); toast(t('common.success')); },
-    onError: fail,
-  });
-  const regenerate = useMutation({
-    mutationFn: () => api.post(`/quiz-questions/${question.id}/regenerate`),
-    onSuccess: () => { invalidate(); toast(t('common.success')); },
-    onError: fail,
-  });
-
-  function changeType(next: string) {
-    setType(next);
-    if (next === QuestionType.TRUE_FALSE) {
-      setOptions((o) => (o.length === 2 ? o : [t('quiz.trueLabel'), t('quiz.falseLabel')]));
-      setCorrect((c) => (c > 1 ? 0 : c));
-    }
-  }
-  function setOpt(i: number, val: string) {
-    setOptions((o) => o.map((x, idx) => (idx === i ? val : x)));
-  }
-  function addOpt() {
-    setOptions((o) => [...o, '']);
-  }
-  function removeOpt(i: number) {
-    setOptions((o) => o.filter((_, idx) => idx !== i));
-    setCorrect((c) => (c === i ? 0 : c > i ? c - 1 : c));
-  }
-
-  return (
-    <Card>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-soft font-mono text-sm font-bold text-brand">
-          {index + 1}
-        </span>
-        <div className="ml-auto flex items-center gap-2">
-          {question.isAIGenerated && <Badge tone="spark">{t('manager.aiGenerated')}</Badge>}
-          {question.isEdited && <Badge tone="teal">{t('manager.edited')}</Badge>}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <Field label={t('manager.questionText')}>
-          <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-        </Field>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t('manager.assessmentType')}>
-            <Select value={type} onChange={(e) => changeType(e.target.value)}>
-              <option value={QuestionType.SINGLE_CHOICE}>{t('manager.options')}</option>
-              <option value={QuestionType.TRUE_FALSE}>{t('quiz.trueLabel')} / {t('quiz.falseLabel')}</option>
-            </Select>
-          </Field>
-          <Field label={t('manager.difficulty')}>
-            <Select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-              {Object.values(Difficulty).map((d) => (
-                <option key={d} value={d}>{t(`difficulty.${d}`)}</option>
-              ))}
-            </Select>
-          </Field>
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-semibold text-fg">{t('manager.options')}</span>
-            <span className="text-xs text-muted">{t('manager.correctAnswer')}</span>
-          </div>
-          <div className="space-y-2">
-            {options.map((opt, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name={`correct-${question.id}`}
-                  checked={correct === i}
-                  onChange={() => setCorrect(i)}
-                  className="h-4 w-4 shrink-0 accent-brand"
-                  aria-label={t('manager.correctAnswer')}
+      {showArchived && (
+        <section className="mt-8" aria-label={t('manager.qe.archiveTitle')}>
+          <SectionTitle as="h2" hint={t('manager.qe.archiveHint')}>
+            {t('manager.qe.archiveTitle')}
+          </SectionTitle>
+          {archived.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-body text-fg-2">{t('manager.qe.archiveEmpty')}</p>
+          ) : (
+            <ol className="space-y-2.5">
+              {archived.map((q, i) => (
+                <QuestionRow
+                  key={q.id}
+                  question={q}
+                  index={i + 1}
+                  draft={questionDraftOf(q)}
+                  dirty={false}
+                  expanded={expanded.has(q.id)}
+                  onToggle={() => toggle(q.id)}
+                  onChange={() => undefined}
+                  lectures={quiz.lectures}
+                  reviewCount={0}
+                  language={language}
+                  readOnly
+                  canDelete={false}
                 />
-                <Input value={opt} onChange={(e) => setOpt(i, e.target.value)} className="flex-1" />
-                {!isTF && options.length > 2 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeOpt(i)}
-                    aria-label={t('common.delete')}
-                    className="!px-2 text-muted"
-                  >
-                    ×
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-          {!isTF && (
-            <Button variant="secondary" size="sm" onClick={addOpt} className="mt-2">
-              + {t('common.add')}
-            </Button>
+              ))}
+            </ol>
           )}
-        </div>
+        </section>
+      )}
 
-        <Field label={t('quiz.explanation')}>
-          <Textarea value={explanation} onChange={(e) => setExplanation(e.target.value)} />
-        </Field>
-      </div>
+      <SaveBar count={dirtyCount} saving={saving} onSave={() => void saveAll()} onDiscard={discard} />
+      <LeaveGuard when={dirtyCount > 0 && !saving} />
 
-      <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
-        <Button onClick={() => save.mutate()} loading={save.isPending} disabled={invalidTF}>
-          {t('common.save')}
-        </Button>
-        <Button variant="secondary" onClick={() => regenerate.mutate()} loading={regenerate.isPending}>
-          {t('manager.regenerateQuestion')}
-        </Button>
-        <Button variant="danger" onClick={() => remove.mutate()} loading={remove.isPending} className="ml-auto">
-          {t('common.delete')}
-        </Button>
-      </div>
-    </Card>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t('manager.qe.deleteTitle', { n: deleteTarget?.n ?? '' })}
+        body={
+          <span className="block space-y-2">
+            <span className="line-clamp-3 block font-medium text-fg">{deleteTarget?.q.prompt}</span>
+            <span className="block">{t('manager.qe.deleteBody')}</span>
+          </span>
+        }
+        confirmLabel={t('common.delete')}
+        tone="danger"
+        busy={deleteQuestion.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() =>
+          deleteTarget &&
+          deleteQuestion.mutate(deleteTarget.q.id, {
+            onSuccess: () => {
+              setDrafts((d) => {
+                const n = { ...d };
+                delete n[deleteTarget.q.id];
+                return n;
+              });
+              toast(t('manager.qe.deleted'), 'brand');
+              setDeleteTarget(null);
+            },
+            onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
+          })
+        }
+      />
+
+      <ConfirmDialog
+        open={!!regenTarget}
+        title={t('manager.qe.regenTitle', { n: regenTarget?.n ?? '' })}
+        body={
+          <span className="block space-y-2">
+            <span className="line-clamp-3 block font-medium text-fg">{regenTarget?.q.prompt}</span>
+            <span className="block">{t('manager.qe.regenBody')}</span>
+          </span>
+        }
+        confirmLabel={t('manager.regenerateQuestion')}
+        busy={regenerate.isPending}
+        onCancel={() => setRegenTarget(null)}
+        onConfirm={() =>
+          regenTarget &&
+          regenerate.mutate(regenTarget.q.id, {
+            onSuccess: () => {
+              setDrafts((d) => {
+                const n = { ...d };
+                delete n[regenTarget.q.id];
+                return n;
+              });
+              toast(t('manager.qe.regenerated'), 'teal');
+              setRegenTarget(null);
+            },
+            onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
+          })
+        }
+      />
+
+      <NoteDialog
+        open={!!reviewTarget}
+        title={t('manager.qe.reviewTitle', { n: reviewTarget?.n ?? '' })}
+        body={t('manager.qe.reviewBody')}
+        confirmLabel={t('manager.qe.markReviewed')}
+        busy={setIssues.isPending}
+        onCancel={() => setReviewTarget(null)}
+        onConfirm={(note) =>
+          reviewTarget &&
+          setIssues.mutate(
+            { ids: reviewIds(reviewTarget.q.id), status: 'RESOLVED', note },
+            {
+              onSuccess: () => {
+                toast(t('manager.qe.reviewedOne'), 'teal');
+                setReviewTarget(null);
+              },
+              onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
+            },
+          )
+        }
+      />
+
+      <NoteDialog
+        open={bulkReviewOpen}
+        title={t('manager.qe.bulkReviewTitle', { count: reviewQuestionCount })}
+        body={t('manager.qe.bulkReviewBody', { count: reviewQuestionCount })}
+        confirmLabel={t('manager.qe.bulkReviewConfirm')}
+        busy={bulkIssues.isPending}
+        onCancel={() => setBulkReviewOpen(false)}
+        onConfirm={(note) =>
+          bulkIssues.mutate(
+            { ids: allReviewIds, status: 'RESOLVED', note },
+            {
+              onSuccess: (r) => {
+                toast(t('manager.qe.bulkReviewed', { count: r.updated }), 'teal');
+                setBulkReviewOpen(false);
+              },
+              onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
+            },
+          )
+        }
+      />
+    </>
   );
 }

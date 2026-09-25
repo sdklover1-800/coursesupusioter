@@ -32,17 +32,19 @@ export const lecture: Loc<typeof ruLecture> = {
   meta: { video: 'Бейне {{duration}}', reading: 'конспектіні оқу ≈ {{min}} мин' },
   contract: 'Дәріс есептелуі үшін бейнені көріңіз немесе конспектіні оқыңыз да, «Өтілді» деп белгілеңіз',
   contractDone: 'Дәріс өтілді және курс үлгеріміне есептелді',
+  contractReading: 'Дәріс есептелуі үшін конспектіні оқыңыз да, «Өтілді» деп белгілеңіз',
 
   tabs: { label: 'Дәріс материалдары', transcript: 'Конспект', summary: 'Қысқаша', terms: 'Терминдер', miniQuiz: 'Мини-квиз' },
 
   readingMode: 'Бейне кейінірек қосылады — дәрісті оқу режимінде өтуге болады',
   videoError: 'Бейне жүктелмеді. Байланысты тексеріңіз — конспект төменде қолжетімді.',
-  player: 'Бейнедәріс',
+  player: 'Бейнедәріс', navBar: 'Дәріс бойынша навигация',
 
   outline: {
     title: 'Курс мазмұны', open: 'Мазмұны', collapse: 'Мазмұнды жасыру', expand: 'Мазмұнды көрсету',
     prevModule: 'Алдыңғы модуль', nextModule: 'Келесі модуль', modules: 'Курс модульдері', allModules: 'Барлық модульдер',
     lecturesDone: 'Дәрістер: {{done}}/{{total}}',
+    moduleQuizN: '{{roman}} модуль тесті',
     moduleQuiz: 'Модуль тесті', practical: 'Қорытынды практикум', miniQuiz: 'Мини-квиз',
   },
   questions_one: '{{count}} сұрақ', questions_other: '{{count}} сұрақ',

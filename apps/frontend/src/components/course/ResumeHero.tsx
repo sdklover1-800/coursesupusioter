@@ -5,7 +5,7 @@ import type { LearnView, MyCourseSummary, NextItem } from '../../lib/learn';
 import type { MyEnrollment } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
 import { Icon, ModeBadge, QuestionGlyph, buttonClass } from '../ui';
-import { cleanTitle, humanLeft, itemShortName, nextHref, quizInCooldown, romanOf, ytThumb } from './labels';
+import { cleanTitle, humanLeft, keepTogether, itemShortName, nextHref, quizInCooldown, romanOf, ytThumb } from './labels';
 import { useNow } from './useNow';
 
 /**
@@ -47,7 +47,7 @@ export function ResumeHero({
       meta = [
         roman ? `${t('course.moduleNo', { roman })} · ${t('course.itemName.LECTURE', { n: next.lectureNumber ?? '' })}` : itemShortName(t, next),
         position > 0 ? t('student.resumeAt', { time: formatDuration(position, 'clock') }) : t('student.newLecture'),
-        lecture?.durationSec ? formatDuration(lecture.durationSec, 'human') : null,
+        lecture?.durationSec ? keepTogether(formatDuration(lecture.durationSec, 'human')) : null,
       ];
       cta = position > 0 ? t('student.cta.LECTURE') : t('student.cta.LECTURE_START');
       break;
@@ -143,9 +143,9 @@ function Media({
     );
   }
   return (
-    <div data-theme="dark" className="relative grid aspect-video place-items-center overflow-hidden rounded-xl bg-ink text-fg">
+    <div className="relative grid aspect-video place-items-center overflow-hidden rounded-xl bg-ink">
       <span className="bg-inquiry-grid absolute inset-0 opacity-40" aria-hidden />
-      <span className={clsx('relative flex flex-col items-center', compact ? 'gap-1.5' : 'gap-3')}>
+      <span data-theme="dark" className={clsx('relative flex flex-col items-center text-fg', compact ? 'gap-1.5' : 'gap-3')}>
         {kind === 'MODULE_QUIZ' ? (
           <>
             <span className="grid place-items-center" style={{ width: glyphSize, height: glyphSize }} aria-hidden>

@@ -5,7 +5,7 @@ import type { LearnModuleQuiz, LearnPractical } from '../../lib/learn';
 import { routes } from '../../lib/learn';
 import { useFormat, formatPercent } from '../../lib/format';
 import { Button, Icon, KindIcon, ModeBadge, QuestionGlyph, StatusIcon, buttonClass } from '../ui';
-import { humanLeft, practicalMapState, practicalStatus, quizInCooldown, quizStatus } from './labels';
+import { humanLeft, keepTogether, practicalMapState, practicalStatus, quizInCooldown, quizStatus } from './labels';
 import { useNow } from './useNow';
 
 /** Видимая метка «Далее» рядом с рекомендуемым шагом (цвет + текст, A24). */
@@ -64,9 +64,8 @@ export function ModuleQuizCard({
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <KindIcon kind="MODULE_QUIZ" size={28} done={quiz.passed} />
-        <H className="text-title">
-          {t('course.quiz.title')} {roman}
-        </H>
+        {/* kk: «II модуль тесті» — порядок слов берём из itemName, а не склеиваем «Модуль тесті II» */}
+        <H className="text-title">{roman ? t('course.itemName.MODULE_QUIZ', { roman }) : t('course.quiz.title')}</H>
         <ModeBadge mode="graded" />
         {isNext && <NextTag />}
       </div>
@@ -138,7 +137,7 @@ export function PracticalCard({
   const href = routes.practical(courseId, enrollmentId, task.id);
   const meta = [
     t('course.practical.subtitle'),
-    task.estimatedMinutes ? t('course.practical.minutes', { count: task.estimatedMinutes }) : null,
+    task.estimatedMinutes ? keepTogether(t('course.practical.minutes', { count: task.estimatedMinutes })) : null,
     t('course.practical.answers', { count: task.maxAiMessages }),
     coversCourse ? (coversRange ? t('course.practical.covers', { range: coversRange }) : t('course.practical.coversCourse')) : null,
   ]

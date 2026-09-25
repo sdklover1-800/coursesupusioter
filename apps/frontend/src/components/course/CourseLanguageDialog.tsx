@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
-import { ApiErrorCode } from '@edu/shared';
+import { ApiErrorCode, LANGUAGES } from '@edu/shared';
 import type { LanguageLockReason, LanguageSwitchPreview, LearnView } from '../../lib/learn';
 import { invalidateLearning } from '../../lib/learn';
 import { api, ApiError } from '../../lib/api';
@@ -27,7 +27,8 @@ export function CourseLanguageDialog({ open, onClose, view }: { open: boolean; o
   const qc = useQueryClient();
   const enrollmentId = view.enrollment.id;
   const currentId = view.enrollment.languageVersionId ?? view.version.id;
-  const options = view.availableLanguages.filter((l) => l.id !== currentId);
+  const order = (lng: string) => (LANGUAGES as readonly string[]).indexOf(lng);
+  const options = view.availableLanguages.filter((l) => l.id !== currentId).sort((a, b) => order(a.language) - order(b.language));
   const [target, setTarget] = useState<string | null>(options[0]?.id ?? null);
   const [lockedReason, setLockedReason] = useState<LanguageLockReason | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);

@@ -108,6 +108,8 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
   const timer = useRef<number | undefined>(undefined);
   const retryDelay = useRef(1000);
   const stopped = useRef(false);
+  /** Раннер смонтирован: после ухода повторы автосохранения прекращаются (StrictMode: тело эффекта снова ставит true) */
+  const alive = useRef(true);
   const submittingRef = useRef(false);
   const alreadyRef = useRef(onAlreadySubmitted);
   alreadyRef.current = onAlreadySubmitted;
@@ -115,7 +117,7 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
   const pending = () => version.current !== savedVersion.current || inFlight.current;
 
   const flush = useCallback(async () => {
-    if (stopped.current || inFlight.current || version.current === savedVersion.current) return;
+    if (!alive.current || stopped.current || inFlight.current || version.current === savedVersion.current) return;
     const v = version.current;
     inFlight.current = true;
     setSave((s) => ({ ...s, status: 'saving' }));
@@ -128,7 +130,7 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
     } catch (err) {
       if (errorCode(err) === QuizErrorCode.ATTEMPT_SUBMITTED) {
         stopped.current = true;
-        if (!submittingRef.current) alreadyRef.current();
+        if (!submittingRef.current && alive.current) alreadyRef.current();
         return;
       }
       setSave((s) => ({ ...s, status: 'error' }));
@@ -169,6 +171,7 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
   }, [attemptId]);
 
   useEffect(() => {
+    alive.current = true;
     // Предупреждение браузера только пока есть несохранённые изменения или идёт сохранение
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       if (stopped.current || !pending()) return;
@@ -185,6 +188,7 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
       document.removeEventListener('visibilitychange', onHide);
       window.clearTimeout(timer.current);
       flushKeepalive();
+      alive.current = false;
     };
   }, [flushKeepalive]);
 

@@ -111,7 +111,7 @@ export const course: Loc<typeof ruCourse> = {
     quizzes: 'Модуль тестері',
     practical: 'Практикум',
     remaining: 'Қалған бейне',
-    passed: 'тапсырылды',
+    passed: 'Тапсырылды',
   },
   certificate: {
     title: 'Сертификат',

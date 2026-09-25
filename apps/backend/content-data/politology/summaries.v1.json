@@ -1,0 +1,432 @@
+{
+  "meta": {
+    "version": 1,
+    "createdAt": "2026-09-25T18:33:10.656Z",
+    "llm": {
+      "calls": 74,
+      "inputTokens": 430885,
+      "outputTokens": 10614,
+      "costUsd": 0.26361795000000005
+    },
+    "warnings": [
+      "ru-12: краткое содержание длиннее 400: 434",
+      "kk-04: краткое содержание длиннее 400: 403",
+      "kk-09: краткое содержание длиннее 400: 481",
+      "en-01: краткое содержание длиннее 400: 476",
+      "en-03: краткое содержание длиннее 400: 406",
+      "en-08: краткое содержание длиннее 400: 430",
+      "en-09: краткое содержание длиннее 400: 441",
+      "en-13: краткое содержание длиннее 400: 514"
+    ],
+    "reviewEdits": [
+      "kk-12: «Лекцияда» → «Дәрісте»"
+    ]
+  },
+  "rows": [
+    {
+      "lang": "en",
+      "lecture": 1,
+      "module": 0,
+      "lectureOrder": 0,
+      "title": "1. Political Science as a Discipline: Object, Subject, and Research Methods",
+      "transcriptSha256": "d9574b31fe8970044e6057694a2b21348799477954d827ea834d50bcb9cdc5e2",
+      "summary": "The lecture defines political science as a discipline that studies politics, power, the state, political institutions, behavior, consciousness, culture, and international relations. It distinguishes the object and subject of political science, compares it with related fields such as philosophy, sociology, history, law, and economics, and outlines key research methods and functions, including institutional, behavioral, comparative, quantitative, and qualitative approaches."
+    },
+    {
+      "lang": "en",
+      "lecture": 2,
+      "module": 0,
+      "lectureOrder": 1,
+      "title": "2. The History of Political Thought: From Antiquity to the Modern Age",
+      "transcriptSha256": "83df89b631d184dbba4beb4d6c0ab19b177b56b9f768c4592083d95b52d4f366",
+      "summary": "The lecture traces the development of political thought from Ancient Greece to the Enlightenment, focusing on Plato’s ideal state, Aristotle’s classification of governments, Machiavelli’s political realism, and the social contract theories of Hobbes and Locke. It also explains Montesquieu’s principle of separation of powers and its role in modern constitutional theory."
+    },
+    {
+      "lang": "en",
+      "lecture": 3,
+      "module": 0,
+      "lectureOrder": 2,
+      "title": "3. Modern Political Theories and Schools of the 20th–21st Centuries",
+      "transcriptSha256": "11fc1d5d5855254f08af5d4dc04c62431e65f37badfe9f548090b0a5a53f9eb5",
+      "summary": "The lecture surveys major political theories of the 20th–21st centuries: liberalism, conservatism, Marxism, neo-institutionalism, and postmodernism. It explains their core ideas about freedom, tradition, class, institutions, and power, including figures such as Locke, Burke, Marx, Gramsci, March, Olsen, and Foucault. It also shows how these approaches are used to interpret political language and events."
+    },
+    {
+      "lang": "en",
+      "lecture": 4,
+      "module": 1,
+      "lectureOrder": 0,
+      "title": "4. Political Power: Nature, Legitimacy, and Resources",
+      "transcriptSha256": "2dd9aefaa1149ad62e5502c48074562775889eee3078dcb65c0754a1e4906086",
+      "summary": "The lecture examines political power as an asymmetrical relationship and reviews major resources of power, including economic, coercive, social, informational, and legal means. It compares Weber’s concept of domination and legitimacy, Dahl’s relational model of power, and Foucault’s view of dispersed power, then outlines types of legitimacy and five mechanisms of exercising power."
+    },
+    {
+      "lang": "en",
+      "lecture": 5,
+      "module": 1,
+      "lectureOrder": 1,
+      "title": "5. The Political System of Society: Structure and Functions",
+      "transcriptSha256": "98082b2e1afd07ea67e1d6d11fbb685fda381477c162ecaf61d790ec91e8acb1",
+      "summary": "The lecture explains the political system as an interconnected whole and defines it through institutions, norms, relations, and political culture. It presents Easton’s input-output model with demands, support, conversion, output, and feedback, then Almond’s structural-functional approach and the five subsystems: institutional, normative, cultural, communicative, and functional."
+    },
+    {
+      "lang": "en",
+      "lecture": 6,
+      "module": 1,
+      "lectureOrder": 2,
+      "title": "6. The State as a Political Institution",
+      "transcriptSha256": "5b2bed05026f76a36b63abb5573dc0ce6e2946560d036aee1b6b67c6997a71aa",
+      "summary": "The lecture examines the state as a political institution, including theories of its origin, key characteristics such as sovereignty, territory, population, and the monopoly on legitimate force, and its internal and external functions. It also outlines forms of government and state structure, comparing monarchies and republics, as well as unitary states, federations, and confederations."
+    },
+    {
+      "lang": "en",
+      "lecture": 7,
+      "module": 1,
+      "lectureOrder": 3,
+      "title": "7. Political Regimes: Democracy, Authoritarianism, and Totalitarianism",
+      "transcriptSha256": "6f9a26d10ad9ac5aed5291732c61b208d855cc940236f87989ce5ad34172c762",
+      "summary": "The lecture explains political regimes as the actual exercise of power and compares democracy, authoritarianism, and totalitarianism through criteria such as pluralism, elections, state control, and institutional constraints. It also surveys major types of democracy and authoritarian rule, international democracy indices, and the rise of hybrid regimes and democratic transition processes."
+    },
+    {
+      "lang": "en",
+      "lecture": 8,
+      "module": 2,
+      "lectureOrder": 0,
+      "title": "8. Electoral Systems and the Electoral Process (Practical Session)",
+      "transcriptSha256": "8f09b53d4eb1000cbe7157307be5ff7c727cdb90296edafcbb19bf2026fe9288",
+      "summary": "The lecture examines majoritarian, proportional, and mixed electoral systems, including district rules, thresholds, list types, and seat-allocation methods such as D'Hondt. It also explains how electoral systems shape party competition through Duverger's Law, wasted votes, tactical voting, gerrymandering, and the effective number of parties. A practical task asks students to model seat distribution under an alternative system."
+    },
+    {
+      "lang": "en",
+      "lecture": 9,
+      "module": 2,
+      "lectureOrder": 1,
+      "title": "9. Political Parties and Party Systems",
+      "transcriptSha256": "af05009b2a409cff2869f637fd750cd06ff24c6d917bd1ecf8639a753d8dc729",
+      "summary": "The lecture examines political parties as intermediaries between citizens and parliament, focusing on their functions in aggregating interests, mobilizing voters, recruiting elites, forming governments, and overseeing opposition. It also presents Duverger’s party types and Sartori’s party-system typology, including one-party, two-party, and multi-party systems. The lecture compares their effects on representation and political stability."
+    },
+    {
+      "lang": "en",
+      "lecture": 10,
+      "module": 2,
+      "lectureOrder": 2,
+      "title": "10. Interest Groups, Lobbying, and Civil Society",
+      "transcriptSha256": "732edb0959f4f8226b47ec215056402cc1b549358553895a06abbe4c9af0c5ff",
+      "summary": "The lecture explains how interest groups differ from parties, and reviews lobbying as direct and indirect influence on policy, including its regulation, transparency, and the revolving door. It also defines civil society and social capital, then compares pluralist and corporatist models of interest representation and their limits in unequal access to power."
+    },
+    {
+      "lang": "en",
+      "lecture": 11,
+      "module": 3,
+      "lectureOrder": 0,
+      "title": "11. Political Culture and Political Socialization",
+      "transcriptSha256": "a7399aa82edc4d0df4d809244776979265202b7e743bbf41d48ebd6a4b45840e",
+      "summary": "The lecture defines political culture as the cognitive, affective, and evaluative orientations that shape political behavior, and presents Almond and Verba’s typology of parochial, subject, and participant cultures, as well as civic culture. It then examines political socialization, its stages and agents, and the role of political subcultures and countercultures within one society."
+    },
+    {
+      "lang": "en",
+      "lecture": 12,
+      "module": 3,
+      "lectureOrder": 1,
+      "title": "12. Political Leadership and Elites (Practical Session)",
+      "transcriptSha256": "66e1e2375ea11520bb1ff9fcca0cea0db90956cb6430ff607ee614eccd545216",
+      "summary": "The lecture examines classic elite theories by Mosca, Pareto, and Michels, along with leadership typologies from Weber, Lewin, Barber, and Lasswell. It also compares guild and entrepreneurial models of elite recruitment and contrasts elitist and pluralist views of power. The practical task is a case study of one political leader using these concepts."
+    },
+    {
+      "lang": "en",
+      "lecture": 13,
+      "module": 3,
+      "lectureOrder": 2,
+      "title": "13. Political Conflicts and Crises: A Typology of Conflict, Mechanisms of Settlement, and the Theory of Revolutions",
+      "transcriptSha256": "843b2d96ac2f04c745668c14fbdfc8f1be3ebd475820a7940975f1467d305670",
+      "summary": "The lecture examines political conflict as a struggle over power, its structure, typology, and stages, as well as functionalist and conflict-theory approaches. It also defines political crisis, distinguishes conflict resolution from conflict management, and reviews settlement mechanisms such as negotiation, mediation, consociational democracy, and peacekeeping. The final part outlines major theories of revolution, including relative deprivation, resource mobilization, structural, and modernization approaches."
+    },
+    {
+      "lang": "en",
+      "lecture": 14,
+      "module": 4,
+      "lectureOrder": 0,
+      "title": "14. Political Analysis and Forecasting: SWOT Analysis, Scenario Forecasting, Content Analysis of Political Texts (Practical Session)",
+      "transcriptSha256": "19d664f39857f0db09b7098a0e8b29926ac25341da84d0354cc6e19babf3221c",
+      "summary": "The lecture introduces applied political analysis and forecasting through SWOT analysis, scenario forecasting, and content analysis of political texts. It explains how these methods are used to assess actors, build alternative future trajectories, and analyze communication, with emphasis on uncertainty, reliability, and methodological justification in political forecasting."
+    },
+    {
+      "lang": "en",
+      "lecture": 15,
+      "module": 4,
+      "lectureOrder": 1,
+      "title": "15. World Politics and International Relations: Core Theories",
+      "transcriptSha256": "4fcdbcb556c520b8e26c02239d709f41b6012ae711d4e26b3100f1b45fa4e375",
+      "summary": "The lecture outlines realism, liberalism, and constructivism as core theories of world politics and international relations. It explains anarchy, power, security dilemma, interdependence, institutions, identity, and norms, and shows how each paradigm interprets international organizations and major events in world politics."
+    },
+    {
+      "lang": "kk",
+      "lecture": 1,
+      "module": 0,
+      "lectureOrder": 0,
+      "title": "1. Саясаттану ғылым ретінде: объектісі, пәні, зерттеу әдістері",
+      "transcriptSha256": "2b41bf3c94aecbc81bb29dc392809eae4e6e0ea35ca1f9a74f5f0dfa33ff512d",
+      "summary": "Дәрісте саясаттанудың объектісі мен пәні, саясаттың мәні, билік пен саяси институттардың орны қарастырылады. Сондай-ақ саясаттанудың саяси философия, социология, тарих, құқықтану және экономикамен шекаралары, институционалдық, бихевиоралистік, салыстырмалы және басқа зерттеу әдістері түсіндіріледі. Қорытындыда ғылымның танымдық, болжамдық, әдіснамалық және практикалық функциялары сипатталады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 2,
+      "module": 0,
+      "lectureOrder": 1,
+      "title": "2. Саяси ілімдер тарихы: Антика дәуірінен Жаңа заманға дейін",
+      "transcriptSha256": "91698150329837bf12b0657b496fe4cce1cce6b33f54c8cd92a355761a691b5d",
+      "summary": "Дәрісте Антикадан Жаңа заманға дейінгі саяси ілімдер қарастырылады: Платонның идеалды мемлекеті, Аристотельдің билік нысандары, Макиавеллидің саяси реализмi, Гоббс пен Локктің қоғамдық шарт және табиғи құқықтар теориясы, Монтескьенің билікті бөлу қағидасы. Ойшылдардың саясат, мемлекет, әділеттілік және бостандық туралы түсініктері салыстырылып, олардың қазіргі саяси ғылымға ықпалы көрсетіледі."
+    },
+    {
+      "lang": "kk",
+      "lecture": 3,
+      "module": 0,
+      "lectureOrder": 2,
+      "title": "3. ХХ–ХХІ ғасырлардағы заманауи саяси теориялар мен мектептер",
+      "transcriptSha256": "6036de7c15191588bdf59effc614c5771910a9591b267b205e4e173626e16bfa",
+      "summary": "Дәрісте ХХ–ХХІ ғасырлардағы саяси теориялар мен мектептер: либерализм, консерватизм, марксизм, неоинституционализм және постмодернистік бағыттар қарастырылады. Әр теорияның еркіндік, дәстүр, таптық күрес, институттар және саяси тіл туралы негізгі ұғымдары түсіндіріледі. Сондай-ақ оларды саяси мәлімдеме мен партиялық бағдарлама талдауында қолдану жолдары көрсетіледі."
+    },
+    {
+      "lang": "kk",
+      "lecture": 4,
+      "module": 1,
+      "lectureOrder": 0,
+      "title": "4. Саяси билік: табиғаты, легитимділігі және ресурстары",
+      "transcriptSha256": "e7ca296a7c4bb9f3102fda96bd81d61791f2ff286d6f28a77fed16c0d95cdadd",
+      "summary": "Дәрісте саяси биліктің табиғаты, ресурстары және легитимділігі қарастырылады; Макс Вебер, Роберт Даль және Мишель Фуконың билік туралы тұжырымдамалары салыстырылады. Сондай-ақ легалдылық пен легитимділік айырмасы, дәстүрлі, харизмалық және легалды-рационалды легитимділік түрлері түсіндіріледі. Билікті жүзеге асырудың тетіктері ретінде мәжбүрлеу, бедел, ынталандыру, сендіру және манипуляция талданады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 5,
+      "module": 1,
+      "lectureOrder": 1,
+      "title": "5. Қоғамның саяси жүйесі: құрылымы мен қызметтері",
+      "transcriptSha256": "fa0ab9b3504fca6867069e84097dab76dc74600be7503957a0009703ff864de3",
+      "summary": "Дәрісте қоғамның саяси жүйесі, оның кіріс пен шығыс тетіктері, конверсия және кері байланыс қарастырылады. Дэвид Истонның «қара жәшік» моделі мен Габриэль Алмондтың құрылымдық-функционалдық моделі, сондай-ақ саяси жүйенің институционалдық, нормативтік, мәдени, коммуникативтік және функционалдық кіші жүйелері түсіндіріледі."
+    },
+    {
+      "lang": "kk",
+      "lecture": 6,
+      "module": 1,
+      "lectureOrder": 2,
+      "title": "6. Мемлекет саяси институт ретінде",
+      "transcriptSha256": "d16c79dc76a3036b160ebc1108da843b2f73be8064708334849f526ad8cd0343",
+      "summary": "Дәрісте мемлекеттің пайда болу теориялары, оның негізгі белгілері, ішкі және сыртқы функциялары қарастырылады. Сондай-ақ басқару нысаны ретінде монархия мен республика, мемлекеттік құрылым нысаны ретінде унитарлық мемлекет, федерация және конфедерация салыстырылады. Егемендік, заңды зорлық-зомбылыққа монополия және азаматтық ұғымдарына ерекше назар аударылады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 7,
+      "module": 1,
+      "lectureOrder": 3,
+      "title": "7. Саяси режимдер: демократия, авторитаризм және тоталитаризм",
+      "transcriptSha256": "2cbfb5de59447e201c62eb446dfac8dd6dcce101aa81532c8506cc0229a24bf6",
+      "summary": "Дәрісте саяси режим ұғымы, оны бағалау өлшемдері және демократия, авторитаризм мен тоталитаризмнің негізгі белгілері қарастырылады. Демократияның түрлері, авторитарлық және тоталитарлық биліктің айырмашылығы, сондай-ақ режимдердің ауысу үдерістері түсіндіріледі. Сонымен бірге Freedom House, Polity, V-Dem және BTI сияқты халықаралық бағалау жүйелері мен гибридтік режимдер талданады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 8,
+      "module": 2,
+      "lectureOrder": 0,
+      "title": "8. Сайлау жүйелері және электоралдық процесс (практикалық сабақ)",
+      "transcriptSha256": "d0eb87dd4bfca9b8fae4207705e7bb08d256f82ba39ecb07f7a696792be7abff",
+      "summary": "Дәрісте мажоритарлық, пропорционалды және аралас сайлау жүйелерінің жұмыс қағидаттары, сайлау шегі, партиялық тізімдер және Д’Ондт әдісі қарастырылады. Сондай-ақ Дюверже заңы, «жоғалған дауыстар», джерримендеринг және тиімді партиялар саны индексі түсіндіріледі. Практикалық тапсырмада мемлекеттің сайлау жүйесін талдау және баламалы жүйе бойынша орын бөлінісін модельдеу көзделеді."
+    },
+    {
+      "lang": "kk",
+      "lecture": 9,
+      "module": 2,
+      "lectureOrder": 1,
+      "title": "9. Саяси партиялар және партиялық жүйелер",
+      "transcriptSha256": "12d6c2749b5729042d7f327a3cf1665db8126c2d93b84bec9f2b8b0671598f66",
+      "summary": "Дәрісте саяси партияның мәні мен негізгі функциялары: мүдделерді біріктіру, саяси әлеуметтендіру, элита қалыптастыру, үкімет құру және оппозициялық бақылау қарастырылады. Морис Дюверже партиялардың кадрлық, бұқаралық, «бәріне арналған» және картельдік үлгілерін, ал Джованни Сартори бірпартиялық, гегемон-партия, үстем партия, екіпартиялық және көппартиялық жүйелерді жіктейді. Партиялық жүйенің сайлау жүйесімен, әлеуметтік жіктелумен және саяси тұрақтылықпен байланысы талданады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 10,
+      "module": 2,
+      "lectureOrder": 2,
+      "title": "10. Мүдделі топтар, лоббизм және азаматтық қоғам",
+      "transcriptSha256": "2c431160c47b83126091d6d27577331553a5c2564862bd0792bfde1f8d00a2ca",
+      "summary": "Дәрісте мүдделі топтардың партиялардан айырмашылығы, олардың түрлері, инсайдерлік және аутсайдерлік ықпал арналары қарастырылады. Сондай-ақ лоббизмнің тікелей және жанама әдістері, оны құқықтық реттеу, азаматтық қоғам, әлеуметтік капитал және оның демократиядағы рөлі талданады. Соңында мүдделерді ұсынудың плюралистік және корпоративистік модельдері салыстырылады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 11,
+      "module": 3,
+      "lectureOrder": 0,
+      "title": "11. Саяси мәдениет және саяси әлеуметтену",
+      "transcriptSha256": "d9147a4b5b743739580efdb2efa6a73342e9c539df066aa35a8e0825557a8e9b",
+      "summary": "Дәрісте саяси мәдениет ұғымы, оның когнитивті, аффективті және бағалау деңгейлері, сондай-ақ Алмонд пен Верба ұсынған патриархалды, бағынышты және қатысушылық типтері қарастырылады. Саяси әлеуметтенудің кезеңдері мен агенттері, ресоциализация, саяси тиімділік және саяси субмәдениеттер мен контрмәдениет мәселелері талданады."
+    },
+    {
+      "lang": "kk",
+      "lecture": 12,
+      "module": 3,
+      "lectureOrder": 1,
+      "title": "12. Саяси көшбасшылық және элиталар (практикалық сабақ)",
+      "transcriptSha256": "b19b652d7efb9fd009bc918d602cfbaa20b70020d3be6a16929572f9f89fd2ec",
+      "summary": "Дәрісте саяси элиталар мен көшбасшылықтың классикалық теориялары қарастырылды: Г. Москаның саяси тап, В. Паретоның элиталар циркуляциясы және Р. Михельстің олигархияның темір заңы. Сонымен қатар көшбасшылық стильдері, элиталарды рекруттеу тетіктері, Ч. Р. Миллс пен Р. Дальдың билік туралы көзқарастары талданып, саяси көшбасшыға кейс-талдау жасауға практикалық тапсырма берілді."
+    },
+    {
+      "lang": "kk",
+      "lecture": 13,
+      "module": 3,
+      "lectureOrder": 2,
+      "title": "13. Саяси қақтығыстар мен дағдарыстар: қақтығыстар типологиясы, реттеу механизмдері, революциялар теориясы",
+      "transcriptSha256": "b539c9bf716bf77dfd336a1d97a4f5cf2de4cfd659ec6cec15321acdbed596d5",
+      "summary": "Дәрісте саяси қақтығыстың ұғымы, құрылымы, типологиясы және саяси дағдарыстың даму, легитимдік, қатысу, ену, бөлу түрлері қарастырылады. Қақтығыстарды реттеу тәсілдері ретінде келіссөз, делдалдық, төрелік, қауіпсіздік клапандары және консоциональды демократия талданады. Сондай-ақ революциялардың теориялары, салыстырмалы депривация, ресурстарды жұмылдыру және саяси құлдырау түсіндіріледі."
+    },
+    {
+      "lang": "kk",
+      "lecture": 14,
+      "module": 4,
+      "lectureOrder": 0,
+      "title": "14. Саяси талдау және болжау: SWOT-талдау, сценарийлік болжау, саяси мәтіндердің контент-талдауы (практикалық сабақ)",
+      "transcriptSha256": "fc6fd8db9c14d31e1454508936d4c08b16574d3fad603a721069adacf1c1a62c",
+      "summary": "Дәрісте саяси талдау мен болжаудың қолданбалы мәні, дескриптивті, түсіндірмелі, болжамдық және ұсынымдық деңгейлері қарастырылады. SWOT-талдау, сценарийлік болжау және саяси мәтіндердің контент-талдауы арқылы актордың ішкі-сыртқы факторлары, баламалы даму траекториялары, ерте ескерту белгілері мен коммуникация мазмұнын бағалау жолдары түсіндіріледі."
+    },
+    {
+      "lang": "kk",
+      "lecture": 15,
+      "module": 4,
+      "lectureOrder": 1,
+      "title": "15. Әлемдік саясат және халықаралық қатынастар: негізгі теориялар",
+      "transcriptSha256": "f5e9a9ce84b841b9645fcd0f1904091ab9b456596c589eac701370ce95dc31fe",
+      "summary": "Дәрісте әлемдік саясат пен халықаралық қатынастардың негізгі теориялары — реализм, либерализм және конструктивизм — қарастырылып, анархия, күш, өзара тәуелділік, институттар, сәйкестік пен норма ұғымдары түсіндіріледі. Халықаралық ұйымдардың қызметі мен оларды әр парадигманың қалай талдайтыны салыстырылады. Қорытындыда теориялардың бірін-бірі толықтыратын талдамалық рөлi атап өтіледі."
+    },
+    {
+      "lang": "ru",
+      "lecture": 1,
+      "module": 0,
+      "lectureOrder": 0,
+      "title": "1. Политология как наука: объект, предмет, методы исследования",
+      "transcriptSha256": "b3a069d9b1cdb61db49924ebf9e90375eb091b750f58fb8cde26f6a1a0581372",
+      "summary": "Лекция раскрывает политологию как науку: её объект и предмет, основные подходы к определению политики, место среди смежных дисциплин и различие между нормативным и эмпирическим изучением власти. Рассматриваются методы исследования — от институционального и сравнительного до количественного и качественного — и функции политологии, включая познавательную, прогностическую и прикладную."
+    },
+    {
+      "lang": "ru",
+      "lecture": 2,
+      "module": 0,
+      "lectureOrder": 1,
+      "title": "2. История политических учений: от Античности до Нового времени",
+      "transcriptSha256": "1f9b8074ec1515e42cd40388046f35eef15dbe8e9661c8d4a79664d649b61158",
+      "summary": "Лекция рассматривает развитие политической мысли от Античности до Нового времени: идеальное государство и формы правления у Платона и Аристотеля, политический реализм Макиавелли. Затем разбираются теория общественного договора у Гоббса и Локка, естественные права и ограниченная власть, а также принцип разделения властей у Монтескьё."
+    },
+    {
+      "lang": "ru",
+      "lecture": 3,
+      "module": 0,
+      "lectureOrder": 2,
+      "title": "3. Современные политические теории и школы XX–XXI века",
+      "transcriptSha256": "ea4cc7c57ca766957e9e44fff80303c75a9697ae0f7b0ad12e88b8e419dac8a2",
+      "summary": "Лекция рассматривает основные политические теории XX–XXI века: либерализм, консерватизм, марксизм, неоинституционализм и постмодернизм. Разбираются их представления о свободе, государстве, традиции, классовой борьбе, институтах, власти и языке политики, а также различия между внутренними течениями этих подходов."
+    },
+    {
+      "lang": "ru",
+      "lecture": 4,
+      "module": 1,
+      "lectureOrder": 0,
+      "title": "4. Политическая власть: природа, легитимность, ресурсы",
+      "transcriptSha256": "4bc48f9e0bbc30948be1431a0a6b88caf847972d5ecf21fe3b2aea113c03b657",
+      "summary": "Лекция рассматривает природу политической власти как асимметричного отношения, её ресурсы и механизмы властвования. Сопоставляются подходы Макса Вебера, Роберта Даля и Мишеля Фуко, а также разбираются легитимность, её типы и отличие от легальности. Отдельно описываются принуждение, авторитет, побуждение, убеждение и манипуляция."
+    },
+    {
+      "lang": "ru",
+      "lecture": 5,
+      "module": 1,
+      "lectureOrder": 1,
+      "title": "5. Политическая система общества: структура и функции",
+      "transcriptSha256": "4b5396e2c066cec2c1296334ed43a8af900b229101787dc8d8a1e25c9324392f",
+      "summary": "Лекция рассматривает политическую систему общества как взаимосвязанное целое, включающее институты, нормы, отношения и политическую культуру. Разбираются модель Д. Истона с входами, выходами, конверсией и обратной связью, а также структура и функции по Г. Алмонду. Отдельно выделяются подсистемы политической системы и их роль в политическом процессе."
+    },
+    {
+      "lang": "ru",
+      "lecture": 6,
+      "module": 1,
+      "lectureOrder": 2,
+      "title": "6. Государство как политический институт",
+      "transcriptSha256": "0a51e37d9b12e16d99ae737e41e384e5c728cd978aca66ba5ebe55cc90e6f03b",
+      "summary": "Лекция рассматривает государство как политический институт: теории его происхождения, признаки, включая суверенитет и монополию на легитимное насилие, а также внутренние и внешние функции. Отдельно разбираются формы правления и государственного устройства: монархия, республика, унитарное государство, федерация и конфедерация."
+    },
+    {
+      "lang": "ru",
+      "lecture": 7,
+      "module": 1,
+      "lectureOrder": 3,
+      "title": "7. Политические режимы: демократия, авторитаризм, тоталитаризм",
+      "transcriptSha256": "9bcf03b6c856e06ddb1a7931aacb05dda6e410113296901e463f48dcca5b6c0d",
+      "summary": "Лекция раскрывает понятие политического режима как реального способа функционирования власти и критерии его классификации: плюрализм, выборы, контроль над обществом и независимость институтов. Рассматриваются признаки демократии, авторитаризма и тоталитаризма, их разновидности, гибридные режимы и способы измерения демократичности по индексам Freedom House, Polity и V-Dem."
+    },
+    {
+      "lang": "ru",
+      "lecture": 8,
+      "module": 2,
+      "lectureOrder": 0,
+      "title": "8. Избирательные системы и электоральный процесс (практическое занятие)",
+      "transcriptSha256": "8563d6b63ecb46f4a2a8ea17456128e80caac1beada086afe2f58dcd9de9700d",
+      "summary": "Лекция рассматривает мажоритарную, пропорциональную и смешанную избирательные системы, их правила подсчёта голосов и влияние на представительство партий. Отдельно разбираются избирательный порог, методы распределения мест, открытые и закрытые списки, а также закон Дюверже и индекс эффективного числа партий. В конце объясняется практическое задание по анализу и моделированию смены системы."
+    },
+    {
+      "lang": "ru",
+      "lecture": 9,
+      "module": 2,
+      "lectureOrder": 1,
+      "title": "9. Политические партии и партийные системы",
+      "transcriptSha256": "dffc750caad355c7d54661ba6f26c34889686d3856f4e3d7f5bee1e565ec4d25",
+      "summary": "Лекция рассматривает понятие политической партии, ее функции: артикуляцию и агрегирование интересов, социализацию и мобилизацию граждан, рекрутирование элит, формирование правительства и оппозиционный контроль. Также разбираются типологии партий Дюверже и партийных систем Сартори, а затем сравниваются однопартийные, двухпартийные и многопартийные модели."
+    },
+    {
+      "lang": "ru",
+      "lecture": 10,
+      "module": 2,
+      "lectureOrder": 2,
+      "title": "10. Группы интересов, лоббизм и гражданское общество",
+      "transcriptSha256": "836213d835f18f973226feb90491d92eef4b70e26c93e7d7989a7c6a4ae0eae4",
+      "summary": "Лекция рассматривает группы интересов и их отличие от партий, виды лоббизма, его методы и регулирование, а также проблемы неравного доступа к принятию решений. Отдельно разбираются гражданское общество и социальный капитал, их роль в демократии, а также плюралистическая и корпоративистская модели представительства интересов."
+    },
+    {
+      "lang": "ru",
+      "lecture": 11,
+      "module": 3,
+      "lectureOrder": 0,
+      "title": "11. Политическая культура и политическая социализация",
+      "transcriptSha256": "5a275975092864ea6ec44bf2b3b6a4af2a6219105ce3bc210c5aee3e04e13b45",
+      "summary": "Лекция посвящена политической культуре как системе ценностей, установок и моделей поведения, а также ее различию с идеологией и общественным мнением. Рассматриваются типология Алмонда и Вербы, политическая социализация, ее стадии и основные агенты: семья, школа, медиа, сверстники, государство и религиозные институты. Отдельно анализируются политические субкультуры и контркультуры внутри общества."
+    },
+    {
+      "lang": "ru",
+      "lecture": 12,
+      "module": 3,
+      "lectureOrder": 1,
+      "title": "12. Политическое лидерство и элиты (практическое занятие)",
+      "transcriptSha256": "533b2d6a2472109d623e9420bb9f65a726cc494fdfd3c2f87c97793cf433fa27",
+      "summary": "Лекция рассматривает классические теории политических элит Моски, Парето и Михельса, а также понятия правящего меньшинства, циркуляции элит и «железного закона олигархии». Отдельно анализируются стили и типологии лидерства, включая веберовские типы легитимности, модели Левина, Барбера и Лассуэлла, и механизмы рекрутирования элит. Практическая часть посвящена кейс-анализу конкретного политического лидера на основе выбранной теории."
+    },
+    {
+      "lang": "ru",
+      "lecture": 13,
+      "module": 3,
+      "lectureOrder": 2,
+      "title": "13. Политические конфликты и кризисы: типология конфликтов, механизмы урегулирования, теория революций",
+      "transcriptSha256": "612ca663ad07aaf0a1093ef42c6090c07c489ed4a5cdf70aa1b09ce2fdd5896d",
+      "summary": "Лекция рассматривает политический конфликт как столкновение интересов по поводу власти, его структуру, стадии, типы и основные подходы к интерпретации. Затем разбираются политические кризисы, их разновидности и механизмы урегулирования: переговоры, посредничество, институциональные гарантии и постконфликтные практики. Завершает лекцию теория революций и модели, объясняющие их причины и этапы."
+    },
+    {
+      "lang": "ru",
+      "lecture": 14,
+      "module": 4,
+      "lectureOrder": 0,
+      "title": "14. Политический анализ и прогнозирование: SWOT-анализ, сценарное прогнозирование, контент-анализ политических текстов (практическое занятие)",
+      "transcriptSha256": "cead6045f4d092bb2609b404946032911a580c15ddd88575b08ee285c34f3d54",
+      "summary": "Лекция рассматривает политический анализ и прогнозирование как прикладные методы, опирающиеся на дескриптивный, объяснительный и прогностический уровни. Разбираются SWOT-анализ с TOWS-логикой, сценарное прогнозирование и контент-анализ политических текстов, а также их ограничения, источники данных и критерии проверки прогноза."
+    },
+    {
+      "lang": "ru",
+      "lecture": 15,
+      "module": 4,
+      "lectureOrder": 1,
+      "title": "15. Мировая политика и международные отношения: основные теории",
+      "transcriptSha256": "460b1f85e32b9be04fe373f10da7248d027538558583a2d217e54371dedcae10",
+      "summary": "Лекция рассматривает основные теории международных отношений: реализм, либерализм и конструктивизм, их представления об анархии, государстве, силе, интересах, идентичности и нормах. Отдельно анализируется роль международных организаций и то, как разные парадигмы объясняют сотрудничество, конфликты и мировую интеграцию."
+    }
+  ]
+}

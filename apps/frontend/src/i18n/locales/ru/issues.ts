@@ -1,2 +1,57 @@
-/** Пространство «issues» — заполняет FE5. */
-export const issues = {};
+/** Входящие жалобы на контент и экспертная проверка (/manage/issues; FE5 §4). */
+export const issues = {
+  title: 'Ошибки в контенте',
+  subtitle: 'Сообщения студентов и отметки экспертной проверки по вопросам, лекциям и заданиям.',
+  subtitleCounts: 'Открыто: {{open}}, из них на экспертной проверке: {{system}}.',
+  statusFilter: 'Статус', originFilter: 'Происхождение', courseFilter: 'Курс', languageFilter: 'Язык', targetFilter: 'Объект',
+  statusTab: { OPEN: 'Открытые', RESOLVED: 'Решённые', DISMISSED: 'Отклонённые', ALL: 'Все' },
+  status: { OPEN: 'Открыто', RESOLVED: 'Решено', DISMISSED: 'Отклонено' },
+  originAll: 'Все',
+  origin: { STUDENT: 'От студентов', SYSTEM: 'Экспертная проверка', MIXED: 'Студенты и экспертная проверка' },
+  allCourses: 'Все курсы', allLanguages: 'Все языки', allTargets: 'Все объекты',
+  target: { QUIZ_QUESTION: 'Вопрос теста', LECTURE: 'Лекция', PRACTICAL_TASK: 'Практическое задание', CHAT_MESSAGE: 'Реплика в практикуме' },
+  reason: { EXPERT_REVIEW: 'Экспертная проверка', NATIVE_PROOFREAD: 'Вычитка носителем языка', FACT_CHECK: 'Проверка фактов' },
+  context: {
+    PRACTICE: 'тренировка', REVIEW: 'разбор', OFFICIAL: 'официальная попытка', PRACTICAL: 'практикум',
+    LECTURE: 'лекция', CONTENT_PIPELINE: 'контент-скрипт',
+  },
+  reporters_one: 'сообщил {{count}} студент', reporters_few: 'сообщили {{count}} студента',
+  reporters_many: 'сообщили {{count}} студентов', reporters_other: 'сообщили {{count}} студента',
+  key: 'ключ', roleTutor: 'Реплика тьютора', roleStudent: 'Реплика студента',
+  lectureN: 'Лекция {{n}}. {{title}}',
+  previewMissing: 'Объект удалён или недоступен.',
+  openEditor: 'Открыть в редакторе', noEditor: 'Реплику чата не редактируют — примите меры в задании.',
+  resolve: 'Решено', dismiss: 'Отклонить', reopen: 'Вернуть в работу', resolveSelected: 'Отметить решёнными',
+  selectAll: 'Выбрать все на странице', selectRow: 'Выбрать сообщение', clearSelection: 'Снять выделение',
+  selected_one: 'Выбрана {{count}} группа ({{issues}} сообщ.)', selected_few: 'Выбраны {{count}} группы ({{issues}} сообщ.)',
+  selected_many: 'Выбрано {{count}} групп ({{issues}} сообщ.)', selected_other: 'Выбрано {{count}} группы ({{issues}} сообщ.)',
+  loadMore: 'Показать ещё',
+  emptyOpen: 'Открытых сообщений нет', emptyOpenSystem: 'Всё проверено экспертом', empty: 'Сообщений нет',
+  emptyHint: 'Когда студенты сообщат об ошибке или контент-скрипт отметит материалы на проверку, они появятся здесь.',
+  noteLabel: 'Заметка (необязательно)', noteHint: 'Видна сотрудникам и в журнале аудита; студенту не отправляется.',
+  confirm: {
+    RESOLVED: {
+      title_one: 'Отметить {{count}} сообщение решённым?', title_few: 'Отметить {{count}} сообщения решёнными?',
+      title_many: 'Отметить {{count}} сообщений решёнными?', title_other: 'Отметить {{count}} сообщения решёнными?',
+      body: 'Сообщения уйдут из открытых; действие фиксируется в журнале аудита. Студенту ответ не отправляется.',
+      action: 'Отметить решёнными',
+    },
+    DISMISSED: {
+      title_one: 'Отклонить {{count}} сообщение?', title_few: 'Отклонить {{count}} сообщения?',
+      title_many: 'Отклонить {{count}} сообщений?', title_other: 'Отклонить {{count}} сообщения?',
+      body: 'Используйте, если ошибки нет. Действие фиксируется в журнале аудита; вернуть в работу можно позже.',
+      action: 'Отклонить',
+    },
+    OPEN: {
+      title_one: 'Вернуть {{count}} сообщение в работу?', title_few: 'Вернуть {{count}} сообщения в работу?',
+      title_many: 'Вернуть {{count}} сообщений в работу?', title_other: 'Вернуть {{count}} сообщения в работу?',
+      body: 'Сообщения снова станут открытыми и появятся в счётчике навигации.',
+      action: 'Вернуть в работу',
+    },
+  },
+  done: {
+    RESOLVED_one: 'Решено: {{count}}', RESOLVED_few: 'Решено: {{count}}', RESOLVED_many: 'Решено: {{count}}', RESOLVED_other: 'Решено: {{count}}',
+    DISMISSED_one: 'Отклонено: {{count}}', DISMISSED_few: 'Отклонено: {{count}}', DISMISSED_many: 'Отклонено: {{count}}', DISMISSED_other: 'Отклонено: {{count}}',
+    OPEN_one: 'Возвращено в работу: {{count}}', OPEN_few: 'Возвращено в работу: {{count}}', OPEN_many: 'Возвращено в работу: {{count}}', OPEN_other: 'Возвращено в работу: {{count}}',
+  },
+};

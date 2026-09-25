@@ -5,12 +5,13 @@ import { isApproved, useMyCourses } from '../../lib/catalog';
 import { routes } from '../../lib/learn';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useAuth } from '../../lib/auth';
 import { Button, Card, Icon, Skeleton, toast } from '../../components/ui';
 import { EmptyState, ErrorState, MeterBar, PageHeader } from '../../components/page';
 import { LinkButton } from '../../components/enrollment';
 import { CertificatePreview } from '../../components/course/CertificatePreview';
 import { MissingList, useCertificateDownload } from '../../components/course/CertificateCard';
-import { languageName } from '../../components/course/labels';
+import { keepTogether, languageName } from '../../components/course/labels';
 
 /** Строка GET /me/certificates (выданные сертификаты допущенных записей). */
 interface Cert { id: string; serialNumber: string; issuedAt: string; enrollmentId: string; course: string; language: string }
@@ -56,6 +57,7 @@ function CertificateItem({ cert: c }: { cert: Cert }) {
   const { t } = useTranslation();
   const { formatDate } = useFormat();
   const { download, busy } = useCertificateDownload();
+  const { user } = useAuth();
 
   async function copy() {
     const url = verifyLink(c.serialNumber);
@@ -69,10 +71,10 @@ function CertificateItem({ cert: c }: { cert: Cert }) {
 
   return (
     <article className="card flex flex-col p-5">
-      <CertificatePreview title={c.course} serial={c.serialNumber} label={`${t('course.certificate.heading')}: ${c.course}`} />
+      <CertificatePreview title={c.course} holder={user?.name} serial={c.serialNumber} label={`${t('course.certificate.heading')}: ${c.course}`} />
       <h2 className="mt-4 line-clamp-2 font-sans text-title" lang={c.language}>{c.course}</h2>
       <p className="mt-1 text-meta text-fg-2">
-        {languageName(t, c.language)} · {t('certificate.issuedOn', { date: formatDate(c.issuedAt) })}
+        {languageName(t, c.language)} · {t('certificate.issuedOn', { date: keepTogether(formatDate(c.issuedAt)) })}
       </p>
       <p className="mt-2 flex flex-wrap items-baseline gap-x-2 text-meta text-fg-2">
         <span>{t('certificate.serial')}:</span>

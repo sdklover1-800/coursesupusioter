@@ -68,20 +68,7 @@ export function ProfilePage() {
                 />
                 <p className="mt-1.5 text-meta text-fg-2">{t('profile.interfaceLanguageHint')}</p>
               </div>
-              <div>
-                <p className="text-label font-semibold text-fg">{t('profile.theme')}</p>
-                <SegmentedControl<ThemePreference>
-                  ariaLabel={t('profile.theme')}
-                  value={preference}
-                  onChange={setPreference}
-                  className="mt-2"
-                  options={[
-                    { value: 'light', label: <span className="inline-flex items-center gap-1.5"><Icon name="sun" size={16} />{t('profile.themeLight')}</span> },
-                    { value: 'dark', label: <span className="inline-flex items-center gap-1.5"><Icon name="moon" size={16} />{t('profile.themeDark')}</span> },
-                    { value: 'system', label: <span className="inline-flex items-center gap-1.5"><Icon name="monitor" size={16} />{t('profile.themeSystem')}</span> },
-                  ]}
-                />
-              </div>
+              <ThemePicker value={preference} onChange={setPreference} />
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p id="profile-a11y" className="text-label font-semibold text-fg">{t('profile.a11y')}</p>
@@ -216,5 +203,42 @@ export function PasswordChangeForm({ submitLabel, onDone }: { submitLabel: strin
         {submitLabel}
       </Button>
     </form>
+  );
+}
+
+/**
+ * Тема: три плитки-радиокнопки (иконка + подпись). Сегментный переключатель с иконками
+ * не помещался в 390px (особенно «Жүйедегідей»), плитки делят ширину поровну и переносят текст.
+ */
+function ThemePicker({ value, onChange }: { value: ThemePreference; onChange: (v: ThemePreference) => void }) {
+  const { t } = useTranslation();
+  const options: { value: ThemePreference; icon: 'sun' | 'moon' | 'monitor'; label: string }[] = [
+    { value: 'light', icon: 'sun', label: t('profile.themeLight') },
+    { value: 'dark', icon: 'moon', label: t('profile.themeDark') },
+    { value: 'system', icon: 'monitor', label: t('profile.themeSystem') },
+  ];
+  return (
+    <fieldset>
+      <legend className="text-label font-semibold text-fg">{t('profile.theme')}</legend>
+      <div className="mt-2 grid max-w-md grid-cols-3 gap-2">
+        {options.map((o) => {
+          const checked = o.value === value;
+          return (
+            <label
+              key={o.value}
+              className={clsx(
+                'flex min-h-[4.5rem] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-center text-label font-semibold transition-colors',
+                'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand',
+                checked ? 'border-ink bg-ink text-white dark:border-fg dark:bg-fg dark:text-ink' : 'border-border bg-card text-fg-2 hover:border-brand/50 hover:text-fg',
+              )}
+            >
+              <input type="radio" name="theme" value={o.value} checked={checked} onChange={() => onChange(o.value)} className="sr-only" />
+              <Icon name={o.icon} size={20} />
+              <span className="min-w-0 break-words">{o.label}</span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }

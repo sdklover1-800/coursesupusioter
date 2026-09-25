@@ -58,11 +58,29 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   // GET /admin/users — список/поиск (FR пагинация).
   app.get('/admin/users', adminOnly, async (req) => {
     const p = parse(paginationSchema, req.query);
-    const filters = parse(z.object({ role: z.enum([Role.STUDENT, Role.COURSE_MANAGER, Role.ADMIN]).optional(), cohortId: z.string().optional() }), req.query);
+    const filters = parse(
+      z.object({
+        role: z.enum([Role.STUDENT, Role.COURSE_MANAGER, Role.ADMIN]).optional(),
+        cohortId: z.string().optional(),
+        // Статус согласия на участие (FE5 «Фильтры»): given — текущая версия текста, outdated — старая, missing — нет
+        consent: z.enum(['given', 'outdated', 'missing']).optional(),
+      }),
+      req.query,
+    );
+    const consentWhere =
+      filters.consent === 'given'
+        ? { researchConsentAt: { not: null }, researchConsentVersion: env.RESEARCH_CONSENT_VERSION }
+        : filters.consent === 'outdated'
+          ? { researchConsentAt: { not: null }, OR: [{ researchConsentVersion: null }, { researchConsentVersion: { not: env.RESEARCH_CONSENT_VERSION } }] }
+          : filters.consent === 'missing'
+            ? { researchConsentAt: null }
+            : {};
     const where = {
       ...(p.q ? { OR: [{ email: { contains: p.q, mode: 'insensitive' as const } }, { name: { contains: p.q, mode: 'insensitive' as const } }] } : {}),
       ...(filters.role ? { role: filters.role } : {}),
       ...(filters.cohortId ? { cohortId: filters.cohortId } : {}),
+      // Через AND: у фильтра согласия свой OR, он не должен затирать OR поиска
+      AND: [consentWhere],
     };
     const [items, total] = await Promise.all([
       prisma.user.findMany({ where, ...paginate(p), orderBy: { createdAt: 'desc' } }),

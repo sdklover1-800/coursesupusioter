@@ -8,7 +8,7 @@
  * попыток и оценочной телеметрии; официальная попытка не получает правильности до отправки.
  */
 import { useEffect, useState } from 'react';
-import { useQuery, type QueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ApiErrorCode, type PublicQuestion, type QuestionType, type QuizKind } from '@edu/shared';
 import type {
   AttemptResult, AttemptStart, AttemptSummary, PracticeCheck, PracticeSet, QuizLobby,
@@ -143,11 +143,6 @@ export function checkPractice(quizId: string, body: { enrollmentId: string; ques
   return api.post<PracticeCheck>(`/quizzes/${quizId}/practice`, body);
 }
 
-/** После отправки попытки: карта курса, «Мои курсы», лобби и все результаты (уровень разбора мог измениться). */
-export function invalidateAfterSubmit(qc: QueryClient): Promise<unknown> {
-  return qc.invalidateQueries({ queryKey: ['quiz-attempt', 'result'] });
-}
-
 /* ── Ошибки ─────────────────────────────────────────────────────────── */
 export const QuizErrorCode = {
   COOLDOWN: ApiErrorCode.COOLDOWN,
@@ -186,11 +181,6 @@ export function romanNumeral(n: number): string {
 /** «≈ N мин» на прохождение: 1,5 минуты на вопрос (FE3 §5). */
 export function estimatedMinutes(questionCount: number): number {
   return Math.max(1, Math.ceil(questionCount * 1.5));
-}
-
-/** Отвеченные вопросы (непустой выбор) среди показанных. */
-export function answeredCount(answers: Record<string, number[]>, questionIds: readonly string[]): number {
-  return questionIds.filter((id) => (answers[id]?.length ?? 0) > 0).length;
 }
 
 /** Засчитанная попытка из истории (counted), иначе последняя. */

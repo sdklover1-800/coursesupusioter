@@ -1,226 +1,298 @@
-import { useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../lib/api';
-import { Badge, Button, Card, Field, Input, Select, Textarea, toast } from '../../components/ui';
-import { PageHeader, EmptyState, LoadingRows } from '../../components/page';
+import { clsx } from 'clsx';
+import { ApiError } from '../../lib/api';
+import { useFormat } from '../../lib/format';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import {
+  consentState, useAdminCohorts, useCohortMembers, useConsentVersion, useLogTeacherSession, useTeacherSessions,
+  type AdminCohort,
+} from '../../lib/staffAdmin';
+import { Button, Card, Field, Icon, Input, buttonClass, toast } from '../../components/ui';
+import { EmptyState, ErrorState, LoadingRows, PageHeader } from '../../components/page';
+import { ConditionBadge, ConsentMark, EmailText, RoleBadge, SectionTitle } from '../../components/staff/admin/bits';
+import { CohortFormSheet } from '../../components/staff/admin/CohortFormSheet';
 
-interface Cohort {
-  id: string;
-  name: string;
-  condition: string;
-  description: string | null;
-  _count: { users: number; teacherSessions: number };
-}
-
-interface TeacherSession {
-  id: string;
-  date: string;
-  topic: string;
-  cohort: { name: string };
-}
-
-type ConditionTone = 'brand' | 'teal' | 'muted';
-
-/** Условия эксперимента для когорты (§10.1 CohortCondition) — подписи прямым текстом. */
-const CONDITION_OPTIONS: { value: string; label: string; tone: ConditionTone }[] = [
-  { value: 'AI_ASSISTED', label: 'С ИИ-ассистентом', tone: 'brand' },
-  { value: 'WITH_TEACHER', label: 'С преподавателем', tone: 'teal' },
-  { value: 'CONTROL', label: 'Контрольная', tone: 'muted' },
-];
-const DEFAULT_CONDITION = 'AI_ASSISTED';
-
-function conditionMeta(value: string) {
-  return CONDITION_OPTIONS.find((o) => o.value === value) ?? { value, label: value, tone: 'muted' as ConditionTone };
-}
-
-/** Управление когортами + занятия с преподавателем (FR-R.1, FR-R.9). ADMIN. */
+/**
+ * Когорты — группы эксперимента (FR-R.1, FR-R.9, FE5 §7). ADMIN.
+ * Одноколоночный список слева и панель выбранной когорты справа (на мобильных — переход
+ * «список → когорта» с кнопкой назад). Подписи условий — только t('conditions.*'), тоны — lib/tones.
+ * Выбранная когорта — в адресе (?id=).
+ */
 export function CohortsPage() {
   const { t } = useTranslation();
-  const qc = useQueryClient();
-
-  // Форма создания когорты
-  const [name, setName] = useState('');
-  const [condition, setCondition] = useState(DEFAULT_CONDITION);
-  const [description, setDescription] = useState('');
-
-  // Форма занятия + выбранная когорта (управляет и списком занятий)
-  const [selectedCohortId, setSelectedCohortId] = useState('');
-  const [topic, setTopic] = useState('');
-  const [date, setDate] = useState('');
-
-  const cohortsQ = useQuery({
-    queryKey: ['cohorts-full'],
-    queryFn: () => api.get<{ items: Cohort[] }>('/admin/cohorts'),
-  });
-
-  const sessionsQ = useQuery({
-    queryKey: ['teacher-sessions', selectedCohortId],
-    queryFn: () => api.get<{ items: TeacherSession[] }>(`/admin/teacher-sessions?cohortId=${selectedCohortId}`),
-    enabled: !!selectedCohortId,
-  });
-
-  const createCohort = useMutation({
-    mutationFn: () => api.post('/admin/cohorts', { name: name.trim(), condition, description: description.trim() }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['cohorts-full'] });
-      setName('');
-      setCondition(DEFAULT_CONDITION);
-      setDescription('');
-      toast(t('common.success'), 'teal');
-    },
-    onError: (err: Error) => toast(err.message, 'danger'),
-  });
-
-  const logSession = useMutation({
-    mutationFn: () =>
-      api.post('/admin/teacher-sessions', { cohortId: selectedCohortId, topic: topic.trim(), date: new Date(date).toISOString() }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['teacher-sessions', selectedCohortId] });
-      qc.invalidateQueries({ queryKey: ['cohorts-full'] });
-      setTopic('');
-      setDate('');
-      toast(t('common.success'), 'teal');
-    },
-    onError: (err: Error) => toast(err.message, 'danger'),
-  });
-
-  const onCreateCohort = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    createCohort.mutate();
+  useDocumentTitle(t('nav.cohorts'));
+  const [params, setParams] = useSearchParams();
+  const selectedId = params.get('id');
+  const select = (id: string | null) => {
+    const next = new URLSearchParams(params);
+    if (id) next.set('id', id);
+    else next.delete('id');
+    setParams(next, { replace: true });
   };
 
-  const onLogSession = (e: FormEvent) => {
-    e.preventDefault();
-    if (!selectedCohortId || !topic.trim() || !date) return;
-    logSession.mutate();
-  };
-
+  const cohortsQ = useAdminCohorts();
   const cohorts = cohortsQ.data?.items ?? [];
+  const selected = cohorts.find((c) => c.id === selectedId) ?? null;
+
+  // Лист правки: undefined — закрыт, null — создание, когорта — правка
+  const [sheet, setSheet] = useState<AdminCohort | null | undefined>(undefined);
 
   return (
     <>
-      <PageHeader eyebrow="Admin" title={t('nav.cohorts')} subtitle={t('admin.condition')} />
+      <PageHeader
+        eyebrow={t('admin.eyebrow')}
+        title={t('nav.cohorts')}
+        subtitle={t('admin.cohortsPage.subtitle')}
+        action={
+          <Button onClick={() => setSheet(null)} className="whitespace-nowrap">
+            <Icon name="plus" size={18} />
+            {t('admin.createCohort')}
+          </Button>
+        }
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* ── Список когорт ─────────────────────────────── */}
-        <section className="space-y-4 lg:col-span-2">
-          {cohortsQ.isLoading ? (
-            <LoadingRows rows={4} />
-          ) : !cohorts.length ? (
-            <EmptyState title={t('common.empty')} hint={t('admin.createCohort')} />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+      {cohortsQ.isLoading ? (
+        <LoadingRows rows={3} />
+      ) : cohortsQ.isError ? (
+        <ErrorState message={(cohortsQ.error as ApiError)?.message ?? t('errors.generic')} />
+      ) : !cohorts.length ? (
+        <EmptyState
+          title={t('admin.cohortsPage.empty')}
+          hint={t('admin.cohortsPage.emptyHint')}
+          action={<Button onClick={() => setSheet(null)}>{t('admin.createCohort')}</Button>}
+        />
+      ) : (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+          {/* Список (на мобильных скрыт, пока открыта когорта) */}
+          <nav aria-label={t('admin.cohortsPage.list')} className={clsx(selected && 'hidden lg:block')}>
+            <ul className="space-y-2">
               {cohorts.map((c) => {
-                const meta = conditionMeta(c.condition);
+                const active = c.id === selectedId;
                 return (
-                  <Card key={c.id} className="flex flex-col">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-lg font-semibold">{c.name}</h3>
-                      <Badge tone={meta.tone}>{t(`conditions.${c.condition}`, { defaultValue: meta.label })}</Badge>
-                    </div>
-                    {c.description && <p className="mt-1.5 line-clamp-3 text-sm text-muted">{c.description}</p>}
-
-                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-4 text-sm">
-                      <div>
-                        <div className="font-mono text-xl font-semibold tabular-nums">{c._count.users}</div>
-                        <div className="text-xs text-muted">{t('dashboard.students')}</div>
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => select(c.id)}
+                      aria-current={active ? 'true' : undefined}
+                      className={clsx(
+                        'card flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors',
+                        active ? '!border-brand bg-brand-soft/40 ring-1 ring-inset ring-brand/40' : 'hover:border-brand/40',
+                      )}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-base font-semibold text-fg">{c.name}</div>
+                        <div className="mt-0.5 text-meta text-fg-2">
+                          {t('admin.cohortsPage.students', { count: c._count.users })} · {t('admin.cohortsPage.sessions', { count: c._count.teacherSessions })}
+                        </div>
+                        <ConditionBadge condition={c.condition} className="mt-2" />
                       </div>
-                      <div>
-                        <div className="font-mono text-xl font-semibold tabular-nums">{c._count.teacherSessions}</div>
-                        <div className="text-xs text-muted">{t('dashboard.teacherSessionsCount')}</div>
-                      </div>
-                    </div>
-                  </Card>
+                      <Icon name="chevron-right" size={18} className={clsx('mt-1', active ? 'text-brand' : 'text-fg-2')} />
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
+          </nav>
+
+          {/* Панель когорты / подсказка «Выберите когорту» */}
+          {selected ? (
+            <CohortDetail key={selected.id} cohort={selected} onBack={() => select(null)} onEdit={() => setSheet(selected)} />
+          ) : (
+            <Card className="hidden flex-col items-center justify-center gap-3 py-16 text-center lg:flex">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-brand">
+                <Icon name="users" size={24} />
+              </span>
+              <div className="text-base font-semibold text-fg">{t('admin.cohortsPage.select')}</div>
+              <p className="max-w-sm text-body text-fg-2">{t('admin.cohortsPage.selectHint')}</p>
+            </Card>
           )}
-        </section>
+        </div>
+      )}
 
-        {/* ── Формы: создание когорты + занятие ─────────── */}
-        <aside className="space-y-6">
-          {/* Создать когорту */}
-          <Card>
-            <h2 className="mb-4 text-base font-semibold">{t('admin.createCohort')}</h2>
-            <form className="space-y-4" onSubmit={onCreateCohort}>
-              <Field label={t('admin.name')}>
-                <Input value={name} onChange={(e) => setName(e.target.value)} required />
-              </Field>
-              <Field label={t('admin.condition')}>
-                <Select value={condition} onChange={(e) => setCondition(e.target.value)}>
-                  {CONDITION_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Описание">
-                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-              </Field>
-              <Button type="submit" className="w-full" loading={createCohort.isPending} disabled={!name.trim()}>
-                {t('common.create')}
-              </Button>
-            </form>
-          </Card>
-
-          {/* Занятие с преподавателем */}
-          <Card>
-            <h2 className="mb-4 text-base font-semibold">{t('admin.logTeacherSession')}</h2>
-            <form className="space-y-4" onSubmit={onLogSession}>
-              <Field label={t('admin.cohort')}>
-                <Select value={selectedCohortId} onChange={(e) => setSelectedCohortId(e.target.value)} required>
-                  <option value="" disabled>{t('common.search')}…</option>
-                  {cohorts.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label={t('admin.topic')}>
-                <Input value={topic} onChange={(e) => setTopic(e.target.value)} required />
-              </Field>
-              <Field label={t('admin.date')}>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-              </Field>
-              <Button
-                type="submit"
-                variant="spark"
-                className="w-full"
-                loading={logSession.isPending}
-                disabled={!selectedCohortId || !topic.trim() || !date}
-              >
-                {t('common.save')}
-              </Button>
-            </form>
-
-            {/* Список занятий выбранной когорты */}
-            <div className="mt-6 border-t border-border pt-4">
-              <div className="mb-3 font-mono text-xs font-semibold uppercase tracking-wider text-brand">
-                {t('admin.teacherSessions')}
-              </div>
-              {!selectedCohortId ? (
-                <p className="text-sm text-muted">{t('dashboard.noData')}</p>
-              ) : sessionsQ.isLoading ? (
-                <LoadingRows rows={2} />
-              ) : !sessionsQ.data?.items.length ? (
-                <p className="text-sm text-muted">{t('dashboard.noData')}</p>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {sessionsQ.data.items.map((s) => (
-                    <li key={s.id} className="flex items-center gap-3 py-2.5">
-                      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-soft font-mono text-xs font-bold text-brand">◆</span>
-                      <span className="flex-1 text-sm font-medium">{s.topic}</span>
-                      <span className="font-mono text-xs tabular-nums text-muted whitespace-nowrap">
-                        {new Date(s.date).toLocaleDateString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Card>
-        </aside>
-      </div>
+      {sheet !== undefined && (
+        <CohortFormSheet
+          key={sheet?.id ?? 'new'}
+          cohort={sheet}
+          onClose={() => setSheet(undefined)}
+          onSaved={(c) => select(c.id)}
+        />
+      )}
     </>
+  );
+}
+
+function CohortDetail({ cohort, onBack, onEdit }: { cohort: AdminCohort; onBack: () => void; onEdit: () => void }) {
+  const { t } = useTranslation();
+  const { formatDate } = useFormat();
+  const members = useCohortMembers(cohort.id);
+  const consentQ = useConsentVersion();
+  const ref = useRef<HTMLElement>(null);
+
+  // На мобильных панель открывается вместо списка — переводим к ней фокус/прокрутку
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 1023px)').matches) ref.current?.scrollIntoView({ block: 'start' });
+  }, []);
+
+  const memberItems = members.data?.items ?? [];
+  const total = members.data?.meta.total ?? cohort._count.users;
+
+  return (
+    <section ref={ref} aria-label={t('admin.cohortsPage.detail', { name: cohort.name })} className="flex min-w-0 flex-col gap-4">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-1 rounded-md py-1 text-sm font-medium text-fg-2 hover:text-fg lg:hidden"
+      >
+        <Icon name="chevron-left" size={16} />
+        {t('admin.cohortsPage.back')}
+      </button>
+
+      <Card>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="font-display text-display-lg text-fg">{cohort.name}</h2>
+            <div className="mt-1 text-meta text-fg-2">{t('admin.cohortsPage.createdAt', { date: formatDate(cohort.createdAt) })}</div>
+          </div>
+          <Button variant="secondary" size="sm" onClick={onEdit}>
+            <Icon name="pencil" size={16} />
+            {t('admin.cohortsPage.edit')}
+          </Button>
+        </div>
+
+        <dl className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div>
+            <dt className="text-label text-fg-2">{t('admin.condition')}</dt>
+            <dd className="mt-1.5">
+              <ConditionBadge condition={cohort.condition} />
+            </dd>
+          </div>
+          <div>
+            <dt className="text-label text-fg-2">{t('admin.cohortsPage.membersCount')}</dt>
+            <dd className="mt-1 font-display text-display-md tabular-nums text-fg">{cohort._count.users}</dd>
+          </div>
+          <div>
+            <dt className="text-label text-fg-2">{t('admin.teacherSessions')}</dt>
+            <dd className="mt-1 font-display text-display-md tabular-nums text-fg">{cohort._count.teacherSessions}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-5 border-t border-border pt-4">
+          <div className="text-label text-fg-2">{t('admin.description')}</div>
+          <p className={clsx('mt-1 max-w-[62ch] text-body', cohort.description ? 'text-fg' : 'text-fg-2')}>
+            {cohort.description || t('admin.cohortsPage.noDescription')}
+          </p>
+        </div>
+      </Card>
+
+      {/* Состав когорты */}
+      <Card>
+        <SectionTitle
+          action={
+            <Link to={`/admin/users?cohort=${encodeURIComponent(cohort.id)}`} className={buttonClass('ghost', 'sm')}>
+              {t('admin.cohortsPage.openInUsers')}
+              <Icon name="arrow-right" size={16} />
+            </Link>
+          }
+        >
+          {t('admin.cohortsPage.members')}
+        </SectionTitle>
+        {members.isLoading ? (
+          <LoadingRows rows={3} />
+        ) : members.isError ? (
+          <ErrorState message={(members.error as ApiError)?.message ?? t('errors.generic')} />
+        ) : !memberItems.length ? (
+          <p className="text-body text-fg-2">{t('admin.cohortsPage.membersEmpty')}</p>
+        ) : (
+          <>
+            <ul className="max-h-[28rem] divide-y divide-border overflow-y-auto">
+              {memberItems.map((u) => (
+                <li key={u.id} className="flex flex-col gap-1.5 py-2.5 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-fg">{u.name}</div>
+                    <EmailText email={u.email} className="block text-meta text-fg-2" />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body">
+                    {u.role !== 'STUDENT' && <RoleBadge role={u.role} />}
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="text-fg-2">{t('admin.usersPage.colConsent')}:</span>
+                      <ConsentMark state={consentState(u, consentQ.data?.version)} compact />
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {total > memberItems.length && (
+              <p className="mt-3 text-meta text-fg-2">{t('admin.cohortsPage.membersMore', { shown: memberItems.length, total })}</p>
+            )}
+          </>
+        )}
+      </Card>
+
+      <TeacherSessionsCard cohort={cohort} />
+    </section>
+  );
+}
+
+/** Занятия с преподавателем (FR-R.9): список и регистрация нового занятия. */
+function TeacherSessionsCard({ cohort }: { cohort: AdminCohort }) {
+  const { t } = useTranslation();
+  const { formatDate } = useFormat();
+  const sessions = useTeacherSessions(cohort.id);
+  const logM = useLogTeacherSession();
+  const [topic, setTopic] = useState('');
+  const [date, setDate] = useState('');
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim() || !date) return;
+    logM.mutate(
+      { cohortId: cohort.id, topic: topic.trim(), date },
+      {
+        onSuccess: () => {
+          setTopic('');
+          setDate('');
+          toast(t('admin.cohortsPage.sessionLogged'), 'teal');
+        },
+        onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+      },
+    );
+  };
+
+  const items = sessions.data?.items ?? [];
+  return (
+    <Card>
+      <SectionTitle>{t('admin.cohortsPage.sessionsTitle')}</SectionTitle>
+      <p className="-mt-1 mb-4 max-w-[62ch] text-body text-fg-2">{t('admin.cohortsPage.sessionsHint')}</p>
+
+      {sessions.isLoading ? (
+        <LoadingRows rows={2} />
+      ) : !items.length ? (
+        <p className="text-body text-fg-2">{t('admin.cohortsPage.sessionsEmpty')}</p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {items.map((s) => (
+            <li key={s.id} className="flex items-start gap-3 py-2.5">
+              <Icon name="clock" size={18} className="mt-0.5 text-fg-2" />
+              <span className="min-w-0 flex-1 text-body font-medium text-fg">{s.topic}</span>
+              <span className="whitespace-nowrap text-meta text-fg-2">{formatDate(s.date)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <form onSubmit={submit} className="mt-5 grid gap-3 border-t border-border pt-4 sm:grid-cols-[minmax(0,1fr)_11rem_auto] sm:items-end">
+        <Field label={t('admin.topic')}>
+          <Input value={topic} onChange={(e) => setTopic(e.target.value)} required />
+        </Field>
+        <Field label={t('admin.date')}>
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        </Field>
+        <Button type="submit" variant="secondary" loading={logM.isPending} disabled={!topic.trim() || !date} className="whitespace-nowrap">
+          {t('admin.logTeacherSession')}
+        </Button>
+      </form>
+    </Card>
   );
 }

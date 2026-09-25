@@ -1,0 +1,15 @@
+export const practical = {
+  title: 'Практическое задание', socratic: 'Сократический ассистент',
+  socraticNote: 'Ассистент не даёт готовый ответ — он ведёт вас вопросами. Рассуждайте вслух.',
+  start: 'Начать задание', send: 'Отправить', placeholder: 'Напишите свои рассуждения…',
+  remainingReplies: 'Осталось реплик', repliesLabel: 'реплик ассистента',
+  thinking: 'Ассистент думает…', waiting: 'Ассистент отвечает дольше обычного…', charLimit: 'Не более {{n}} символов',
+  verdict: 'Вердикт', verdictPassed: 'Задание сдано', verdictFailed: 'Задание не сдано',
+  verdictAbandoned: 'Сессия закрыта', reasoning: 'Оценка рассуждений',
+  methodicalness: 'Методичность', questionQuality: 'Качество вопросов',
+  logicalProgression: 'Логичность', selfCorrection: 'Самокоррекция',
+  sessionEnded: 'Сессия завершена', resume: 'Продолжить сессию',
+  techError: 'Ассистент временно недоступен. Это не засчитано как неудача — попробуйте ещё раз.',
+  reachedAnswer: 'Вы пришли к верному ответу',
+  scaleNote: 'Шкала 0–3 по каждому измерению критического мышления',
+};

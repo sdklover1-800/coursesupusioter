@@ -1,12 +1,14 @@
 /**
  * @edu/shared — единый источник контрактов между backend и frontend.
- * Доменные перечисления, константы, схемы структурированного вывода LLM.
+ * Доменные перечисления, константы, API-контракты и чистые правила.
+ * Схемы структурированного вывода LLM — только на backend (apps/backend/src/llm/schemas).
  */
 export * from './enums.js';
 export * from './events.js';
 export * from './constants.js';
-export * from './llm-schemas.js';
 export * from './catalog.js';
+export * from './learn.js';
+export * from './research.js';
 
 /** Стандартный конверт ошибки API (единый формат) */
 export interface ApiError {

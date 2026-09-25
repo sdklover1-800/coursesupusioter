@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- QuestionGlyph: амбер-кольцо «?» на чернильном фоне (Inquiry 2.0) -->
+  <rect width="32" height="32" rx="8" fill="#16182B"/>
+  <circle cx="16" cy="16" r="10.5" fill="#F2B441"/>
+  <path d="M12.6 12.9a3.5 3.5 0 0 1 6.8 1.1c0 2.3-3.4 3.1-3.4 3.1" stroke="#16182B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="21.4" r="1.45" fill="#16182B"/>
+</svg>

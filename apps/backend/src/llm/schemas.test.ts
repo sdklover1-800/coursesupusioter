@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { quizGenerationSchema, practicalGenerationSchema } from '@edu/shared';
+import {
+  quizGenerationSchema,
+  practicalGenerationSchema,
+  normalizeTimecode,
+  distractorRepairSchema,
+  rationaleBackfillSchema,
+  questionTranslationSchema,
+  transcriptSectionSchema,
+  practicalTranslationSchema,
+} from './schemas/generation.js';
 
 /**
  * Регресс-тесты на реальные дефекты, найденные в пилоте генерации:
@@ -59,6 +68,92 @@ describe('quizGenerationSchema (§5.2, Прил. B)', () => {
 
   it('пустой список вопросов отклоняется', () => {
     expect(() => quizGenerationSchema.parse({ questions: [] })).toThrow();
+  });
+});
+
+describe('quizGenerationSchema gen-2.0: обоснования и источник (необязательны)', () => {
+  const base = { type: 'SINGLE_CHOICE', prompt: 'Q?', options: ['A', 'B', 'C', 'D'], correct_option_indexes: [2], difficulty: 'MEDIUM' };
+
+  it('старый ответ без новых полей валиден, поля отсутствуют', () => {
+    const q = quizGenerationSchema.parse({ questions: [base] }).questions[0]!;
+    expect(q.option_rationales).toBeUndefined();
+    expect(q.source_lecture_index).toBeUndefined();
+    expect(q.source_timecode).toBeUndefined();
+  });
+
+  it('новые поля разбираются и нормализуются', () => {
+    const q = quizGenerationSchema.parse({
+      questions: [{ ...base, option_rationales: ['a', 'b', 'c', 'd'], source_lecture_index: '#2', source_timecode: '[5:30–9:00]' }],
+    }).questions[0]!;
+    expect(q.option_rationales).toEqual(['a', 'b', 'c', 'd']);
+    expect(q.source_lecture_index).toBe(2);
+    expect(q.source_timecode).toBe('05:30');
+  });
+
+  it('null в необязательных полях трактуется как пропуск (в т. ч. explanation)', () => {
+    const q = quizGenerationSchema.parse({
+      questions: [{ ...base, explanation: null, option_rationales: null, source_lecture_index: null, source_timecode: null }],
+    }).questions[0]!;
+    expect(q.explanation).toBeUndefined();
+    expect(q.option_rationales).toBeUndefined();
+  });
+
+  it('обоснования другой длины отбрасываются, а не валят весь ответ', () => {
+    const q = quizGenerationSchema.parse({ questions: [{ ...base, option_rationales: ['a', 'b'] }] }).questions[0]!;
+    expect(q.option_rationales).toBeUndefined();
+    expect(q.prompt).toBe('Q?');
+  });
+
+  it('TRUE_FALSE: 2 обоснования («верно», «неверно») без options', () => {
+    const q = quizGenerationSchema.parse({
+      questions: [{ type: 'TRUE_FALSE', prompt: 'X.', correct_option_indexes: [1], difficulty: 'EASY', option_rationales: ['r1', 'r2'] }],
+    }).questions[0]!;
+    expect(q.option_rationales).toEqual(['r1', 'r2']);
+  });
+
+  it('некорректные таймкод и индекс лекции — пропуск, а не отказ', () => {
+    const q = quizGenerationSchema.parse({
+      questions: [{ ...base, source_lecture_index: -1, source_timecode: 'начало лекции' }],
+    }).questions[0]!;
+    expect(q.source_lecture_index).toBeUndefined();
+    expect(q.source_timecode).toBeUndefined();
+  });
+});
+
+describe('normalizeTimecode', () => {
+  it.each([
+    ['05:30', '05:30'],
+    ['5:30', '05:30'],
+    ['[12:30–15:00]', '12:30'],
+    ['1:02:05', '62:05'],
+    ['72:10', '72:10'],
+  ])('%s → %s', (input, out) => expect(normalizeTimecode(input)).toBe(out));
+
+  it.each(['5:75', 'abc', ''])('%s → undefined', (input) => expect(normalizeTimecode(input)).toBeUndefined());
+  it('не строка → undefined', () => expect(normalizeTimecode(330)).toBeUndefined());
+});
+
+describe('вспомогательные схемы gen-2.0', () => {
+  it('ремонт дистракторов: ключи-строки коэрсятся', () => {
+    const r = distractorRepairSchema.parse({ items: [{ key: '0', distractors: ['x', 'y', 'z'], distractor_rationales: null }] });
+    expect(r.items[0]!.key).toBe(0);
+    expect(r.items[0]!.distractor_rationales).toBeUndefined();
+  });
+
+  it('обоснования существующих вопросов: минимум 2', () => {
+    expect(() => rationaleBackfillSchema.parse({ items: [{ key: 0, option_rationales: ['one'] }] })).toThrow();
+    const r = rationaleBackfillSchema.parse({ items: [{ key: 1, option_rationales: ['a', 'b'], source_timecode: '9:00' }] });
+    expect(r.items[0]!.source_timecode).toBe('09:00');
+  });
+
+  it('перевод вопросов: TRUE_FALSE без options', () => {
+    const r = questionTranslationSchema.parse({ items: [{ key: 0, prompt: 'Мәлімдеме.', option_rationales: ['a', 'b'] }] });
+    expect(r.items[0]!.options).toBeUndefined();
+  });
+
+  it('раздел расшифровки и перевод практического', () => {
+    expect(transcriptSectionSchema.parse({ text: 'Мәтін', notes: null }).notes).toBeUndefined();
+    expect(() => practicalTranslationSchema.parse({ scenario_prompt: 's', reference_solution: 'r', key_points: [], answer_reached_criteria: 'c' })).toThrow();
   });
 });
 

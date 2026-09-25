@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta } from '../types.js';
+import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta, TokenUsage } from '../types.js';
 import { env } from '../../config/env.js';
 
 /**
@@ -54,33 +54,35 @@ export class AnthropicAdapter implements LlmAdapter {
    * модель генерирует. Стриминг держит соединение живым; результат идентичен.
    */
   async complete(req: CompletionRequest): Promise<CompletionResult> {
-    const stream = this.client.messages.stream(this.buildParams(req));
+    const stream = this.client.messages.stream(this.buildParams(req), req.signal ? { signal: req.signal } : undefined);
     const final = await stream.finalMessage();
-    const text = final.content
-      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
-    return {
-      text,
-      usage: { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens },
-      model: final.model,
-      provider: this.provider,
-    };
+    return this.toResult(final);
   }
 
   async streamComplete(req: CompletionRequest, onDelta: StreamDelta): Promise<CompletionResult> {
-    const stream = this.client.messages.stream(this.buildParams(req));
+    const stream = this.client.messages.stream(this.buildParams(req), req.signal ? { signal: req.signal } : undefined);
     stream.on('text', (delta) => onDelta(delta));
     const final = await stream.finalMessage();
+    return this.toResult(final);
+  }
+
+  /** Итог вызова: текст, токены (с кешированными, A3) и причина остановки в терминах OpenAI. */
+  private toResult(final: Anthropic.Message): CompletionResult {
     const text = final.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text)
       .join('');
-    return {
-      text,
-      usage: { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens },
-      model: final.model,
-      provider: this.provider,
+    const cacheRead = final.usage.cache_read_input_tokens ?? 0;
+    const cacheWrite = final.usage.cache_creation_input_tokens ?? 0;
+    // У Anthropic input_tokens НЕ включает кешированные — приводим к контракту TokenUsage
+    // (inputTokens = весь вход, cachedInputTokens — его кешированная часть).
+    const usage: TokenUsage = {
+      inputTokens: final.usage.input_tokens + cacheRead + cacheWrite,
+      outputTokens: final.usage.output_tokens,
+      cachedInputTokens: cacheRead,
+      reasoningTokens: 0,
     };
+    const finishReason = final.stop_reason === 'max_tokens' ? 'length' : final.stop_reason === 'end_turn' ? 'stop' : (final.stop_reason ?? undefined);
+    return { text, usage, model: final.model, provider: this.provider, finishReason };
   }
 }

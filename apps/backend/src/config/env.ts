@@ -1,6 +1,16 @@
 import { z } from 'zod';
 
 /**
+ * Булев флаг окружения. z.coerce.boolean() превращает строку 'false' в true,
+ * поэтому новые флаги принимают только 'true' | 'false'.
+ */
+const bool = (d: boolean) =>
+  z
+    .enum(['true', 'false'])
+    .default(d ? 'true' : 'false')
+    .transform((v) => v === 'true');
+
+/**
  * Валидация переменных окружения на старте (fail-fast).
  * Секреты берутся только отсюда (NFR-2.7) — в коде их нет.
  */
@@ -36,17 +46,57 @@ const envSchema = z.object({
   ORCHESTRATION_MODE: z.enum(['TUTOR_JUDGE', 'SINGLE_CALL']).default('TUTOR_JUDGE'),
   LLM_ZERO_RETENTION: z.coerce.boolean().default(true),
   LLM_MAX_CONCURRENCY: z.coerce.number().default(25),
-  // Цена токенов для оценки стоимости (§5.6h), USD за 1M токенов. Дефолты — уровень
-  // Haiku-класса; уточняется по фактическому прайсу выбранной моделью пилота.
-  LLM_PRICE_INPUT_PER_MTOK: z.coerce.number().default(1),
-  LLM_PRICE_OUTPUT_PER_MTOK: z.coerce.number().default(5),
+  // Цена токенов для оценки стоимости (§5.6h), USD за 1M токенов. Дефолты — прайс
+  // gpt-5.4-mini (модель пилота); кешированный вход тарифицируется отдельно.
+  LLM_PRICE_INPUT_PER_MTOK: z.coerce.number().default(0.75),
+  LLM_PRICE_OUTPUT_PER_MTOK: z.coerce.number().default(4.5),
+  LLM_PRICE_CACHED_INPUT_PER_MTOK: z.coerce.number().default(0.075),
+
+  // ── Диалог практикума: тьютор, судья, проверка утечки ответа ──
+  // Температура тьютора (при reasoning none модель её допускает)
+  DIALOG_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.25),
+  // Лимит выходных токенов реплики тьютора (ru/en) и для kk — казахский длиннее в токенах
+  TUTOR_MAX_TOKENS: z.coerce.number().int().positive().default(200),
+  TUTOR_MAX_TOKENS_KK: z.coerce.number().int().positive().default(250),
+  // Предел длины реплики тьютора на казахском, символов (A22)
+  TUTOR_MESSAGE_MAX_CHARS_KK: z.coerce.number().int().positive().default(700),
+  // Лимит выходных токенов судьи (A4)
+  JUDGE_MAX_TOKENS: z.coerce.number().int().positive().default(600),
+  // Подтверждение вердикта «ответ достигнут» повторным вызовом судьи
+  JUDGE_CONFIRM_ENABLED: bool(true),
+  // Уровень рассуждений подтверждающего вызова судьи
+  JUDGE_CONFIRM_EFFORT: z.enum(['low', 'medium', 'high']).default('medium'),
+  // Проверка реплики тьютора на раскрытие ответа до отправки студенту (A21)
+  LEAK_CHECK_ENABLED: bool(true),
+  // Таймаут проверки утечки, мс
+  LEAK_CHECK_TIMEOUT_MS: z.coerce.number().int().positive().default(3000),
+  // Поведение при сбое/таймауте проверки: closed — реплика не уходит (безопасно), open — уходит (A21)
+  LEAK_CHECK_FAIL_MODE: z.enum(['closed', 'open']).default('closed'),
+
+  // ── Оцениваемые тесты и курс ──
+  // Пауза между попытками теста по умолчанию, мин (USER_DECISIONS §1: 24 ч); Quiz.cooldownMinutes важнее
+  QUIZ_COOLDOWN_MINUTES: z.coerce.number().int().min(0).default(1440),
+  // Незавершённая попытка старше N часов отправляется автоматически (A15)
+  QUIZ_ATTEMPT_MAX_HOURS: z.coerce.number().positive().default(24),
+  // Блокировка языка курса: после первой оцениваемой активности или никогда (USER_DECISIONS §3)
+  LANGUAGE_LOCK: z.enum(['after_first_graded', 'never']).default('after_first_graded'),
+  // Условие сертификата: сдать все оценивания или только пройти всё (A30, открытый вопрос PI)
+  CERT_RULE: z.enum(['PASS_ALL', 'COMPLETE_ALL']).default('PASS_ALL'),
+  // Запрет смены исследовательских групп после старта сбора данных (A27)
+  STUDY_COHORTS_LOCKED: bool(false),
+  // Публичный адрес фронтенда — для ссылок проверки сертификата
+  PUBLIC_APP_URL: z.string().default('http://localhost:5173'),
+  // Организация-эмитент в сертификате и на странице проверки
+  CERT_ISSUER_NAME: z.string().default('EduOpen'),
 
   RESEARCH_CONSENT_VERSION: z.string().default('2026-07-01'),
 
   DEFAULT_MAX_AI_MESSAGES: z.coerce.number().default(22),
-  TOKEN_CEILING_EN: z.coerce.number().default(9000),
-  TOKEN_CEILING_RU: z.coerce.number().default(18000),
-  TOKEN_CEILING_KK: z.coerce.number().default(24000),
+  // Токен-потолок сессии практикума по языку (§5.6): в него входит и повторно
+  // отправляемая история диалога, поэтому он на порядок выше бюджета одной реплики
+  TOKEN_CEILING_EN: z.coerce.number().default(120000),
+  TOKEN_CEILING_RU: z.coerce.number().default(160000),
+  TOKEN_CEILING_KK: z.coerce.number().default(190000),
   MAX_STUDENT_MESSAGE_CHARS: z.coerce.number().default(1500),
   SESSION_IDLE_PAUSE_MINUTES: z.coerce.number().default(60),
   SESSION_ABANDON_DAYS: z.coerce.number().default(7),

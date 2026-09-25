@@ -89,6 +89,47 @@ enum GenerationType {
   PRACTICAL
   MINI
   ALL
+  LECTURE_SUMMARY // краткое содержание лекции (реализует BE4)
+}
+
+// Политика показа разбора официальной попытки (USER_DECISIONS §1):
+//  - FULL_AFTER_FINAL (по умолчанию) — до сдачи или последней попытки виден только
+//    «верно/неверно» по каждому вопросу; после — полный ключ и объяснения;
+//  - SCORE_UNTIL_FINAL — до финала виден только балл, после — полный разбор;
+//  - SCORE_ONLY — ключ не показывается никогда.
+// Значения «полный разбор после каждой попытки» нет намеренно: он раскрыл бы ключ
+// для второй попытки.
+enum QuizReviewPolicy {
+  FULL_AFTER_FINAL
+  SCORE_UNTIL_FINAL
+  SCORE_ONLY
+}
+
+// Какая попытка идёт в зачёт: лучшая (USER_DECISIONS §1) или первая.
+enum QuizScoringRule {
+  BEST
+  FIRST
+}
+
+// Объект жалобы на контент.
+enum ContentIssueTarget {
+  QUIZ_QUESTION
+  CHAT_MESSAGE
+  LECTURE
+  PRACTICAL_TASK
+}
+
+enum ContentIssueStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+// Источник: жалоба студента или системная отметка контент-скриптов
+// (экспертная проверка, вычитка носителем языка, проверка фактов).
+enum ContentIssueOrigin {
+  STUDENT
+  SYSTEM
 }
 
 enum JobStatus {
@@ -136,6 +177,7 @@ model User {
   auditLogs           AuditLog[]       @relation("AuditActor")
   teacherSessions     TeacherSession[] @relation("TeacherSessionLoggedBy")
   events              EventLog[]
+  contentIssues       ContentIssue[]   @relation("ContentIssueReporter")
 
   @@index([role])
   @@index([cohortId])
@@ -229,6 +271,8 @@ model Lecture {
   title          String
   youtubeVideoId String // валидированный ID (FR-4.3)
   transcriptText String   @db.Text // расшифровка (FR-2.4), источник для ИИ-генерации
+  durationSec    Int? // длительность видео, сек (для оценки оставшегося времени)
+  summary        String?  @db.Text // краткое содержание лекции (≤ LECTURE_SUMMARY_MAX_CHARS)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -248,9 +292,9 @@ model Lecture {
 // попадают в оценочную телеметрию — так сохраняется валидность исследования.
 // Вопросы/редактор/генерация переиспользуются (расширяемость §9.3).
 model Quiz {
-  id            String   @id @default(cuid())
-  kind          QuizKind @default(MODULE_FINAL)
-  isGraded      Boolean  @default(true)
+  id       String   @id @default(cuid())
+  kind     QuizKind @default(MODULE_FINAL)
+  isGraded Boolean  @default(true)
 
   // Ровно одна из привязок заполнена — в зависимости от kind
   moduleId                String?                @unique
@@ -260,11 +304,16 @@ model Quiz {
   courseLanguageVersionId String?                @unique
   languageVersion         CourseLanguageVersion? @relation(fields: [courseLanguageVersionId], references: [id], onDelete: Cascade)
 
-  title         String
-  passThreshold Float    @default(0.7) // FR-5.4
-  maxAttempts   Int      @default(2) // FR-5.6
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  title           String
+  passThreshold   Float            @default(0.7) // FR-5.4
+  maxAttempts     Int              @default(2) // FR-5.6
+  reviewPolicy    QuizReviewPolicy @default(FULL_AFTER_FINAL) // что видно после попытки (USER_DECISIONS §1)
+  scoringRule     QuizScoringRule  @default(BEST) // какая попытка идёт в зачёт (USER_DECISIONS §1)
+  // Пауза между попытками, мин: null → env QUIZ_COOLDOWN_MINUTES (по умолчанию
+  // 1440 = 24 ч, USER_DECISIONS §1); 0 — без паузы
+  cooldownMinutes Int?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   questions QuizQuestion[]
   attempts  QuizAttempt[]
@@ -283,9 +332,20 @@ model QuizQuestion {
   orderIndex       Int
   isAIGenerated    Boolean      @default(false) // FR-5.2, FR-7.4
   isEdited         Boolean      @default(false) // ручная правка (FR-7.4)
+  optionRationales Json? // string[] параллельно options (индекс = id варианта): почему вариант верен/неверен
+  sourceLectureId  String? // лекция-источник вопроса (ссылка «пересмотреть» в разборе)
+  sourceTimecode   String? // 'mm:ss' — место в лекции-источнике
+  // Общий ключ ru-вопроса и его kk/en переводов, напр. polit:M2:Q5 —
+  // для межъязыкового анализа заданий
+  canonicalKey     String?
+  // Архивированные вопросы остаются для разбора старых попыток; списки студента
+  // и редактора фильтруют archivedAt: null
+  archivedAt       DateTime?
+  createdAt        DateTime     @default(now())
 
   @@unique([quizId, orderIndex]) // защита от дублей при ретрае/перегенерации (аудит H1)
   @@index([quizId])
+  @@index([canonicalKey])
 }
 
 // ── Практическое задание ──────────────────────────────────────────────────
@@ -308,6 +368,13 @@ model PracticalTask {
   systemPromptTemplateId String? // §10.1
   isAIGenerated          Boolean    @default(false)
   isEdited               Boolean    @default(false)
+  maxSessions            Int        @default(2) // число зачётных попыток-сессий (USER_DECISIONS §4)
+  agenda                 Json? // string[] (≤ 3) — план беседы, виден студенту
+  estimatedMinutes       Int? // ориентировочная длительность, мин
+  introMessage           String?    @db.Text // первая реплика тьютора
+  // Канонический межъязыковой сценарий, напр. polisia-v1 (USER_DECISIONS §4):
+  // перегенерация такого задания заблокирована
+  canonicalRef           String?
   createdAt              DateTime   @default(now())
   updatedAt              DateTime   @updatedAt
 
@@ -335,6 +402,10 @@ model Enrollment {
   reviewedById      String?
   reviewedBy        User?                 @relation("EnrollmentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   reviewNote        String?
+  // Точка возобновления («Продолжить»). Блокировка языка НЕ хранится —
+  // вычисляется по оцениваемой активности (USER_DECISIONS §3).
+  lastLectureId     String? // последняя открытая лекция
+  lastActivityAt    DateTime? // время последней учебной активности
 
   lectureProgress   LectureProgress[]
   quizAttempts      QuizAttempt[]
@@ -354,24 +425,42 @@ model LectureProgress {
   lecture      Lecture    @relation(fields: [lectureId], references: [id], onDelete: Cascade)
   isCompleted  Boolean    @default(false)
   completedAt  DateTime?
+  // Позиция возобновления видео
+  positionSec  Int        @default(0) // последняя позиция воспроизведения, сек
+  watchedSec   Int        @default(0) // суммарно просмотрено, сек
+  lastViewedAt DateTime? // когда лекцию открывали последний раз
 
   @@unique([enrollmentId, lectureId])
 }
 
+/// Попытка оцениваемого теста. submittedAt = NULL — попытка в процессе: она
+/// занимает слот попытки, и ВСЕ агрегаты score/passed обязаны фильтровать
+/// submittedAt != null.
 model QuizAttempt {
-  id           String     @id @default(cuid())
-  enrollmentId String
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  quizId       String
-  quiz         Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers      Json // { questionId: number[] }
-  score        Float
-  passed       Boolean
-  startedAt    DateTime   @default(now())
-  submittedAt  DateTime?
+  id                String     @id @default(cuid())
+  enrollmentId      String
+  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  quizId            String
+  quiz              Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers           Json       @default("{}") // { questionId: number[] } — канонические id вариантов
+  score             Float      @default(0)
+  passed            Boolean    @default(false)
+  startedAt         DateTime   @default(now())
+  submittedAt       DateTime?
+  flagged           Json? // string[] — id вопросов, отмеченных «вернуться позже»
+  integrityAck      Boolean    @default(false) // студент подтвердил правила честной сдачи
+  unansweredCount   Int        @default(0) // сколько вопросов осталось без ответа при отправке
+  lastSavedAt       DateTime? // последнее автосохранение ответов
+  // AttemptPresentation: порядок показа вопросов и вариантов в этой попытке;
+  // ответы хранятся по каноническим id вариантов (USER_DECISIONS §1)
+  presentation      Json?
+  autoSubmitted     Boolean    @default(false) // отправлена системой по истечении срока (A15)
+  activeDurationSec Int? // активное время в попытке, сек
+  legacy            Boolean    @default(false) // записана устаревшим одношаговым эндпоинтом
 
   @@index([enrollmentId])
   @@index([quizId])
+  @@index([enrollmentId, quizId])
 }
 
 // ── Сократические сессии ──────────────────────────────────────────────────
@@ -395,6 +484,14 @@ model PracticalSession {
   startedAt         DateTime          @default(now())
   lastActivityAt    DateTime          @default(now()) // для idle-паузы (§5.7)
   endedAt           DateTime?
+  verdictCode       String? // PASSED | FAILED_LIMIT | FAILED_CEILING | ENDED_BY_STUDENT | ABANDONED
+  endReason         String? // DONE | OTHER | LIMIT | CEILING | PASSED | IDLE | IDLE_AFTER_PAUSE
+  summary           Json? // SessionEvaluation — итоговая оценка для студента
+  summaryStatus     String? // PENDING | READY | FAILED
+  metrics           Json? // PracticalSessionMetrics (воспроизводимость, FR-R.7)
+  taskSnapshot      Json? // PracticalTaskSnapshot — снимок задания на момент старта
+  excusedAt         DateTime? // сессия засчитана как уважительная: не считается попыткой (A7)
+  excusedById       String? // кто из сотрудников освободил сессию
 
   messages ChatMessage[]
 
@@ -403,18 +500,21 @@ model PracticalSession {
 }
 
 model ChatMessage {
-  id             String   @id @default(cuid())
-  sessionId      String
-  session        PracticalSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  role           ChatRole
-  content        String   @db.Text
-  tokensIn       Int      @default(0)
-  tokensOut      Int      @default(0)
+  id                String           @id @default(cuid())
+  sessionId         String
+  session           PracticalSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role              ChatRole
+  content           String           @db.Text
+  tokensIn          Int              @default(0)
+  tokensOut         Int              @default(0)
+  cachedInputTokens Int              @default(0) // из tokensIn — кешированные входные токены (учёт стоимости)
+  reasoningTokens   Int              @default(0) // из tokensOut — токены рассуждения модели
+  leakCheck         Json? // результат проверки реплики тьютора на утечку ответа (A21)
   // Пошаговая оценка рубрики для реплики студента (§5.5, FR-R.3)
-  turnAssessment Json?
+  turnAssessment    Json?
   // Сигналы целостности конкретной реплики (FR-6.11)
-  integrityFlags Json?
-  createdAt      DateTime @default(now())
+  integrityFlags    Json?
+  createdAt         DateTime         @default(now())
 
   @@index([sessionId])
 }
@@ -511,4 +611,41 @@ model AuditLog {
 
   @@index([actorId])
   @@index([action])
+}
+
+// ── Качество контента: жалобы и системные отметки ─────────────────────────
+
+/// Жалоба студента на контент или системная отметка на проверку (эксперт,
+/// носитель языка, факт-чек). Сотрудник разбирает её в очереди жалоб.
+model ContentIssue {
+  id                String             @id @default(cuid())
+  origin            ContentIssueOrigin @default(STUDENT) // жалоба студента или отметка контент-скрипта
+  reporterId        String? // автор жалобы (null — системная отметка или удалённый пользователь)
+  reporter          User?              @relation("ContentIssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  enrollmentId      String? // запись на курс, из которой подана жалоба
+  targetType        ContentIssueTarget // тип объекта жалобы
+  targetId          String // id объекта (вопрос, сообщение, лекция, задание)
+  reason            String // код причины из CONTENT_ISSUE_REASONS / SYSTEM_REVIEW_REASONS
+  comment           String?            @db.Text // свободный комментарий автора
+  context           String // PRACTICE | REVIEW | OFFICIAL | PRACTICAL | LECTURE | CONTENT_PIPELINE
+  courseId          String? // курс — для фильтрации очереди
+  languageVersionId String? // языковая версия — для фильтрации очереди
+  status            ContentIssueStatus @default(OPEN) // состояние разбора
+  resolvedById      String? // кто из сотрудников закрыл жалобу
+  resolvedAt        DateTime? // когда закрыта
+  note              String?            @db.Text // заметка сотрудника при закрытии
+  dedupeKey         String?            @unique // ключ идемпотентности системных отметок
+  createdAt         DateTime           @default(now())
+
+  @@index([status, courseId])
+  @@index([targetType, targetId])
+  @@index([origin, status])
+}
+
+/// Журнал применённых контент-скриптов — делает их идемпотентными.
+model ContentMigration {
+  id        String   @id @default(cuid())
+  key       String   @unique // уникальный ключ скрипта/шага, напр. polit-bank-v2
+  appliedAt DateTime @default(now()) // когда применён
+  detail    Json? // сводка: что и сколько изменено
 }

@@ -1,6 +1,17 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { LANGUAGES, Role, AssessmentType, DEFAULT_COURSE_STRUCTURE, GenerationType, Difficulty, RegenStrategy } from '@edu/shared';
+import {
+  LANGUAGES,
+  Role,
+  AssessmentType,
+  ApiErrorCode,
+  DEFAULT_COURSE_STRUCTURE,
+  GenerationType,
+  Difficulty,
+  RegenStrategy,
+  LECTURE_SUMMARY_MAX_CHARS,
+  PLACEHOLDER_VIDEO_ID,
+} from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
@@ -8,7 +19,7 @@ import { extractYoutubeId } from '../../lib/youtube.js';
 import { audit } from '../../telemetry/events.js';
 import { enqueueGeneration } from '../../generation/enqueue.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
-import { publishCheckInclude, publishProblems } from './publishValidation.js';
+import { courseStatusFrom, publishCheckInclude, publishProblems, publishWarnings, type SiblingVersion } from './publishValidation.js';
 import { lectureTitleProblem } from './lectureTitle.js';
 
 const langEnum = z.enum(LANGUAGES);
@@ -91,19 +102,50 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     return { items: courses };
   });
 
-  // GET /courses/:id — детали курса.
+  // GET /courses/:id — детали курса + «здоровье» контента для редактора:
+  // по лекции — мини-квиз, длина расшифровки, длительность, видео, краткое содержание;
+  // по версии — итоговый мини-квиз, блокеры (problems), предупреждения (warnings) и
+  // число открытых системных отметок на экспертную проверку (openReviewIssues).
   app.get('/courses/:id', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
-    const course = await prisma.course.findUnique({
-      where: { id },
-      include: {
-        languageVersions: {
-          include: { modules: { orderBy: { orderIndex: 'asc' }, include: { lectures: { orderBy: { orderIndex: 'asc' } }, quiz: { include: { questions: true } }, practicalTask: true } } },
-        },
-      },
-    });
+    const course = await prisma.course.findUnique({ where: { id }, include: { languageVersions: { include: publishCheckInclude } } });
     if (!course) throw Errors.notFound('Курс не найден');
-    return { course };
+    const versionIds = course.languageVersions.map((v) => v.id);
+    const reviewCounts = versionIds.length
+      ? await prisma.contentIssue.groupBy({
+          by: ['languageVersionId'],
+          where: { languageVersionId: { in: versionIds }, origin: 'SYSTEM', status: 'OPEN' },
+          _count: { _all: true },
+        })
+      : [];
+    const openReview = new Map(reviewCounts.map((r) => [r.languageVersionId, r._count._all]));
+    const siblings: SiblingVersion[] = course.languageVersions;
+    return {
+      course: {
+        ...course,
+        languageVersions: course.languageVersions.map((v) => {
+          const openReviewIssues = openReview.get(v.id) ?? 0;
+          return {
+            ...v,
+            finalMiniQuizId: v.finalMiniQuiz?.id ?? null,
+            problems: publishProblems(v),
+            warnings: publishWarnings(v, siblings, { openReviewIssues }),
+            openReviewIssues,
+            modules: v.modules.map((m) => ({
+              ...m,
+              lectures: m.lectures.map((l) => ({
+                ...l,
+                miniQuizId: l.miniQuiz?.id ?? null,
+                miniQuestionCount: l.miniQuiz?._count.questions ?? 0,
+                transcriptChars: l.transcriptText.trim().length,
+                hasVideo: !!l.youtubeVideoId && l.youtubeVideoId !== PLACEHOLDER_VIDEO_ID,
+                hasSummary: !!l.summary?.trim(),
+              })),
+            })),
+          };
+        }),
+      },
+    };
   });
 
   // POST /courses/:id/language-versions — добавить языковую версию (FR-3.1).
@@ -144,11 +186,21 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /modules/:id/lectures — добавить лекцию в существующий модуль (§11.2, FR-2.1).
+  // Только в неопубликованной версии: структура опубликованной меняется лишь после снятия.
   app.post('/modules/:id/lectures', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const data = parse(z.object({ title: z.string().min(1).optional(), youtubeUrl: z.string().optional(), transcriptText: z.string().optional() }), req.body);
-    const mod = await prisma.module.findUnique({ where: { id }, include: { lectures: { orderBy: { orderIndex: 'desc' }, take: 1 } } });
+    const mod = await prisma.module.findUnique({
+      where: { id },
+      include: { lectures: { orderBy: { orderIndex: 'desc' }, take: 1 }, languageVersion: { select: { status: true } } },
+    });
     if (!mod) throw Errors.notFound('Модуль не найден');
+    assertStructureEditable(mod.languageVersion.status);
+    if (data.title) {
+      // Название публично видно в каталоге — те же правила, что при публикации (FR-2.9).
+      const titleProblem = lectureTitleProblem(data.title);
+      if (titleProblem) throw Errors.badRequest(`Название лекции: ${titleProblem}`);
+    }
     const nextIndex = (mod.lectures[0]?.orderIndex ?? -1) + 1;
     const lecture = await prisma.lecture.create({
       data: {
@@ -159,13 +211,37 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
         transcriptText: data.transcriptText ?? '',
       },
     });
+    await audit({ actorId: req.user!.id, action: 'LECTURE_CREATED', targetType: 'Lecture', targetId: lecture.id, detail: { moduleId: id, orderIndex: nextIndex } });
     return { lecture };
   });
 
-  // PATCH /lectures/:id — наполнение лекции (видео + расшифровка) (FR-2.4, FR-4.3).
+  // PATCH /modules/:id — переименовать модуль (название видно в каталоге и курсе).
+  app.patch('/modules/:id', guard, async (req) => {
+    const { id } = parse(z.object({ id: z.string() }), req.params);
+    const { title } = parse(z.object({ title: z.string().trim().min(1).max(200) }), req.body);
+    const mod = await prisma.module.findUnique({ where: { id }, select: { title: true } });
+    if (!mod) throw Errors.notFound('Модуль не найден');
+    const updated = await prisma.module.update({ where: { id }, data: { title } });
+    await audit({ actorId: req.user!.id, action: 'MODULE_UPDATED', targetType: 'Module', targetId: id, detail: { from: mod.title, to: title } });
+    return { module: updated };
+  });
+
+  // PATCH /lectures/:id — наполнение лекции (видео + расшифровка, длительность,
+  // краткое содержание) (FR-2.4, FR-4.3). Пустое краткое содержание → null.
   app.patch('/lectures/:id', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
-    const data = parse(z.object({ title: z.string().min(1).optional(), youtubeUrl: z.string().optional(), transcriptText: z.string().optional() }), req.body);
+    const data = parse(
+      z.object({
+        title: z.string().min(1).optional(),
+        youtubeUrl: z.string().optional(),
+        transcriptText: z.string().optional(),
+        durationSec: z.number().int().min(0).max(14400).nullable().optional(),
+        summary: z.string().trim().max(LECTURE_SUMMARY_MAX_CHARS).nullable().optional(),
+      }),
+      req.body,
+    );
+    const existing = await prisma.lecture.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) throw Errors.notFound('Лекция не найдена');
     const update: Record<string, unknown> = {};
     if (data.title) {
       // Название публично видно в каталоге — те же правила, что при публикации (FR-2.9).
@@ -175,14 +251,25 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     }
     if (data.youtubeUrl !== undefined) update.youtubeVideoId = data.youtubeUrl ? extractYoutubeId(data.youtubeUrl) : '';
     if (data.transcriptText !== undefined) update.transcriptText = data.transcriptText;
+    if (data.durationSec !== undefined) update.durationSec = data.durationSec;
+    if (data.summary !== undefined) update.summary = data.summary ? data.summary : null;
     const lecture = await prisma.lecture.update({ where: { id }, data: update });
+    await audit({ actorId: req.user!.id, action: 'LECTURE_UPDATED', targetType: 'Lecture', targetId: id, detail: { fields: Object.keys(update) } });
     return { lecture };
   });
 
   // DELETE /lectures/:id — удалить лекцию из модуля (FR-2.1 — настраиваемость структуры).
+  // Не в опубликованной версии: каскад стёр бы прогресс студентов по лекции.
   app.delete('/lectures/:id', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
+    const lecture = await prisma.lecture.findUnique({
+      where: { id },
+      select: { title: true, moduleId: true, module: { select: { languageVersion: { select: { status: true } } } } },
+    });
+    if (!lecture) throw Errors.notFound('Лекция не найдена');
+    assertStructureEditable(lecture.module.languageVersion.status);
     await prisma.lecture.delete({ where: { id } });
+    await audit({ actorId: req.user!.id, action: 'LECTURE_DELETED', targetType: 'Lecture', targetId: id, detail: { moduleId: lecture.moduleId, title: lecture.title } });
     return { ok: true };
   });
 
@@ -192,7 +279,9 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const data = parse(
       z.object({
-        type: z.enum([GenerationType.QUIZ, GenerationType.PRACTICAL, GenerationType.MINI, GenerationType.ALL]).default(GenerationType.ALL),
+        type: z
+          .enum([GenerationType.QUIZ, GenerationType.PRACTICAL, GenerationType.MINI, GenerationType.ALL, GenerationType.LECTURE_SUMMARY])
+          .default(GenerationType.ALL),
         moduleIds: z.array(z.string()).optional(),
         singleChoiceCount: z.number().int().min(1).max(20).optional(),
         trueFalseCount: z.number().int().min(0).max(20).optional(),
@@ -232,7 +321,7 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
           orderBy: { orderIndex: 'asc' },
           include: {
             lectures: { orderBy: { orderIndex: 'asc' }, select: { id: true, title: true, youtubeVideoId: true, transcriptText: true, orderIndex: true } },
-            quiz: { include: { questions: { orderBy: { orderIndex: 'asc' } } } },
+            quiz: { include: { questions: { where: { archivedAt: null }, orderBy: { orderIndex: 'asc' } } } },
             // referenceSolution/rubric скрыты в превью «как студент» тоже
             practicalTask: { select: { id: true, title: true, scenarioPrompt: true, difficulty: true, maxAiMessages: true } },
           },
@@ -240,7 +329,7 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
       },
     });
     if (!version) throw Errors.notFound('Версия не найдена');
-    return { version };
+    return { version, warnings: await versionWarnings(id) };
   });
 
   // POST /language-versions/:id/publish — публикация с валидацией (FR-2.9, FR-3.5).
@@ -249,21 +338,23 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     const version = await prisma.courseLanguageVersion.findUnique({ where: { id }, include: publishCheckInclude });
     if (!version) throw Errors.notFound('Версия не найдена');
 
-    // Валидация перед публикацией (FR-2.9)
+    // Валидация перед публикацией (FR-2.9); предупреждения публикацию не блокируют
     const problems = publishProblems(version);
-    if (problems.length > 0) throw Errors.validation('Версия не готова к публикации', { problems });
+    const warnings = await versionWarnings(id);
+    if (problems.length > 0) throw Errors.validation('Версия не готова к публикации', { problems, warnings });
 
     const updated = await prisma.courseLanguageVersion.update({ where: { id }, data: { status: 'PUBLISHED', publishedAt: new Date() } });
     // Курс становится PUBLISHED, если есть хотя бы одна опубликованная версия
-    await prisma.course.update({ where: { id: version.courseId }, data: { status: 'PUBLISHED' } });
-    await audit({ actorId: req.user!.id, action: 'COURSE_PUBLISHED', targetType: 'CourseLanguageVersion', targetId: id });
-    return { version: updated };
+    await syncCourseStatus(version.courseId);
+    await audit({ actorId: req.user!.id, action: 'COURSE_PUBLISHED', targetType: 'CourseLanguageVersion', targetId: id, detail: { warnings: warnings.length } });
+    return { version: updated, warnings };
   });
 
   // POST /language-versions/:id/unpublish — снятие с публикации (FR-2.7).
   app.post('/language-versions/:id/unpublish', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const updated = await prisma.courseLanguageVersion.update({ where: { id }, data: { status: 'DRAFT' } });
+    await syncCourseStatus(updated.courseId); // курс остаётся PUBLISHED, только пока есть опубликованная версия
     await audit({ actorId: req.user!.id, action: 'COURSE_UNPUBLISHED', targetType: 'CourseLanguageVersion', targetId: id });
     return { version: updated };
   });
@@ -273,7 +364,38 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
   app.post('/language-versions/:id/archive', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const updated = await prisma.courseLanguageVersion.update({ where: { id }, data: { status: 'ARCHIVED' } });
+    await syncCourseStatus(updated.courseId);
     await audit({ actorId: req.user!.id, action: 'COURSE_ARCHIVED', targetType: 'CourseLanguageVersion', targetId: id });
     return { version: updated };
   });
+}
+
+/**
+ * Структуру (состав лекций) опубликованной версии менять нельзя: удаление лекции
+ * каскадом стирает прогресс студентов, добавление меняет прогресс/сертификат на лету.
+ */
+function assertStructureEditable(status: string): void {
+  if (status === 'PUBLISHED') {
+    throw Errors.coded(409, ApiErrorCode.VERSION_PUBLISHED, 'Версия опубликована: снимите её с публикации, чтобы менять структуру');
+  }
+}
+
+/** Статус курса — производный от статусов его версий (публикация/снятие/архив). */
+async function syncCourseStatus(courseId: string): Promise<void> {
+  const versions = await prisma.courseLanguageVersion.findMany({ where: { courseId }, select: { status: true } });
+  await prisma.course.update({ where: { id: courseId }, data: { status: courseStatusFrom(versions.map((v) => v.status)) } });
+}
+
+/** Предупреждения публикации версии (с учётом параллельных версий и системных отметок). */
+async function versionWarnings(versionId: string): Promise<string[]> {
+  const version = await prisma.courseLanguageVersion.findUnique({ where: { id: versionId }, include: publishCheckInclude });
+  if (!version) return [];
+  const [siblings, openReviewIssues] = await Promise.all([
+    prisma.courseLanguageVersion.findMany({
+      where: { courseId: version.courseId, id: { not: versionId } },
+      select: { language: true, modules: { select: { orderIndex: true, quiz: { select: { questions: { where: { archivedAt: null }, select: { id: true } } } } } } },
+    }),
+    prisma.contentIssue.count({ where: { languageVersionId: versionId, origin: 'SYSTEM', status: 'OPEN' } }),
+  ]);
+  return publishWarnings(version, siblings, { openReviewIssues });
 }

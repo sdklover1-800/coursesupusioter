@@ -21,6 +21,16 @@ export const EventType = {
   CERTIFICATE_ISSUED: 'CERTIFICATE_ISSUED',
   GENERATION_JOB_STARTED: 'GENERATION_JOB_STARTED',
   GENERATION_JOB_FINISHED: 'GENERATION_JOB_FINISHED',
+  /** Студент сменил язык курса (до первой оцениваемой активности, USER_DECISIONS §3) */
+  LANGUAGE_SWITCHED: 'LANGUAGE_SWITCHED',
+  /** Студент пожаловался на контент (вопрос, реплику тьютора, лекцию, задание) */
+  CONTENT_ISSUE_REPORTED: 'CONTENT_ISSUE_REPORTED',
+  /** Сессия практикума завершена (payload: verdictCode, endReason) */
+  PRACTICAL_SESSION_ENDED: 'PRACTICAL_SESSION_ENDED',
+  /** Незавершённая попытка теста отправлена системой по истечении срока (A15) */
+  QUIZ_AUTO_SUBMITTED: 'QUIZ_AUTO_SUBMITTED',
+  /** Пользователь переведён в другую исследовательскую группу */
+  COHORT_CHANGED: 'COHORT_CHANGED',
   /** Аудит админ/менеджер действий (NFR-2.9) */
   ADMIN_ACTION: 'ADMIN_ACTION',
 } as const;

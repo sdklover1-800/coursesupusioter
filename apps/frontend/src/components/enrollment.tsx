@@ -30,7 +30,7 @@ export function SelfRegisteredChip({ withHint = true, className }: { withHint?: 
   return (
     <span
       title={withHint ? t('requests.selfRegisteredHint') : undefined}
-      className={clsx('inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-spark/15 px-1.5 py-0.5 text-[11px] font-semibold text-fg', className)}
+      className={clsx('inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-spark/15 px-1.5 py-0.5 text-small font-semibold text-fg', className)}
     >
       <span aria-hidden>!</span>{t('requests.selfRegistered')}
       {withHint && <span className="sr-only">. {t('requests.selfRegisteredHint')}</span>}
@@ -38,17 +38,24 @@ export function SelfRegisteredChip({ withHint = true, className }: { withHint?: 
   );
 }
 
-/** Бейдж языка версии: RU / KZ / EN. */
+/**
+ * Бейдж языка версии — родное письмо общего помощника (shell.langShort): «Қаз» / «Рус» / «Eng»,
+ * никогда «KZ». Onest 13px (§12: без моно-капса); полное имя языка — для скринридера.
+ */
 export function LangBadge({ lang, active, className }: { lang: string; active?: boolean; className?: string }) {
+  const { t } = useTranslation();
   return (
     <span
+      lang={lang}
+      title={t(`languages.${lang}`, { defaultValue: langCode(lang) })}
       className={clsx(
-        'inline-flex h-6 items-center rounded-md border px-1.5 font-mono text-[11px] font-semibold tracking-wide',
-        active ? 'border-brand bg-brand text-white' : 'border-border bg-card text-muted',
+        'inline-flex h-6 items-center rounded-md border px-1.5 text-small font-semibold',
+        active ? 'border-brand-fill bg-brand-fill text-white' : 'border-border bg-card text-fg-2',
         className,
       )}
     >
-      {langCode(lang)}
+      <span aria-hidden>{t(`shell.langShort.${lang}`, { defaultValue: langCode(lang) })}</span>
+      <span className="sr-only">{t(`languages.${lang}`, { defaultValue: langCode(lang) })}</span>
     </span>
   );
 }
@@ -74,7 +81,7 @@ export function StatusPill({ status, className }: { status: EnrollmentStatus; cl
   return (
     <span
       className={clsx(
-        'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold text-fg',
+        'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-small font-semibold text-fg',
         statusSurface[status] ?? statusSurface.WITHDRAWN,
         className,
       )}
@@ -88,8 +95,8 @@ export function StatusPill({ status, className }: { status: EnrollmentStatus; cl
 /** Метка с амбер-точкой (практическое с ИИ-тьютором) — вместо text-spark на светлом фоне. */
 export function SparkTag({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span className={clsx('inline-flex items-center gap-1.5 rounded-full bg-spark/15 px-2.5 py-1 text-xs font-semibold text-fg', className)}>
-      <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-spark font-display text-[9px] font-bold text-ink" aria-hidden>?</span>
+    <span className={clsx('inline-flex items-center gap-1.5 rounded-full bg-spark/15 px-2.5 py-1 text-small font-semibold text-fg', className)}>
+      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-spark font-display text-small font-bold leading-none text-ink" aria-hidden>?</span>
       {children}
     </span>
   );
@@ -141,11 +148,11 @@ export function NotApprovedScreen({ courseId, enrollmentId, error }: { courseId?
           </span>
           {status && <div className="mt-5"><StatusPill status={status} /></div>}
           <h1 className="mt-4 text-xl font-semibold leading-snug">{t('catalog.notApprovedTitle')}</h1>
-          {e && <p className="mt-2 text-sm font-semibold text-fg">{e.languageVersion.title}</p>}
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">{text}</p>
+          {e && <p className="mt-2 text-body font-semibold text-fg">{e.languageVersion.title}</p>}
+          <p className="mx-auto mt-2 max-w-sm text-body text-fg-2">{text}</p>
           {status === 'REJECTED' && e?.reviewNote && (
             <blockquote className="mx-auto mt-4 max-w-sm rounded-xl border border-border bg-surface px-4 py-3 text-left text-sm">
-              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{t('catalog.reviewNote')}</div>
+              <div className="mb-1 text-label text-fg-2">{t('catalog.reviewNote')}</div>
               {e.reviewNote}
             </blockquote>
           )}

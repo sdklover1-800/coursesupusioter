@@ -17,7 +17,8 @@ export const studentEnrollmentSelect = {
   requestedAt: true,
   reviewedAt: true,
   reviewNote: true,
-  languageVersion: { select: { id: true, title: true, description: true, language: true } },
+  // status — снятую с публикации версию UI помечает «Временно недоступен»
+  languageVersion: { select: { id: true, title: true, description: true, language: true, status: true } },
   certificate: { select: { id: true, serialNumber: true } },
 } satisfies Prisma.EnrollmentSelect;
 

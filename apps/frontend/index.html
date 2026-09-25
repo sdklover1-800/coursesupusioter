@@ -2,18 +2,27 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- CSP (NFR-2.5): встраивание YouTube (nocookie), Google Fonts, API того же origin. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!--
+      CSP (NFR-2.5): встраивание YouTube (nocookie) + YouTube IFrame API (FE2: script-src),
+      Google Fonts, превью YouTube (img-src https:), API того же origin.
+      Inline-скрипты запрещены — тема применяется из бандла (lib/theme.ts → initTheme()).
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self'"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://www.youtube.com https://s.ytimg.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self'"
     />
-    <title>EduOpen — образовательная платформа</title>
+    <title>EduOpen</title>
     <meta name="description" content="Обучение с ИИ-ассистентом и сократическим диалогом" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Inquiry 2.0: Geologica / Onest / IBM Plex Mono — полное покрытие казахских
+      букв (әғқңөұүһі). Unbounded/Manrope/JetBrains Mono рисовали лишь 3/9/7 из 19 (A18).
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext"
+      href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600;700&family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>

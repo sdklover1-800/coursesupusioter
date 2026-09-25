@@ -103,15 +103,23 @@ export function decideManagerEnroll(existing: EnrollmentStatus | null): 'create'
  * Когорта — свойство студента, а не записи: смена группы «на ходу» переносит в
  * другое плечо и уже набранные данные по другим курсам. Поэтому:
  *  - когорта не передана или совпадает с текущей — ничего не меняем;
- *  - у студента ещё нет когорты — назначает и менеджер, и админ (первичное распределение);
+ *  - у студента ещё нет когорты — назначает и менеджер, и админ (первичное распределение),
+ *    НО если у него уже есть учебные данные (собраны вне любого условия эксперимента),
+ *    первичное назначение молча «переразметило» бы их — нужно явное подтверждение;
  *  - сменить уже назначенную может только админ (как в PATCH /admin/users) и только
- *    пока студент не учится/не учился на других курсах (нет ACTIVE/COMPLETED записей).
+ *    пока студент не учится/не учился на других курсах (нет ACTIVE/COMPLETED записей);
+ *  - состав групп зафиксирован (STUDY_COHORTS_LOCKED) — любая смена только с force.
  */
 export type CohortOnApprove =
   | { action: 'keep' }
   | { action: 'assign' }
   | { action: 'forbidden'; message: string }
-  | { action: 'conflict'; message: string };
+  | { action: 'conflict'; message: string }
+  | { action: 'confirm_required'; message: string }
+  | { action: 'locked'; message: string };
+
+export const COHORT_CONFIRM_MESSAGE = 'У студента уже есть учебные данные без группы эксперимента — подтвердите назначение группы';
+export const COHORTS_LOCKED_MESSAGE = 'Состав групп эксперимента зафиксирован — смена группы только с явным подтверждением (force)';
 
 export function decideCohortOnApprove(p: {
   requested: string | undefined;
@@ -119,15 +127,26 @@ export function decideCohortOnApprove(p: {
   actorRole: Role;
   /** У студента есть ACTIVE/COMPLETED записи на другие курсы */
   hasAdmittedEnrollments: boolean;
+  /** Есть учебные данные: ACTIVE/COMPLETED записи либо прогресс лекций/попытки/сессии */
+  hasPriorStudyData: boolean;
+  /** Менеджер подтвердил назначение группы студенту с данными (confirmCohortAssign) */
+  confirmed: boolean;
+  /** env STUDY_COHORTS_LOCKED */
+  cohortsLocked?: boolean;
+  /** Явное подтверждение смены при зафиксированных группах */
+  force?: boolean;
 }): CohortOnApprove {
   if (!p.requested || p.requested === p.current) return { action: 'keep' };
-  if (p.current === null) return { action: 'assign' };
-  if (p.actorRole !== Role.ADMIN) {
-    return { action: 'forbidden', message: 'Студент уже в группе эксперимента — сменить её может только администратор' };
+  if (p.current !== null) {
+    if (p.actorRole !== Role.ADMIN) {
+      return { action: 'forbidden', message: 'Студент уже в группе эксперимента — сменить её может только администратор' };
+    }
+    if (p.hasAdmittedEnrollments) {
+      return { action: 'conflict', message: 'Студент уже учится в своей группе эксперимента на другом курсе — смена группы исказит данные исследования' };
+    }
   }
-  if (p.hasAdmittedEnrollments) {
-    return { action: 'conflict', message: 'Студент уже учится в своей группе эксперимента на другом курсе — смена группы исказит данные исследования' };
-  }
+  if (p.cohortsLocked && !p.force) return { action: 'locked', message: COHORTS_LOCKED_MESSAGE };
+  if (p.current === null && p.hasPriorStudyData && !p.confirmed) return { action: 'confirm_required', message: COHORT_CONFIRM_MESSAGE };
   return { action: 'assign' };
 }
 

@@ -1,285 +1,320 @@
-import { useMemo, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { clsx } from 'clsx';
-import { api, ApiError } from '../../lib/api';
-import { Badge, Button, Card, toast } from '../../components/ui';
-import { LoadingRows, MeterBar } from '../../components/page';
+import type { AttemptResult, LearnView, QuizLobby as QuizLobbyData } from '@edu/shared';
+import { invalidateLearning, routes, useLearnView } from '../../lib/learn';
+import {
+  errorCode, quizKeys, QuizErrorCode, quizRoutes, romanNumeral, startAttempt, useAttemptResult, useAttemptState,
+  usePracticeSet, useQuizLobby, type PracticeItem,
+} from '../../lib/quiz';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { ApiError } from '../../lib/api';
+import { Breadcrumb, toast, type Crumb } from '../../components/ui';
+import { ErrorState, LoadingRows } from '../../components/page';
 import { ContentError } from '../../components/enrollment';
-
-interface Question { id: string; type: 'SINGLE_CHOICE' | 'TRUE_FALSE'; prompt: string; options: string[]; difficulty: string }
-interface Quiz { id: string; title: string; passThreshold: number; maxAttempts: number; attemptsUsed: number; questions: Question[] }
-interface PracticeResult { isCorrect: boolean; correctOptionIds: number[]; explanation: string | null }
-interface ReviewItem { questionId: string; isCorrect: boolean; correctOptionIds: number[]; explanation: string | null }
-interface AttemptResult { attempt: { score: number; passed: boolean; correctCount: number; total: number }; review: ReviewItem[] }
-
-type Mode = 'select' | 'practice' | 'official' | 'result';
+import { QuizLobby } from '../../components/quiz/QuizLobby';
+import { OfficialRunner } from '../../components/quiz/OfficialRunner';
+import { PracticeRunner } from '../../components/quiz/PracticeRunner';
+import { ResultView } from '../../components/quiz/ResultView';
 
 /**
- * Интерактивный тест (FR-5.3–5.5).
- * Два режима: «Тренировка» (мгновенная обратная связь, не оценивается) и
- * «Официальная попытка» (строго, серверная проверка). После официальной —
- * богатый разбор всех вопросов с пояснениями.
+ * Страница теста (FE3 §8): /learn/:courseId/:enrollmentId/quiz/:quizId
+ * — оцениваемый тест → лобби; тренировочный (мини-квиз) → тренировка в режиме фокуса;
+ * — ?run=<attemptId>   → официальная попытка (обновление страницы → GET /quiz-attempts/:id/state);
+ * — ?attempt=<id>      → результат сохранённой попытки (GET /quiz-attempts/:id);
+ * — ?mode=practice     → «Тренировка по модулю» (модуль — из moduleId теста); &only=graded —
+ *   только вопросы теста (открыты после финала, иначе 403 PRACTICE_LOCKED).
  */
 export function QuizPage() {
   const { t } = useTranslation();
-  const { quizId, enrollmentId, courseId } = useParams();
+  const { courseId = '', enrollmentId = '', quizId = '' } = useParams();
+  const [sp] = useSearchParams();
+  const runId = sp.get('run');
+  const attemptId = sp.get('attempt');
+  const practice = sp.get('mode') === 'practice';
+  const onlyGraded = sp.get('only') === 'graded';
+
+  const lobbyQ = useQuizLobby(quizId, enrollmentId);
+  const learnQ = useLearnView(courseId, enrollmentId);
+  const ctx = useQuizContext(lobbyQ.data, learnQ.data);
+
+  if (lobbyQ.error) return <ContentError error={lobbyQ.error} courseId={courseId} enrollmentId={enrollmentId} />;
+  if (!lobbyQ.data) return <LoadingRows rows={4} />;
+  const lobby = lobbyQ.data;
+  const base = { lobby, courseId, enrollmentId, quizId, ctx };
+
+  if (runId && lobby.isGraded) return <RunScreen key={runId} {...base} attemptId={runId} />;
+  if (attemptId && lobby.isGraded) return <ResultScreen key={attemptId} {...base} attemptId={attemptId} />;
+  if (!lobby.isGraded) return <MiniPracticeScreen {...base} />;
+  if (practice) return <ModulePracticeScreen {...base} onlyGraded={onlyGraded} />;
+  return <LobbyScreen {...base} />;
+}
+
+/* ── Контекст: модуль, курс, лекции (карта курса — из кэша страницы курса) ── */
+interface QuizContext {
+  numeral: string | null;
+  moduleTitle: string | null;
+  courseTitle: string | null;
+  lectureNumbers: Record<string, number>;
+  lectureTitles: Record<string, string>;
+}
+function useQuizContext(lobby: QuizLobbyData | undefined, learn: LearnView | undefined): QuizContext {
+  return useMemo(() => {
+    const numeral = lobby?.moduleOrderIndex !== null && lobby?.moduleOrderIndex !== undefined ? romanNumeral(lobby.moduleOrderIndex + 1) : null;
+    const mod = learn?.version.modules.find((m) => m.id === lobby?.moduleId) ?? null;
+    const lectureNumbers: Record<string, number> = {};
+    const lectureTitles: Record<string, string> = {};
+    for (const m of learn?.version.modules ?? []) {
+      for (const l of m.lectures) {
+        lectureNumbers[l.id] = l.lectureNumber;
+        lectureTitles[l.id] = l.title;
+      }
+    }
+    return { numeral, moduleTitle: mod?.title ?? null, courseTitle: learn?.version.title ?? null, lectureNumbers, lectureTitles };
+  }, [lobby, learn]);
+}
+
+interface ScreenProps {
+  lobby: QuizLobbyData;
+  courseId: string;
+  enrollmentId: string;
+  quizId: string;
+  ctx: QuizContext;
+}
+
+function useCrumbs({ lobby, courseId, enrollmentId, quizId, ctx }: ScreenProps, extra?: Crumb): Crumb[] {
+  const { t } = useTranslation();
+  const items: Crumb[] = [{ label: ctx.courseTitle ?? t('nav.myCourses'), to: routes.course(courseId, enrollmentId) }];
+  if (ctx.moduleTitle) items.push({ label: ctx.moduleTitle, to: routes.course(courseId, enrollmentId) });
+  items.push({ label: lobby.isGraded ? t('quiz.moduleTest') : lobby.title, to: extra ? quizRoutes.lobby(courseId, enrollmentId, quizId) : undefined });
+  if (extra) items.push(extra);
+  return items;
+}
+
+/* ── Лобби ── */
+function LobbyScreen(props: ScreenProps) {
+  const { lobby, courseId, enrollmentId, quizId, ctx } = props;
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [mode, setMode] = useState<Mode>('select');
+  const [starting, setStarting] = useState(false);
+  const [ackError, setAckError] = useState(false);
+  const crumbs = useCrumbs(props);
+  useDocumentTitle(ctx.numeral ? t('quiz.moduleTestN', { n: ctx.numeral }) : lobby.title);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['quiz', quizId, enrollmentId],
-    queryFn: () => api.get<{ quiz: Quiz }>(`/quizzes/${quizId}?enrollmentId=${enrollmentId}`),
-  });
-
-  if (error) return <ContentError error={error} courseId={courseId} enrollmentId={enrollmentId} />;
-  if (isLoading || !data) return <LoadingRows rows={4} />;
-  const quiz = data.quiz;
-  const attemptsLeft = quiz.maxAttempts - quiz.attemptsUsed;
-
-  return (
-    <div className="mx-auto max-w-2xl">
-      <button onClick={() => navigate(`/learn/${courseId}/${enrollmentId}`)} className="mb-4 text-sm text-muted hover:text-fg">← {t('common.back')}</button>
-      <h1 className="mb-1 text-2xl font-semibold">{quiz.title}</h1>
-      <div className="mb-6 flex items-center gap-2 text-sm text-muted">
-        <Badge tone="muted">{quiz.questions.length} {t('quiz.question').toLowerCase()}</Badge>
-        <Badge tone="muted">{t('quiz.passThreshold')} {Math.round(quiz.passThreshold * 100)}%</Badge>
-      </div>
-
-      {mode === 'select' && <ModeSelect quiz={quiz} attemptsLeft={attemptsLeft} onPractice={() => setMode('practice')} onOfficial={() => setMode('official')} />}
-      {mode === 'practice' && <PracticeRunner quiz={quiz} enrollmentId={enrollmentId!} onExit={() => setMode('select')} />}
-      {mode === 'official' && (
-        <OfficialRunner
-          quiz={quiz}
-          enrollmentId={enrollmentId!}
-          onResult={() => {
-            // M7: обновляем attemptsUsed и прогресс курса после официальной попытки
-            qc.invalidateQueries({ queryKey: ['quiz', quizId, enrollmentId] });
-            qc.invalidateQueries({ queryKey: ['learn', courseId, enrollmentId] });
-            setMode('result');
-          }}
-          storeKey={`result-${quizId}`}
-        />
-      )}
-      {mode === 'result' && <ResultView quiz={quiz} storeKey={`result-${quizId}`} onRetry={() => setMode('select')} onDone={() => navigate(`/learn/${courseId}/${enrollmentId}`)} />}
-    </div>
-  );
-}
-
-/* ── Выбор режима ── */
-function ModeSelect({ quiz, attemptsLeft, onPractice, onOfficial }: { quiz: Quiz; attemptsLeft: number; onPractice: () => void; onOfficial: () => void }) {
-  const { t } = useTranslation();
-  return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Card className="flex flex-col">
-        <Badge tone="spark" className="w-fit">{t('quiz.practiceBadge')}</Badge>
-        <h3 className="mt-3 text-lg font-semibold">{t('quiz.practiceMode')}</h3>
-        <p className="mt-1 flex-1 text-sm text-muted">{t('quiz.practiceDesc')}</p>
-        <Button variant="secondary" className="mt-4" onClick={onPractice}>{t('quiz.startPractice')}</Button>
-      </Card>
-      <Card className="flex flex-col border-brand/30">
-        <Badge tone="brand" className="w-fit">{t('quiz.officialBadge')}</Badge>
-        <h3 className="mt-3 text-lg font-semibold">{t('quiz.officialMode')}</h3>
-        <p className="mt-1 flex-1 text-sm text-muted">{t('quiz.officialDesc')}</p>
-        <div className="mt-3 font-mono text-xs text-muted">{t('quiz.attemptsLeft', { n: attemptsLeft })}</div>
-        <Button className="mt-2" disabled={attemptsLeft <= 0} onClick={onOfficial}>
-          {attemptsLeft > 0 ? t('quiz.startOfficial') : t('quiz.noAttempts')}
-        </Button>
-      </Card>
-    </div>
-  );
-}
-
-/* ── Тренировка: мгновенная обратная связь ── */
-function PracticeRunner({ quiz, enrollmentId, onExit }: { quiz: Quiz; enrollmentId: string; onExit: () => void }) {
-  const { t } = useTranslation();
-  const [idx, setIdx] = useState(0);
-  const [selected, setSelected] = useState<number[]>([]);
-  const [feedback, setFeedback] = useState<PracticeResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const q = quiz.questions[idx]!;
-
-  async function check() {
-    setLoading(true);
+  async function onStart(integrityAck: boolean) {
+    setStarting(true);
+    setAckError(false);
     try {
-      const res = await api.post<PracticeResult>(`/quizzes/${quiz.id}/practice`, { enrollmentId, questionId: q.id, selectedOptionIds: selected });
-      setFeedback(res);
+      const start = await startAttempt(quizId, enrollmentId, integrityAck);
+      // Попытка уже загружена — раннер не перезапрашивает /state
+      qc.setQueryData(quizKeys.attemptState(start.attemptId), start);
+      void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) });
+      // Старт попытки блокирует язык курса (USER_DECISIONS §3) — карта курса устарела
+      void qc.invalidateQueries({ queryKey: ['learn'] });
+      navigate(quizRoutes.run(courseId, enrollmentId, quizId, start.attemptId));
     } catch (err) {
-      toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'); // M7
+      const code = errorCode(err);
+      if (code === QuizErrorCode.INTEGRITY_ACK_REQUIRED) setAckError(true);
+      else if (code === QuizErrorCode.COOLDOWN || code === QuizErrorCode.ATTEMPTS_EXHAUSTED || code === QuizErrorCode.QUIZ_ALREADY_PASSED) {
+        toast(t(`quiz.lobby.errors.${code}`), 'muted');
+        void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) });
+      } else toast(err instanceof ApiError && err.status < 500 ? err.message : t('quiz.lobby.errors.generic'), 'danger');
     } finally {
-      setLoading(false);
-    }
-  }
-  function next() {
-    setFeedback(null);
-    setSelected([]);
-    if (idx + 1 < quiz.questions.length) setIdx(idx + 1);
-    else onExit();
-  }
-
-  return (
-    <Card>
-      <div className="mb-4"><MeterBar value={(idx + 1) / quiz.questions.length} tone="spark" /></div>
-      <div className="mb-1 font-mono text-xs text-muted">{t('quiz.practiceBadge')} · {idx + 1} {t('common.of')} {quiz.questions.length}</div>
-      <QuestionBody q={q} selected={selected} onSelect={setSelected} feedback={feedback} disabled={!!feedback} />
-
-      {feedback && (
-        <div className={clsx('mt-4 animate-fade-up rounded-xl px-4 py-3 text-sm', feedback.isCorrect ? 'bg-teal/12 text-teal' : 'bg-danger/10 text-danger')}>
-          <div className="font-semibold">{feedback.isCorrect ? `✓ ${t('quiz.correct')}` : `✗ ${t('quiz.incorrect')}`}</div>
-          {feedback.explanation && <div className="mt-1 text-fg/80">{t('quiz.explanation')}: {feedback.explanation}</div>}
-        </div>
-      )}
-
-      <div className="mt-5 flex justify-between">
-        <Button variant="ghost" onClick={onExit}>{t('common.back')}</Button>
-        {!feedback ? (
-          <Button variant="spark" disabled={!selected.length} loading={loading} onClick={check}>{t('quiz.check')}</Button>
-        ) : (
-          <Button onClick={next}>{idx + 1 < quiz.questions.length ? t('quiz.nextQuestion') : t('common.close')}</Button>
-        )}
-      </div>
-    </Card>
-  );
-}
-
-/* ── Официальная попытка: без подсказок ── */
-function OfficialRunner({ quiz, enrollmentId, onResult, storeKey }: { quiz: Quiz; enrollmentId: string; onResult: () => void; storeKey: string }) {
-  const { t } = useTranslation();
-  const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number[]>>({});
-  const [loading, setLoading] = useState(false);
-  const q = quiz.questions[idx]!;
-  const answeredCount = Object.values(answers).filter((a) => a.length).length;
-  const isLast = idx + 1 === quiz.questions.length;
-
-  async function submit() {
-    if (!confirm(t('quiz.confirmSubmit'))) return;
-    setLoading(true);
-    try {
-      const res = await api.post<AttemptResult>(`/quizzes/${quiz.id}/attempts`, { enrollmentId, answers });
-      sessionStorage.setItem(storeKey, JSON.stringify(res));
-      onResult();
-    } catch (err) {
-      toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'); // M7
-    } finally {
-      setLoading(false);
+      setStarting(false);
     }
   }
 
   return (
-    <Card>
-      <div className="mb-4"><MeterBar value={(idx + 1) / quiz.questions.length} /></div>
-      <div className="mb-1 flex items-center justify-between font-mono text-xs text-muted">
-        <span>{t('quiz.officialBadge')} · {idx + 1} {t('common.of')} {quiz.questions.length}</span>
-        <span>{t('quiz.answeredOf', { answered: answeredCount, total: quiz.questions.length })}</span>
-      </div>
-      <QuestionBody q={q} selected={answers[q.id] ?? []} onSelect={(s) => setAnswers({ ...answers, [q.id]: s })} />
-
-      <div className="mt-5 flex items-center justify-between">
-        <Button variant="ghost" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>← {t('common.prev')}</Button>
-        {!isLast ? (
-          <Button onClick={() => setIdx(idx + 1)}>{t('common.next')} →</Button>
-        ) : (
-          <Button variant="primary" loading={loading} onClick={submit}>{t('quiz.submitOfficial')}</Button>
-        )}
-      </div>
-    </Card>
+    <div className="mx-auto w-full max-w-[760px]">
+      <Breadcrumb items={crumbs} className="mb-5" />
+      <QuizLobby
+        lobby={lobby}
+        courseId={courseId}
+        enrollmentId={enrollmentId}
+        moduleNumeral={ctx.numeral}
+        moduleTitle={ctx.moduleTitle}
+        starting={starting}
+        ackError={ackError}
+        onStart={(ack) => void onStart(ack)}
+        onResume={(id) => navigate(quizRoutes.run(courseId, enrollmentId, quizId, id))}
+        onCooldownElapsed={() => void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) })}
+      />
+    </div>
   );
 }
 
-/* ── Разбор после официальной попытки ── */
-function ResultView({ quiz, storeKey, onRetry, onDone }: { quiz: Quiz; storeKey: string; onRetry: () => void; onDone: () => void }) {
+/* ── Официальная попытка ── */
+function RunScreen(props: ScreenProps & { attemptId: string }) {
+  const { lobby, courseId, enrollmentId, quizId, ctx, attemptId } = props;
   const { t } = useTranslation();
-  const result = useMemo<AttemptResult | null>(() => {
-    const raw = sessionStorage.getItem(storeKey);
-    return raw ? (JSON.parse(raw) as AttemptResult) : null;
-  }, [storeKey]);
-  if (!result) return null;
-  const byId = new Map(result.review.map((r) => [r.questionId, r]));
-  const { attempt } = result;
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const stateQ = useAttemptState(attemptId);
+  const title = ctx.numeral ? t('quiz.moduleTestN', { n: ctx.numeral }) : lobby.title;
+  useDocumentTitle(title);
+
+  // Уход из раннера (✕, «назад» браузера, отправка) — снимок попытки из кэша больше не нужен:
+  // повторный вход должен взять свежие ответы через /state
+  // (проверка после тика — StrictMode в dev имитирует размонтирование сразу после монтирования)
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      window.setTimeout(() => {
+        if (!mounted.current) qc.removeQueries({ queryKey: quizKeys.attemptState(attemptId) });
+      }, 0);
+    };
+  }, [qc, attemptId]);
+
+  const toResult = (id: string) => navigate(quizRoutes.result(courseId, enrollmentId, quizId, id), { replace: true });
+  const stateCode = errorCode(stateQ.error);
+
+  useEffect(() => {
+    // Попытка уже отправлена (другая вкладка или система после простоя) — к результату
+    if (stateCode === QuizErrorCode.ATTEMPT_SUBMITTED) {
+      toast(t('quiz.runner.submitted'), 'muted');
+      void invalidateLearning(qc);
+      toResult(attemptId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateCode]);
+
+  if (stateQ.error) {
+    if (stateCode === QuizErrorCode.ATTEMPT_SUBMITTED) return <LoadingRows rows={3} />;
+    return <ContentError error={stateQ.error} courseId={courseId} enrollmentId={enrollmentId} />;
+  }
+  if (!stateQ.data) return <LoadingRows rows={4} />;
 
   return (
-    <div className="space-y-5">
-      <Card className={clsx('text-center', attempt.passed ? 'border-teal/40' : 'border-danger/30')}>
-        <div className={clsx('mx-auto grid h-16 w-16 place-items-center rounded-full text-3xl', attempt.passed ? 'bg-teal/15 text-teal' : 'bg-danger/10 text-danger')}>
-          {attempt.passed ? '✓' : '✗'}
-        </div>
-        <h2 className="mt-3 text-2xl font-semibold">{attempt.passed ? t('quiz.passed') : t('quiz.failed')}</h2>
-        <div className="mt-2 font-mono text-3xl font-bold tabular-nums">{Math.round(attempt.score * 100)}%</div>
-        <div className="mt-1 text-sm text-muted">{t('quiz.correctCount', { correct: attempt.correctCount, total: attempt.total })}</div>
-      </Card>
+    <OfficialRunner
+      start={stateQ.data}
+      title={title}
+      maxAttempts={lobby.maxAttempts}
+      enrollmentId={enrollmentId}
+      onExit={() => {
+        void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) });
+        navigate(quizRoutes.lobby(courseId, enrollmentId, quizId));
+      }}
+      onSubmitted={(result: AttemptResult) => {
+        qc.setQueryData(quizKeys.attemptResult(attemptId), result);
+        qc.removeQueries({ queryKey: quizKeys.attemptState(attemptId) });
+        // Уровень разбора прежних попыток мог измениться (финал) — сбрасываем все результаты
+        void qc.invalidateQueries({ queryKey: ['quiz-attempt', 'result'], predicate: (q) => q.queryKey[2] !== attemptId });
+        void qc.invalidateQueries({ queryKey: ['quiz-practice-set'] });
+        void invalidateLearning(qc);
+        toResult(attemptId);
+      }}
+      onAlreadySubmitted={() => {
+        toast(t('quiz.runner.submitted'), 'muted');
+        void invalidateLearning(qc);
+        void qc.invalidateQueries({ queryKey: quizKeys.attemptResult(attemptId) });
+        toResult(attemptId);
+      }}
+    />
+  );
+}
 
+/* ── Результат попытки ── */
+function ResultScreen(props: ScreenProps & { attemptId: string }) {
+  const { lobby, courseId, enrollmentId, quizId, ctx, attemptId } = props;
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const resultQ = useAttemptResult(attemptId);
+  const n = resultQ.data?.attempt.attemptNumber;
+  const crumbs = useCrumbs(props, { label: n ? `${t('quiz.outcome.table.attempt')} ${t('quiz.lobby.historyNumber', { n })}` : t('quiz.result') });
+  useDocumentTitle(`${t('quiz.result')} · ${ctx.numeral ? t('quiz.moduleTestN', { n: ctx.numeral }) : lobby.title}`);
+
+  if (resultQ.error) {
+    const e = resultQ.error;
+    if (e instanceof ApiError && (e.status === 403 || e.code === 'ENROLLMENT_NOT_APPROVED')) return <ContentError error={e} courseId={courseId} enrollmentId={enrollmentId} />;
+    return (
       <div>
-        <div className="mb-3 font-mono text-xs font-semibold uppercase tracking-wider text-brand">{t('quiz.reviewTitle')}</div>
-        <div className="space-y-3">
-          {quiz.questions.map((q, i) => {
-            const r = byId.get(q.id);
-            return (
-              <Card key={q.id} className={clsx('!p-4', r?.isCorrect ? 'border-teal/30' : 'border-danger/25')}>
-                <div className="flex gap-2">
-                  <span className={clsx('font-mono text-sm font-bold', r?.isCorrect ? 'text-teal' : 'text-danger')}>{r?.isCorrect ? '✓' : '✗'}</span>
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold">{i + 1}. {q.prompt}</div>
-                    <div className="mt-2 space-y-1">
-                      {q.options.map((opt, oi) => (
-                        <div key={oi} className={clsx('rounded-lg px-3 py-1.5 text-sm', r?.correctOptionIds.includes(oi) ? 'bg-teal/12 text-teal font-medium' : 'text-muted')}>
-                          {r?.correctOptionIds.includes(oi) && '✓ '}{opt}
-                        </div>
-                      ))}
-                    </div>
-                    {r?.explanation && <div className="mt-2 text-xs text-muted">{t('quiz.explanation')}: {r.explanation}</div>}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+        <Breadcrumb items={crumbs} className="mb-5" />
+        <ErrorState message={t('quiz.outcome.loadFailed')} />
       </div>
+    );
+  }
+  if (!resultQ.data) return <LoadingRows rows={4} />;
 
-      <div className="flex justify-between">
-        <Button variant="secondary" onClick={onRetry}>{t('quiz.tryAgain')}</Button>
-        <Button onClick={onDone}>{t('quiz.finishReview')}</Button>
-      </div>
+  return (
+    <div className="mx-auto w-full max-w-[860px]">
+      <Breadcrumb items={crumbs} className="mb-5" />
+      <ResultView
+        result={resultQ.data}
+        lobby={lobby}
+        courseId={courseId}
+        enrollmentId={enrollmentId}
+        quizId={quizId}
+        moduleNumeral={ctx.numeral}
+        lectureTitles={ctx.lectureTitles}
+        onCooldownElapsed={() => {
+          void qc.invalidateQueries({ queryKey: quizKeys.attemptResult(attemptId) });
+          void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) });
+        }}
+      />
     </div>
   );
 }
 
-/* ── Тело вопроса с вариантами ── */
-function QuestionBody({ q, selected, onSelect, feedback, disabled }: { q: Question; selected: number[]; onSelect: (s: number[]) => void; feedback?: PracticeResult | null; disabled?: boolean }) {
+/* ── Тренировка по модулю (?mode=practice) ── */
+function ModulePracticeScreen(props: ScreenProps & { onlyGraded: boolean }) {
+  const { lobby, courseId, enrollmentId, quizId, ctx, onlyGraded } = props;
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const setQ = usePracticeSet(lobby.moduleId, enrollmentId);
+  const title = onlyGraded ? t('quiz.practice.titleGraded') : t('quiz.practice.title');
+  useDocumentTitle(ctx.numeral ? `${title} · ${ctx.numeral}` : title);
+
+  const items = useMemo<PracticeItem[]>(() => {
+    const all = setQ.data?.items ?? [];
+    const picked = onlyGraded ? all.filter((i) => i.source === 'GRADED') : all;
+    return picked.map((i) => ({ quizId: i.quizId, question: i.question, source: i.source, lectureId: i.lectureId }));
+  }, [setQ.data, onlyGraded]);
+
+  const exit = () => navigate(quizRoutes.lobby(courseId, enrollmentId, quizId));
+  if (setQ.error) return <ContentError error={setQ.error} courseId={courseId} enrollmentId={enrollmentId} />;
+  if (!setQ.data) return <LoadingRows rows={4} />;
+
+  // Вопросы теста до финала закрыты (USER_DECISIONS §2): спокойное объяснение + мини-квизы модуля
+  const lockedGraded = onlyGraded && !setQ.data.includesGraded;
   return (
-    <div>
-      <h3 className="text-lg font-semibold leading-snug">{q.prompt}</h3>
-      <div className="mt-4 space-y-2">
-        {q.options.map((opt, oi) => {
-          const isSelected = selected.includes(oi);
-          const isCorrect = feedback?.correctOptionIds.includes(oi);
-          const showWrong = feedback && isSelected && !isCorrect;
-          return (
-            <button
-              key={oi}
-              disabled={disabled}
-              onClick={() => onSelect([oi])}
-              className={clsx(
-                'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-all',
-                'disabled:cursor-default',
-                feedback && isCorrect ? 'border-teal bg-teal/10' :
-                showWrong ? 'border-danger bg-danger/8' :
-                isSelected ? 'border-brand bg-brand-soft' : 'border-border bg-card hover:border-brand/40',
-              )}
-            >
-              <span className={clsx('grid h-6 w-6 shrink-0 place-items-center rounded-full border text-xs font-bold',
-                isSelected ? 'border-brand bg-brand text-white' : 'border-border text-muted')}>
-                {String.fromCharCode(65 + oi)}
-              </span>
-              <span className="flex-1">{opt}</span>
-              {feedback && isCorrect && <span className="text-teal">✓</span>}
-              {showWrong && <span className="text-danger">✗</span>}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <PracticeRunner
+      key={`${lobby.moduleId}-${onlyGraded ? 'g' : 'all'}-${items.length}`}
+      variant="focus"
+      items={lockedGraded ? [] : items}
+      enrollmentId={enrollmentId}
+      title={ctx.numeral ? `${title} · ${ctx.numeral}` : title}
+      onExit={exit}
+      lectureNumbers={ctx.lectureNumbers}
+      lockedHref={quizRoutes.practice(courseId, enrollmentId, quizId)}
+      initialLocked={lockedGraded}
+    />
+  );
+}
+
+/* ── Тренировочный тест, открытый по ссылке (мини-квиз / итоговый мини-квиз) ── */
+function MiniPracticeScreen(props: ScreenProps) {
+  const { lobby, courseId, enrollmentId, ctx } = props;
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  useDocumentTitle(lobby.title);
+  const items = useMemo<PracticeItem[]>(
+    () => (lobby.questions ?? []).map((q) => ({ quizId: lobby.id, question: q, source: 'MINI' as const })),
+    [lobby],
+  );
+  return (
+    <PracticeRunner
+      key={lobby.id}
+      variant="focus"
+      items={items}
+      enrollmentId={enrollmentId}
+      title={lobby.title}
+      onExit={() => navigate(routes.course(courseId, enrollmentId))}
+      exitLabel={t('quiz.outcome.toCourse')}
+      lectureNumbers={ctx.lectureNumbers}
+    />
   );
 }

@@ -13,6 +13,8 @@ import {
   requestListWhere,
   requestListOrder,
   decideCohortOnApprove,
+  COHORT_CONFIRM_MESSAGE,
+  COHORTS_LOCKED_MESSAGE,
 } from './policy.js';
 
 const ALL = Object.values(EnrollmentStatus);
@@ -116,25 +118,49 @@ describe('очередь заявок', () => {
 });
 
 describe('когорта при одобрении заявки', () => {
-  const base = { requested: 'AI', current: null, actorRole: 'COURSE_MANAGER' as const, hasAdmittedEnrollments: false };
+  const base = {
+    requested: 'AI', current: null, actorRole: 'COURSE_MANAGER' as const,
+    hasAdmittedEnrollments: false, hasPriorStudyData: false, confirmed: false,
+  };
 
   it('когорта не передана или совпадает с текущей — не меняем', () => {
     expect(decideCohortOnApprove({ ...base, requested: undefined }).action).toBe('keep');
-    expect(decideCohortOnApprove({ ...base, current: 'AI', hasAdmittedEnrollments: true }).action).toBe('keep');
+    expect(decideCohortOnApprove({ ...base, current: 'AI', hasAdmittedEnrollments: true, hasPriorStudyData: true }).action).toBe('keep');
   });
 
-  it('у студента нет когорты — назначает и менеджер, и админ', () => {
+  it('у студента нет когорты и нет учебных данных — назначает и менеджер, и админ', () => {
     expect(decideCohortOnApprove(base).action).toBe('assign');
     expect(decideCohortOnApprove({ ...base, actorRole: 'ADMIN' }).action).toBe('assign');
   });
 
-  it('менеджер не может сменить уже назначенную группу (403)', () => {
-    expect(decideCohortOnApprove({ ...base, current: 'TEACHER' }).action).toBe('forbidden');
-    expect(decideCohortOnApprove({ ...base, current: 'TEACHER', hasAdmittedEnrollments: true }).action).toBe('forbidden');
+  it('нет когорты, но есть учебные данные — нужно явное подтверждение (confirm_required)', () => {
+    const d = decideCohortOnApprove({ ...base, hasPriorStudyData: true, hasAdmittedEnrollments: true });
+    expect(d).toEqual({ action: 'confirm_required', message: COHORT_CONFIRM_MESSAGE });
+    expect(decideCohortOnApprove({ ...base, actorRole: 'ADMIN', hasPriorStudyData: true }).action).toBe('confirm_required');
   });
 
-  it('админ меняет группу только до начала обучения на других курсах', () => {
+  it('подтверждённое назначение первой группы студенту с данными — assign', () => {
+    expect(decideCohortOnApprove({ ...base, hasPriorStudyData: true, hasAdmittedEnrollments: true, confirmed: true }).action).toBe('assign');
+  });
+
+  it('менеджер не может сменить уже назначенную группу (403)', () => {
+    expect(decideCohortOnApprove({ ...base, current: 'TEACHER' }).action).toBe('forbidden');
+    expect(decideCohortOnApprove({ ...base, current: 'TEACHER', hasAdmittedEnrollments: true, confirmed: true }).action).toBe('forbidden');
+  });
+
+  it('админ меняет группу только до начала обучения на других курсах (иначе конфликт)', () => {
     expect(decideCohortOnApprove({ ...base, actorRole: 'ADMIN', current: 'TEACHER' }).action).toBe('assign');
-    expect(decideCohortOnApprove({ ...base, actorRole: 'ADMIN', current: 'TEACHER', hasAdmittedEnrollments: true }).action).toBe('conflict');
+    expect(decideCohortOnApprove({ ...base, actorRole: 'ADMIN', current: 'TEACHER', hasAdmittedEnrollments: true, hasPriorStudyData: true }).action).toBe('conflict');
+  });
+
+  it('состав групп зафиксирован (STUDY_COHORTS_LOCKED) — любое назначение только с force', () => {
+    expect(decideCohortOnApprove({ ...base, cohortsLocked: true })).toEqual({ action: 'locked', message: COHORTS_LOCKED_MESSAGE });
+    expect(decideCohortOnApprove({ ...base, cohortsLocked: true, force: true }).action).toBe('assign');
+    // «Ничего не меняем» блокировкой не останавливается
+    expect(decideCohortOnApprove({ ...base, cohortsLocked: true, requested: undefined }).action).toBe('keep');
+    // Права и конфликт проверяются раньше блокировки
+    expect(decideCohortOnApprove({ ...base, cohortsLocked: true, current: 'TEACHER' }).action).toBe('forbidden');
+    // С force, но без подтверждения данных — всё равно confirm_required
+    expect(decideCohortOnApprove({ ...base, cohortsLocked: true, force: true, hasPriorStudyData: true }).action).toBe('confirm_required');
   });
 });

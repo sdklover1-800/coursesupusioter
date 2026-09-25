@@ -3,36 +3,80 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Дизайн-система «Inquiry» — токены.
-   Тема: «steppe dusk / инквайри». Акцент — амбер «сократическая искра».
+   Дизайн-система «Inquiry 2.0» — токены (design_direction §2).
+   RGB-триплеты → tailwind.config.ts (rgb(var(--x) / <alpha-value>)).
+   Акцент — амбер «сократическая искра»; *-ink — тот же тон для текста (≥ 4.5:1).
    ───────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --ink: 22 24 43; /* #16182B — глубокий индиго-чернильный */
+    --ink: 22 24 43; /* #16182B — чернильный индиго: хром и «оценивание» */
+    --stage: 13 14 28; /* полоса видео — тёмная в обеих темах */
     --surface: 247 246 242; /* #F7F6F2 — тёплый off-white */
+    --surface-2: 240 238 232;
     --card: 255 255 255;
     --border: 226 224 234;
-    --muted: 108 110 132;
+    --border-strong: 203 200 216;
+    --muted: 100 102 124;
     --fg: 28 30 51;
-    --brand: 91 84 224; /* #5B54E0 индиго-фиолет */
+    --fg-2: 69 71 94; /* #45475E — вторичный текст: мета, даты, пояснения статусов (§12, ≈ 9:1 на белом) */
+    --brand: 91 84 224; /* #5B54E0 индиго-фиолет: текст и ссылки */
+    --brand-fill: 91 84 224; /* заливка основных кнопок */
     --brand-soft: 233 231 252;
-    --spark: 242 180 65; /* #F2B441 амбер */
-    --teal: 44 185 166; /* #2CB9A6 */
+    --spark: 242 180 65; /* #F2B441 амбер — только заливки */
+    --spark-ink: 138 90 0; /* #8A5A00 — амбер для текста и колец «далее» (5.9:1) */
+    --teal: 44 185 166;
+    --teal-ink: 11 110 98; /* #0B6E62 (6.1:1) */
     --danger: 229 72 77;
+    --danger-ink: 180 35 24; /* #B42318 (6.6:1) */
+
+    /* Адаптивные размеры заголовков (display-xl/lg), < md — компактнее */
+    --fs-display-xl: 1.75rem;
+    --lh-display-xl: 2.125rem;
+    --fs-display-lg: 1.375rem;
+    --lh-display-lg: 1.75rem;
+
+    color-scheme: light;
   }
 
-  :root[data-theme='dark'] {
+  @media (min-width: 768px) {
+    :root {
+      --fs-display-xl: 2.125rem;
+      --lh-display-xl: 2.5rem;
+      --fs-display-lg: 1.625rem;
+      --lh-display-lg: 2rem;
+    }
+  }
+
+  /* Тёмная палитра: вся страница (<html data-theme=dark>) или локальная область на ink
+     (FocusBar, сцена видео) — data-theme="dark" на обёртке делает текст/границы/плашки светлыми. */
+  [data-theme='dark'] {
     --ink: 8 9 20;
+    --stage: 6 7 16;
     --surface: 14 15 28; /* тёмный индиго-фон */
+    --surface-2: 19 21 37;
     --card: 23 25 43;
     --border: 42 45 72;
+    --border-strong: 62 66 100;
     --muted: 150 152 176;
     --fg: 233 233 244;
-    --brand: 129 123 245;
+    --fg-2: 196 197 218; /* #C4C5DA — вторичный текст на тёмных поверхностях (§12) */
+    --brand: 150 146 250; /* A24: 5.37:1 на brand-soft */
+    --brand-fill: 99 92 230; /* белый текст 5.0:1 */
     --brand-soft: 39 37 74;
     --spark: 245 190 88;
+    --spark-ink: 245 190 88;
     --teal: 52 205 184;
+    --teal-ink: 52 205 184;
     --danger: 245 105 110;
+    --danger-ink: 250 128 132;
+
+    color-scheme: dark;
+  }
+
+  /* Режим для слабовидящих (design_direction §9): контрастные границы */
+  :root.a11y,
+  :root.a11y[data-theme='dark'] {
+    --border: var(--border-strong);
   }
 
   * {
@@ -47,17 +91,33 @@
     margin: 0;
     background: rgb(var(--surface));
     color: rgb(var(--fg));
-    font-family: 'Manrope', system-ui, sans-serif;
-    font-feature-settings: 'ss01', 'cv11';
+    font-family: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3 {
-    font-family: 'Unbounded', system-ui, sans-serif;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+  /* Только h1/h2 — дисплейный Geologica; h3 и ниже — Onest 600 (вопросы, заголовки карточек) */
+  h1,
+  h2 {
+    font-family: 'Geologica', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
     font-weight: 600;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    letter-spacing: normal;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  /* Моноширинные счётчики, таймкоды, серийные номера — табличные цифры */
+  :where(.font-mono, kbd, code, samp) {
+    font-variant-numeric: tabular-nums;
   }
 
   :focus-visible {
@@ -66,10 +126,41 @@
     border-radius: 4px;
   }
 
+  /* ── Режим для слабовидящих (html.a11y) ── */
+  html.a11y {
+    font-size: 112.5%;
+  }
+  html.a11y a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+  }
+  html.a11y :focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+  html.a11y *:not(.animate-spin),
+  html.a11y *::before,
+  html.a11y *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  html.a11y .transcript {
+    line-height: 1.8;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .animate-spin {
+      animation-duration: 1.5s !important;
+      animation-iteration-count: infinite !important;
     }
   }
 }
@@ -77,16 +168,87 @@
 @layer components {
   /* Тонкая «сетка инквайри» для фоновых секций */
   .bg-inquiry-grid {
-    background-image:
-      radial-gradient(circle at 1px 1px, rgb(var(--border) / 0.7) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, rgb(var(--border) / 0.7) 1px, transparent 0);
     background-size: 28px 28px;
   }
 
+  /* e1 — карточка */
   .card {
     background: rgb(var(--card));
     border: 1px solid rgb(var(--border));
     border-radius: 1rem;
     box-shadow: 0 1px 2px rgb(16 18 43 / 0.04), 0 8px 24px -14px rgb(16 18 43 / 0.14);
+  }
+
+  /* Надстрочник (поправка §12 «читаемость», USER_DECISIONS §8): подпись из СЛОВ —
+     Onest 14/20, 500, sentence case, без разрядки, цвет fg-2. Никакого капса и моноширинного:
+     капс кириллицы/казахского в моно читается хуже всего. ≤ 3 слов. */
+  .eyebrow {
+    font-family: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgb(var(--fg-2));
+  }
+
+  /* Числа (таймкоды 12:40, счётчики 18/24, баллы, серийные номера, длительности):
+     IBM Plex Mono 14/20, 500, табличные цифры. Только для чисел — не для слов. */
+  .num {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Поля ввода (primitives/forms.tsx): метрики здесь, в слое components, — утилиты страниц
+     (h-9, py-1, text-xs …) их переопределяют. 15/20 — §12 «читаемость». */
+  .field {
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.25rem;
+  }
+  .field-textarea {
+    line-height: 1.625;
+  }
+  /* Селект: фиксированная высота без вертикальных отступов — текст не обрезается и в компактных h-9 */
+  .field-select {
+    height: 2.625rem; /* = высоте поля ввода: 10 + 20 + 10 + рамка */
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 2.25rem;
+  }
+
+  /* Поверхность тренировки (design_direction §8): точечная сетка + пунктирная рамка */
+  .surface-practice {
+    background-color: rgb(var(--card));
+    background-image: radial-gradient(circle at 1px 1px, rgb(var(--border) / 0.8) 1px, transparent 0);
+    background-size: 24px 24px;
+    border: 1px dashed rgb(var(--brand) / 0.4);
+    border-radius: 1rem;
+  }
+
+  /* Тёмная «сцена» видео — одинакова в обеих темах */
+  .stage {
+    color: rgb(255 255 255);
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgb(var(--brand-fill) / 0.2), transparent 60%),
+      rgb(var(--stage));
+  }
+
+  /* «Губа» учебных плиток (варианты ответов, квадраты карты курса): тактильность.
+     Двойной класс — специфичность выше утилит `border`/`border-border`, иначе губа пропадает.
+     Цвет губы у выбранной плитки можно сменить утилитой с !: `!border-b-brand`. */
+  .lip.lip {
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(var(--border-strong));
+    transition-property: transform, background-color, border-color;
+    transition-duration: 120ms;
+  }
+  .lip.lip:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   /* Скелетон-шиммер */
@@ -103,6 +265,18 @@
     animation: shimmer 1.5s infinite;
   }
   @keyframes shimmer {
-    100% { transform: translateX(100%); }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+@layer utilities {
+  /* Отступы под системные панели (вырез/домашний индикатор) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }

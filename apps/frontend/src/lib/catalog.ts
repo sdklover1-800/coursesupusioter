@@ -4,40 +4,27 @@
  * Доступ к материалам курса — только при одобренной записи (ACTIVE/COMPLETED).
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  CatalogLecture as SharedCatalogLecture, CatalogModule as SharedCatalogModule, CatalogVersionDetail,
+  CatalogVersionSummary as SharedCatalogVersionSummary, MyCourseSummary,
+} from '@edu/shared';
 import { api, ApiError } from './api';
 
 /* ── Типы ──────────────────────────────────────────────── */
 export type EnrollmentStatus = 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'REJECTED' | 'WITHDRAWN';
 export type AssessmentType = 'QUIZ' | 'PRACTICAL';
 
-/** Карточка каталога: только опубликованные языковые версии. */
-export interface CatalogVersionSummary {
-  id: string;
-  language: string;
-  title: string;
-  description: string | null;
-  moduleCount: number;
-  lectureCount: number;
-  hasPractical: boolean;
-}
+/**
+ * Карточка каталога и программа курса — типы контракта @edu/shared (catalog.ts):
+ * необязательные поля BE1 (durationSec, moduleQuizCount, hasCertificate, quizQuestionCount,
+ * hasMiniQuiz, hasPractical, hasFinalMiniQuiz) могут отсутствовать — UI скрывает такие ячейки.
+ * Контента (видео, расшифровок, вопросов) в каталоге нет.
+ */
+export type CatalogVersionSummary = SharedCatalogVersionSummary;
 export interface CatalogItem { id: string; versions: CatalogVersionSummary[] }
-
-/** Страница курса: программа без содержимого (видео/расшифровки/вопросы скрыты). */
-export interface CatalogLecture { id: string; orderIndex: number; title: string }
-export interface CatalogModule {
-  id: string;
-  orderIndex: number;
-  title: string;
-  assessmentType: AssessmentType;
-  lectures: CatalogLecture[];
-}
-export interface CatalogVersion {
-  id: string;
-  language: string;
-  title: string;
-  description: string | null;
-  modules: CatalogModule[];
-}
+export type CatalogLecture = SharedCatalogLecture;
+export type CatalogModule = SharedCatalogModule;
+export type CatalogVersion = CatalogVersionDetail;
 export interface CatalogCourse { id: string; versions: CatalogVersion[] }
 
 /** Запись студента (GET /me/courses) — все статусы, включая заявки. */
@@ -49,8 +36,11 @@ export interface MyEnrollment {
   requestedAt: string | null;
   reviewedAt: string | null;
   reviewNote: string | null;
-  languageVersion: { id: string; title: string; description: string | null; language: string };
+  /** status — статус публикации версии (снятую с публикации UI помечает «Временно недоступен») */
+  languageVersion: { id: string; title: string; description: string | null; language: string; status?: string };
   certificate: { id: string; serialNumber: string } | null;
+  /** Сводка прогресса для карточки «Мои курсы» (BE1; только ACTIVE/COMPLETED) */
+  summary?: MyCourseSummary | null;
 }
 
 /** Заявка в очереди модерации (GET /enrollment-requests). */
@@ -75,9 +65,12 @@ export interface CohortLite { id: string; name: string; condition?: string }
 /** Статусы с открытым доступом к материалам. */
 export const isApproved = (s: EnrollmentStatus | string) => s === 'ACTIVE' || s === 'COMPLETED';
 
-/** Код языка для бейджа: kk → KZ (как в интерфейсе), прочие — верхним регистром. */
+/**
+ * Короткий код языка (запасной вариант, когда нет перевода): «KK», «RU», «EN».
+ * В интерфейсе — родное письмо t('shell.langShort.<lng>') («Қаз · Рус · Eng»), никогда «KZ».
+ */
 export function langCode(lang: string): string {
-  return lang === 'kk' ? 'KZ' : lang.toUpperCase();
+  return lang.toUpperCase();
 }
 
 /** Версия на языке интерфейса, если опубликована, иначе — первая. */
@@ -231,8 +224,12 @@ function useInvalidateRequests() {
 export function useApproveRequest() {
   const invalidate = useInvalidateRequests();
   return useMutation({
-    mutationFn: ({ id, cohortId }: { id: string; cohortId?: string }) =>
-      api.post<{ enrollment: unknown }>(`/enrollment-requests/${id}/approve`, cohortId ? { cohortId } : {}),
+    // confirmCohortAssign — повтор после 409 COHORT_CONFIRM_REQUIRED (смена группы у студента с данными)
+    mutationFn: ({ id, cohortId, confirmCohortAssign }: { id: string; cohortId?: string; confirmCohortAssign?: boolean }) =>
+      api.post<{ enrollment: unknown }>(`/enrollment-requests/${id}/approve`, {
+        ...(cohortId ? { cohortId } : {}),
+        ...(confirmCohortAssign ? { confirmCohortAssign: true } : {}),
+      }),
     onSettled: invalidate,
   });
 }
@@ -249,8 +246,12 @@ export function useRejectRequest() {
 export function useBulkApprove() {
   const invalidate = useInvalidateRequests();
   return useMutation({
-    mutationFn: ({ ids, cohortId }: { ids: string[]; cohortId?: string }) =>
-      api.post<BulkApproveResult>('/enrollment-requests/approve-bulk', cohortId ? { ids, cohortId } : { ids }),
+    mutationFn: ({ ids, cohortId, confirmCohortAssign }: { ids: string[]; cohortId?: string; confirmCohortAssign?: boolean }) =>
+      api.post<BulkApproveResult>('/enrollment-requests/approve-bulk', {
+        ids,
+        ...(cohortId ? { cohortId } : {}),
+        ...(confirmCohortAssign ? { confirmCohortAssign: true } : {}),
+      }),
     onSettled: invalidate,
   });
 }

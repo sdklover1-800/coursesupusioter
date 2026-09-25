@@ -1,8 +1,8 @@
-import { Worker, type ConnectionOptions } from 'bullmq';
+import { UnrecoverableError, Worker, type ConnectionOptions } from 'bullmq';
 import { createRedisConnection } from '../lib/redis.js';
 import { GENERATION_QUEUE, MAINTENANCE_QUEUE, QUEUE_PREFIX, scheduleMaintenance, type GenerationJobData } from './queues.js';
-import { runGeneration } from '../generation/service.js';
-import { sweepAbandonedSessions, cleanupRefreshTokens } from '../modules/practical/sweep.service.js';
+import { runGeneration, RUNNABLE_GENERATION_TYPES } from '../generation/service.js';
+import { runMaintenance } from './maintenance.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
 import { logEvent } from '../telemetry/events.js';
@@ -20,6 +20,16 @@ export function startGenerationWorker(): Worker<GenerationJobData> {
     async (job) => {
       const { generationJobId, createdById } = job.data;
       logger.info({ generationJobId, type: job.data.type }, 'Старт задачи генерации');
+
+      // Неизвестный тип — громкий отказ без ретраев: повтор ничего не изменит.
+      // Список поддерживаемых — в generation/service.ts (включая LECTURE_SUMMARY).
+      if (!RUNNABLE_GENERATION_TYPES.has(job.data.type)) {
+        const message = `Тип генерации ${String(job.data.type)} не поддерживается`;
+        logger.error({ generationJobId, type: job.data.type }, message);
+        await prisma.generationJob.update({ where: { id: generationJobId }, data: { status: 'ERROR', error: message } });
+        await logEvent({ eventType: EventType.GENERATION_JOB_FINISHED, userId: createdById, payload: { generationJobId, error: message } });
+        throw new UnrecoverableError(message);
+      }
 
       await prisma.generationJob.update({ where: { id: generationJobId }, data: { status: 'RUNNING' } });
       await logEvent({ eventType: EventType.GENERATION_JOB_STARTED, userId: createdById, payload: { generationJobId, type: job.data.type } });
@@ -55,17 +65,14 @@ export function startGenerationWorker(): Worker<GenerationJobData> {
 }
 
 /**
- * Воркер обслуживания (§5.7, аудит H3): по расписанию закрывает брошенные сессии.
+ * Воркер обслуживания (§5.7, аудит H3): по расписанию запускает runMaintenance —
+ * брошенные сессии, зависшие попытки тестов (A15), протухшие refresh-токены.
  * Ставит повторяемую задачу при старте (идемпотентно).
  */
 export function startMaintenanceWorker(): Worker {
   const worker = new Worker(
     MAINTENANCE_QUEUE,
-    async () => {
-      const closed = await sweepAbandonedSessions();
-      const tokens = await cleanupRefreshTokens();
-      return { closed, tokens };
-    },
+    async () => runMaintenance(),
     { prefix: QUEUE_PREFIX, connection: createRedisConnection() as unknown as ConnectionOptions },
   );
   worker.on('failed', (job, err) => logger.error({ jobId: job?.id, err }, 'Задача обслуживания упала'));

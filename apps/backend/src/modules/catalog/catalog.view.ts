@@ -14,8 +14,13 @@ import {
  */
 
 const published = { status: 'PUBLISHED' as const };
+/** Только НЕархивные вопросы — счётчик без содержимого вопросов. */
+const activeQuestionCount = { _count: { select: { questions: { where: { archivedAt: null } } } } } as const;
 
-/** Выборка для карточек каталога (GET /catalog). */
+/**
+ * Выборка для карточек каталога (GET /catalog). Из лекций — только длительность,
+ * из теста модуля — только факт наличия (id).
+ */
 export const catalogListSelect = {
   id: true,
   defaultLanguage: true,
@@ -26,12 +31,22 @@ export const catalogListSelect = {
       language: true,
       title: true,
       description: true,
-      modules: { select: { assessmentType: true, _count: { select: { lectures: true } } } },
+      modules: {
+        select: {
+          assessmentType: true,
+          lectures: { select: { durationSec: true } },
+          quiz: { select: { id: true } },
+        },
+      },
     },
   },
 } satisfies Prisma.CourseSelect;
 
-/** Выборка для страницы курса (GET /catalog/:courseId) — программа без контента. */
+/**
+ * Выборка для страницы курса (GET /catalog/:courseId) — программа без контента:
+ * названия и длительности лекций, число вопросов тестов (счётчик, не вопросы),
+ * наличие мини-квизов и практикума (id, без сценария/эталона/рубрики).
+ */
 export const catalogDetailSelect = {
   id: true,
   defaultLanguage: true,
@@ -42,6 +57,7 @@ export const catalogDetailSelect = {
       language: true,
       title: true,
       description: true,
+      finalMiniQuiz: { select: activeQuestionCount },
       modules: {
         orderBy: { orderIndex: 'asc' },
         select: {
@@ -49,12 +65,27 @@ export const catalogDetailSelect = {
           orderIndex: true,
           title: true,
           assessmentType: true,
-          lectures: { orderBy: { orderIndex: 'asc' }, select: { id: true, orderIndex: true, title: true } },
+          quiz: { select: activeQuestionCount },
+          practicalTask: { select: { id: true } },
+          lectures: {
+            orderBy: { orderIndex: 'asc' },
+            select: { id: true, orderIndex: true, title: true, durationSec: true, miniQuiz: { select: activeQuestionCount } },
+          },
         },
       },
     },
   },
 } satisfies Prisma.CourseSelect;
+
+/** Сумма длительностей; null, если у какой-то лекции длительность не задана. */
+function totalDuration(values: readonly (number | null)[]): number | null {
+  let sum = 0;
+  for (const v of values) {
+    if (v === null) return null;
+    sum += v;
+  }
+  return sum;
+}
 
 /** Курс виден в каталоге, если у него есть хотя бы одна опубликованная версия. */
 export const hasPublishedVersion = { languageVersions: { some: published } } satisfies Prisma.CourseWhereInput;
@@ -84,8 +115,12 @@ export function toCatalogSummary(course: ListRow): CatalogCourseSummary {
       title: v.title,
       description: v.description,
       moduleCount: v.modules.length,
-      lectureCount: v.modules.reduce((sum, m) => sum + m._count.lectures, 0),
+      lectureCount: v.modules.reduce((sum, m) => sum + m.lectures.length, 0),
       hasPractical: v.modules.some((m) => m.assessmentType === AssessmentType.PRACTICAL),
+      durationSec: totalDuration(v.modules.flatMap((m) => m.lectures.map((l) => l.durationSec))),
+      moduleQuizCount: v.modules.filter((m) => !!m.quiz).length,
+      // Сертификат выдаётся по завершении любого опубликованного курса (FR-9.1)
+      hasCertificate: true,
     })),
   };
 }
@@ -98,12 +133,22 @@ export function toCatalogDetail(course: DetailRow): CatalogCourseDetail {
       language: v.language,
       title: v.title,
       description: v.description,
+      durationSec: totalDuration(v.modules.flatMap((m) => m.lectures.map((l) => l.durationSec))),
+      hasFinalMiniQuiz: (v.finalMiniQuiz?._count.questions ?? 0) > 0,
       modules: v.modules.map((m) => ({
         id: m.id,
         orderIndex: m.orderIndex,
         title: m.title,
         assessmentType: m.assessmentType,
-        lectures: m.lectures.map((l) => ({ id: l.id, orderIndex: l.orderIndex, title: l.title })),
+        quizQuestionCount: m.quiz ? m.quiz._count.questions : null,
+        hasPractical: !!m.practicalTask,
+        lectures: m.lectures.map((l) => ({
+          id: l.id,
+          orderIndex: l.orderIndex,
+          title: l.title,
+          durationSec: l.durationSec,
+          hasMiniQuiz: (l.miniQuiz?._count.questions ?? 0) > 0,
+        })),
       })),
     })),
   };

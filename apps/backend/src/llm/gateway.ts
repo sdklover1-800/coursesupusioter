@@ -1,5 +1,5 @@
 import type { ZodTypeAny, output } from 'zod';
-import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta } from './types.js';
+import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta, TokenUsage } from './types.js';
 import { MockAdapter } from './adapters/mock.js';
 import { AnthropicAdapter } from './adapters/anthropic.js';
 import { OpenAIAdapter } from './adapters/openai.js';
@@ -62,13 +62,16 @@ export class LlmGateway {
     });
   }
 
-  private async withRetry<T>(fn: () => Promise<T>, label: string, attempts = 4): Promise<T> {
+  private async withRetry<T>(fn: () => Promise<T>, label: string, attempts = 4, signal?: AbortSignal): Promise<T> {
     let lastErr: unknown;
     for (let i = 0; i < attempts; i++) {
+      // Вызывающая сторона отменила вызов (таймаут проверки утечки, A21) — не повторяем.
+      if (signal?.aborted) throw lastErr ?? new Error('LLM-вызов отменён');
       try {
         return await this.gated(fn);
       } catch (err) {
         lastErr = err;
+        if (signal?.aborted) throw err;
         const delay = Math.min(8000, 400 * 2 ** i) + Math.floor(Math.random() * 200);
         logger.warn({ err, label, attempt: i + 1, delay }, 'Ошибка вызова LLM — повтор с backoff');
         await sleep(delay);
@@ -85,7 +88,7 @@ export class LlmGateway {
 
   /** Внутренний вызов адаптера по УЖЕ псевдонимизированному запросу (без повторного scrub). */
   private completeScrubbed(scrubbed: CompletionRequest): Promise<CompletionResult> {
-    return this.withRetry(async () => this.meter(await this.adapter.complete(scrubbed)), 'complete');
+    return this.withRetry(async () => this.meter(await this.adapter.complete(scrubbed)), 'complete', 4, scrubbed.signal);
   }
 
   /** Учёт расхода токенов и числа вызовов LLM (NFR-5.2). */
@@ -127,12 +130,12 @@ export class LlmGateway {
     const jsonReq: CompletionRequest = { ...req, jsonMode: true };
     let result = await this.complete(jsonReq);
     // L2: суммарный расход токенов (первый вызов + ремонт), иначе токены ремонта теряются.
-    let spentIn = result.usage.inputTokens;
-    let spentOut = result.usage.outputTokens;
+    const first = result.usage;
     let parsed = tryParseJson(result.text);
     let validation = parsed !== undefined ? schema.safeParse(parsed) : undefined;
 
     if (validation?.success) return { data: validation.data, result };
+    if (req.signal?.aborted) throw new Error('LLM-вызов отменён');
 
     // Ремонт: один повтор с явным указанием ошибки схемы
     const repairReq: CompletionRequest = {
@@ -147,9 +150,7 @@ export class LlmGateway {
       ],
     };
     result = await this.complete(repairReq);
-    spentIn += result.usage.inputTokens;
-    spentOut += result.usage.outputTokens;
-    result = { ...result, usage: { inputTokens: spentIn, outputTokens: spentOut } };
+    result = { ...result, usage: addUsage(first, result.usage) };
     parsed = tryParseJson(result.text);
     validation = parsed !== undefined ? schema.safeParse(parsed) : undefined;
     if (validation?.success) return { data: validation.data, result };
@@ -174,6 +175,16 @@ export class LlmGateway {
         : 'ИИ вернул некорректный формат данных. Повторите генерацию.',
     );
   }
+}
+
+/** Сумма расхода двух вызовов, включая кешированный вход и токены рассуждений (A3). */
+export function addUsage(a: TokenUsage, b: TokenUsage): TokenUsage {
+  return {
+    inputTokens: a.inputTokens + b.inputTokens,
+    outputTokens: a.outputTokens + b.outputTokens,
+    cachedInputTokens: (a.cachedInputTokens ?? 0) + (b.cachedInputTokens ?? 0),
+    reasoningTokens: (a.reasoningTokens ?? 0) + (b.reasoningTokens ?? 0),
+  };
 }
 
 /** Извлекает JSON из ответа (снимает markdown-огранку ```json ... ```). */

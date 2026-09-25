@@ -6,12 +6,21 @@ import { kk } from './locales/kk';
 import { en } from './locales/en';
 
 /**
- * Локализация интерфейса (§6.2): ресурсные файлы по языкам, все строки — вне
- * компонентов. Предпочтение языка сохраняется в localStorage и синхронизируется
- * с профилем при входе.
+ * Локализация интерфейса (§6.2): ресурсные файлы по языкам и пространствам
+ * (locales/<lng>/<namespace>.ts), все строки — вне компонентов. Для i18next это одно
+ * пространство 'translation' — вызовы t('lecture.x') не меняются. Предпочтение языка
+ * сохраняется в localStorage и синхронизируется с профилем при входе.
  */
 const STORAGE_KEY = 'edu.lang';
-const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+
+function readStored(): string | null {
+  try {
+    return typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+  } catch {
+    return null;
+  }
+}
+const stored = readStored();
 const initial = stored && (LANGUAGES as readonly string[]).includes(stored) ? stored : 'ru';
 
 void i18n.use(initReactI18next).init({
@@ -26,8 +35,15 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
+// Атрибут lang на <html> — для скринридеров и переносов (в т.ч. при первом рендере)
+if (typeof document !== 'undefined') document.documentElement.lang = initial;
+
 i18n.on('languageChanged', (lng) => {
-  if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, lng);
+  try {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, lng);
+  } catch {
+    /* приватный режим */
+  }
   if (typeof document !== 'undefined') document.documentElement.lang = lng;
 });
 

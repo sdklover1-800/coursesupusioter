@@ -1,6 +1,10 @@
+import { passCountFor } from '@edu/shared';
+
 /**
  * Чистая логика оценивания теста (FR-5.4). Вынесена из маршрута, чтобы
  * авторитетный серверный подсчёт балла можно было тестировать без БД.
+ * review — ВНУТРЕННИЙ разбор с ключом: студенту отдаётся только через
+ * buildReview (policy.ts) по уровню политики разбора.
  */
 
 export interface ScorableQuestion {
@@ -33,8 +37,9 @@ export function isAnswerCorrect(given: number[], correct: number[]): boolean {
 }
 
 /**
- * Оценивает попытку. `answers` — { questionId: number[] }.
- * Балл = доля верных вопросов; passed по порогу (>=).
+ * Оценивает попытку. `answers` — { questionId: number[] } (канонические id вариантов).
+ * Балл = доля верных вопросов; passed — верных не меньше passCountFor(порог, всего):
+ * то же число, что лобби показывает студенту («нужно 6 из 8»).
  */
 export function scoreQuiz(
   questions: ScorableQuestion[],
@@ -49,5 +54,6 @@ export function scoreQuiz(
   });
   const total = questions.length;
   const score = total ? correctCount / total : 0;
-  return { score, passed: score >= passThreshold, correctCount, total, review };
+  const passed = total > 0 && correctCount >= passCountFor(passThreshold, total);
+  return { score, passed, correctCount, total, review };
 }

@@ -1,4 +1,5 @@
 import { Queue, type ConnectionOptions } from 'bullmq';
+import type { GenerationType } from '@edu/shared';
 import { createRedisConnection } from '../lib/redis.js';
 
 /** Имя очереди генерации ИИ-материалов (FR-7.1). */
@@ -15,9 +16,17 @@ export const QUEUE_PREFIX = 'edu';
 export interface GenerationJobData {
   generationJobId: string;
   courseLanguageVersionId: string;
-  type: 'QUIZ' | 'PRACTICAL' | 'MINI' | 'ALL';
+  /**
+   * QUIZ | PRACTICAL | MINI | LECTURE_SUMMARY | ALL (ALL включает и краткие содержания).
+   * Воркер явно отклоняет неизвестный тип (generation/service.ts RUNNABLE_GENERATION_TYPES).
+   */
+  type: GenerationType;
   params: {
     moduleIds?: string[];
+    /**
+     * Устарело для тестов модулей: блюпринт фиксирован — MODULE_QUIZ_QUESTIONS вопросов
+     * SINGLE_CHOICE (USER_DECISIONS §5). Поля оставлены для совместимости API/скриптов.
+     */
     singleChoiceCount?: number;
     trueFalseCount?: number;
     difficulty?: 'VERY_EASY' | 'EASY' | 'MEDIUM' | 'HARD';
@@ -38,7 +47,7 @@ export const generationQueue = new Queue<GenerationJobData, unknown, 'generate'>
   },
 });
 
-/** Очередь фонового обслуживания: закрытие брошенных сессий (§5.7, аудит H3). */
+/** Очередь фонового обслуживания (queue/maintenance.ts): брошенные сессии, зависшие попытки, токены. */
 export const MAINTENANCE_QUEUE = 'maintenance';
 
 export const maintenanceQueue = new Queue(MAINTENANCE_QUEUE, {

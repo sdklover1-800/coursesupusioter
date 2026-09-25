@@ -10,11 +10,20 @@ export class MockAdapter implements LlmAdapter {
 
   async complete(req: CompletionRequest): Promise<CompletionResult> {
     const text = this.render(req);
+    const inputTokens = estimateTokens(req);
     return {
       text,
-      usage: { inputTokens: estimateTokens(req), outputTokens: Math.ceil(text.length / 3) },
+      // Детерминированные значения для тестов учёта токенов (A3): половина входа
+      // «из кеша», у вызовов судьи — фиксированные токены рассуждений.
+      usage: {
+        inputTokens,
+        outputTokens: Math.ceil(text.length / 3),
+        cachedInputTokens: Math.floor(inputTokens / 2),
+        reasoningTokens: req.purpose === 'judge' ? 16 : 0,
+      },
       model: req.model,
       provider: this.provider,
+      finishReason: 'stop',
     };
   }
 
@@ -30,6 +39,21 @@ export class MockAdapter implements LlmAdapter {
   private render(req: CompletionRequest): string {
     const system = req.system ?? '';
     const lastUser = [...req.messages].reverse().find((m) => m.role === 'user')?.content ?? '';
+
+    // Диалог практикума (§5.4) различаем по назначению вызова — текст студента
+    // не должен случайно переключать мок на генерацию («тест по…», «practical»).
+    if (req.purpose === 'dialog') return mockTutor(lastUser);
+    if (req.purpose === 'judge') {
+      if (/итогового отзыва студенту/i.test(system)) return JSON.stringify({ leaks: false, lines: [], reason: '' });
+      if (/контролёр учебного диалога/i.test(system)) return JSON.stringify(mockLeakCheck(lastUser));
+      if (/итоговый отзыв студенту/i.test(system)) return JSON.stringify(mockSummary(lastUser));
+      // Однокальный режим: вывод судьи + реплика тьютора одним JSON
+      if (/"tutor_message"/.test(system)) {
+        const student = lastStudentLine(lastUser);
+        return JSON.stringify({ ...mockJudge(student), tutor_message: mockTutor(student) });
+      }
+      if (/судья|judge|student_reached_answer/i.test(system)) return JSON.stringify(mockJudge(lastStudentLine(lastUser)));
+    }
 
     // Генерация теста
     if (/сгенерируй тест|quiz|тест по/i.test(system + lastUser) || /"questions"/i.test(system)) {
@@ -91,11 +115,18 @@ function mockPractical() {
   };
 }
 
+/** Судья получает транскрипт одним сообщением — берём последнюю реплику студента. */
+function lastStudentLine(transcript: string): string {
+  const lines = transcript.split('\n').filter((l) => /^\[С\d+\] СТУДЕНТ: /.test(l));
+  const last = lines[lines.length - 1];
+  return last ? last.replace(/^\[С\d+\] СТУДЕНТ: /, '') : transcript;
+}
+
 function mockJudge(studentText: string) {
   const reached = /итог|ответ:|я думаю ответ|вывод:/i.test(studentText) && studentText.length > 40;
   const depth = Math.min(3, Math.floor(studentText.length / 60));
+  // Порядок полей = порядок генерации у живой модели: вердикт последним (A.1).
   return {
-    student_reached_answer: reached,
     reasoning_assessment: {
       methodicalness: depth,
       question_quality: Math.max(0, depth - 1),
@@ -103,10 +134,34 @@ function mockJudge(studentText: string) {
       self_correction: /ошиб|я был неправ|поправ/i.test(studentText) ? 2 : 0,
       notes: '[MOCK] Автоматическая оценка (детерминированная эвристика).',
     },
+    covered_key_points: reached ? [1, 2] : [],
+    missing_key_points: reached ? [] : [1, 2],
+    criterion_missing: reached ? [] : ['[MOCK] вывод'],
+    student_reached_answer: reached,
+  };
+}
+
+/** Проверка утечки: «утечка» только для реплики с маркером MOCK-LEAK (смоук-тест замены). */
+function mockLeakCheck(userMessage: string) {
+  const leaks = /MOCK-LEAK/.test(userMessage);
+  return { leaks, reason: leaks ? '[MOCK] маркер утечки' : '' };
+}
+
+/** Итоговый отзыв: ссылается на первую реплику студента из входа. */
+function mockSummary(userMessage: string) {
+  const id = /\[id=([^\]]+)\]/.exec(userMessage)?.[1];
+  const line = '[MOCK] Рассуждение прослеживается по репликам.';
+  return {
+    criteria: ['methodicalness', 'question_quality', 'logical_progression', 'self_correction'].map((key) => ({ key, line })),
+    strengths: ['[MOCK] Последовательность.', '[MOCK] Готовность уточнять.'],
+    to_develop: ['[MOCK] Больше вопросов к себе.', '[MOCK] Проверка альтернатив.'],
+    highlights: id ? [{ message_id: id, criterion: 'methodicalness', polarity: 'plus', note: '[MOCK] Хороший шаг.' }] : [],
   };
 }
 
 function mockTutor(studentText: string): string {
-  if (!studentText) return '[MOCK] С чего вы предлагаете начать? Разбейте задачу на шаги.';
-  return '[MOCK] Хорошее направление. А что произойдёт, если рассмотреть противоположный случай? Какой признак это подтвердит?';
+  if (!studentText) return '[MOCK] С чего вы предлагаете начать? Разбейте задачу на шаги и назовите первый.';
+  // Смоук-тест замены реплики при утечке (A21): студент пишет «mock-leak».
+  if (/mock-leak/i.test(studentText)) return '[MOCK] Ответ такой: MOCK-LEAK. Согласны ли вы с этим?';
+  return '[MOCK] Хорошее направление. А какой признак из условия подтвердит вашу мысль?';
 }

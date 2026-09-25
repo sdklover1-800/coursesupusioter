@@ -7,7 +7,8 @@ import {
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { safeNext } from '../lib/catalog';
-import { Button, Field, Input, Select } from '../components/ui';
+import { Button, Field, Icon, Input, Select } from '../components/ui';
+import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { AuthLayout } from '../components/AuthLayout';
 
 /** Политика — общая с бэкендом (@edu/shared): ФИО 2..100 после trim, пароль 8..128 (как при смене пароля). */
@@ -50,6 +51,7 @@ export function RegisterPage() {
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  useDocumentTitle(t('register.title'));
 
   if (user && !loading) return <Navigate to={next ?? '/'} replace />;
 
@@ -88,8 +90,19 @@ export function RegisterPage() {
 
   return (
     <AuthLayout variant="register">
-      <h2 className="mb-1 text-2xl font-semibold">{t('register.title')}</h2>
-      <p className="mb-6 text-sm text-muted">{t('register.subtitle')}</p>
+      <h2 className="font-display text-display-lg">{t('register.title')}</h2>
+      {/* На lg путь «регистрация → заявка → одобрение» уже в левой панели — подзаголовок не дублируем */}
+      <p className="mt-1 text-body text-fg-2 lg:hidden">{t('register.subtitle')}</p>
+
+      {/* Ошибка сервера — в заранее зарезервированном месте: появление не сдвигает поля */}
+      <div className="flex min-h-[4.25rem] items-center py-2" aria-live="assertive">
+        {serverError && (
+          <div id="register-error" role="alert" className="flex w-full items-start gap-2 rounded-xl border border-danger/30 bg-danger/8 px-4 py-2.5 text-body font-medium text-danger-ink">
+            <Icon name="alert" size={18} className="mt-0.5 shrink-0" />
+            <span>{serverError}</span>
+          </div>
+        )}
+      </div>
 
       <form ref={formRef} onSubmit={submit} noValidate className="space-y-4">
         <Field label={t('register.name')} error={errorOf('name')}>
@@ -126,15 +139,11 @@ export function RegisterPage() {
           </Select>
         </Field>
 
-        {serverError && (
-          <div role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-2.5 text-sm text-danger">{serverError}</div>
-        )}
-
         <Button type="submit" size="lg" loading={loading} className="w-full">{t('register.submit')}</Button>
-        <p className="text-xs leading-relaxed text-muted">{t('register.consentNote')}</p>
+        <p className="text-meta text-fg-2">{t('register.consentNote')}</p>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className="mt-6 text-center text-body text-fg-2">
         {t('register.haveAccount')}{' '}
         <Link to={loginHref} className="font-semibold text-brand hover:underline">{t('auth.signIn')}</Link>
       </p>

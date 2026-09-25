@@ -23,6 +23,17 @@ export interface CompletionRequest {
    * например, уровень рассуждений у reasoning-моделей OpenAI. По умолчанию — generation.
    */
   purpose?: LlmPurpose;
+  /**
+   * Уровень рассуждений для ЭТОГО вызова — перекрывает уровень по назначению
+   * (env OPENAI_REASONING_*), напр. подтверждающий вызов судьи (A4, A13.3).
+   * Учитывается только у reasoning-моделей официального API.
+   */
+  reasoningEffort?: 'none' | 'low' | 'medium' | 'high';
+  /**
+   * Отмена вызова по таймауту вызывающей стороны (проверка утечки, A21):
+   * шлюз не повторяет отменённый вызов, адаптер прерывает HTTP-запрос.
+   */
+  signal?: AbortSignal;
 }
 
 export type LlmPurpose = 'generation' | 'dialog' | 'judge';
@@ -30,6 +41,10 @@ export type LlmPurpose = 'generation' | 'dialog' | 'judge';
 export interface TokenUsage {
   inputTokens: number;
   outputTokens: number;
+  /** Из inputTokens — кешированные входные токены (дешевле, учёт стоимости) */
+  cachedInputTokens?: number;
+  /** Из outputTokens — скрытые токены рассуждений */
+  reasoningTokens?: number;
 }
 
 export interface CompletionResult {
@@ -38,6 +53,8 @@ export interface CompletionResult {
   model: string;
   /** Псевдо-провайдерная метка для воспроизводимости (FR-R.7). */
   provider: string;
+  /** Причина остановки генерации от провайдера (stop | length | ...), если известна. */
+  finishReason?: string;
 }
 
 export type StreamDelta = (chunk: string) => void;

@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { PublicUser } from '@edu/shared';
-import { api, setAccessToken } from './api';
+import { api, setAccessToken, setApiListeners } from './api';
 import i18n from '../i18n';
+import { toast } from '../components/ui';
 
 interface AuthState {
   user: PublicUser | null;
@@ -14,9 +15,28 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+/**
+ * Навигация вне дерева роутера: AuthProvider стоит над RouterProvider, поэтому
+ * router.tsx регистрирует здесь router.navigate (без циклического импорта).
+ */
+let navigateFn: ((to: string) => void) | null = null;
+export function setAuthNavigator(fn: (to: string) => void): void {
+  navigateFn = fn;
+}
+function go(to: string) {
+  if (navigateFn) navigateFn(to);
+  else window.location.assign(to);
+}
+/** Текущий путь (для ?next=) — только внутренний, без служебных экранов. */
+function currentPath(): string {
+  return window.location.pathname + window.location.search;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const userRef = useRef<PublicUser | null>(null);
+  userRef.current = user;
 
   // При старте — пробуем восстановить сессию через refresh-cookie.
   useEffect(() => {
@@ -33,6 +53,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     })();
+  }, []);
+
+  // Глобальные реакции API: истёкшая сессия и гейты доступа (смена пароля, согласие)
+  useEffect(() => {
+    setApiListeners({
+      onAuthLost: () => {
+        if (!userRef.current) return;
+        setAccessToken(null);
+        setUserState(null);
+        toast(i18n.t('shell.sessionExpired'), 'danger');
+        const here = currentPath();
+        go(here.startsWith('/login') ? '/login' : `/login?next=${encodeURIComponent(here)}`);
+      },
+      onGateError: (code) => {
+        const path = window.location.pathname;
+        if (code === 'PASSWORD_CHANGE_REQUIRED' && path !== '/change-password') go('/change-password');
+        if (code === 'CONSENT_REQUIRED' && path !== '/consent') go(`/consent?next=${encodeURIComponent(currentPath())}`);
+      },
+    });
+    return () => setApiListeners({});
   }, []);
 
   function applyUser(u: PublicUser | null) {

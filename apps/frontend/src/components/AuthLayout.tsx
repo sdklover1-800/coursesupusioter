@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from './AppShell';
+import { LanguageSwitcher, LogoMark, ThemeToggle } from './AppShell';
+import { Icon } from './icons';
 
 /**
  * Раскладка экранов входа/регистрации: слева — тезис (hero), справа — форма.
  * variant="register" показывает в hero путь студента: регистрация → заявка → одобрение.
+ * Тема применяется до рендера (lib/theme.ts), поэтому экраны входа открываются в сохранённой теме.
  */
 export function AuthLayout({ children, variant = 'login' }: { children: ReactNode; variant?: 'login' | 'register' }) {
   const { t } = useTranslation();
@@ -21,8 +23,7 @@ export function AuthLayout({ children, variant = 'login' }: { children: ReactNod
       <div className="relative hidden overflow-hidden bg-ink text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="bg-inquiry-grid absolute inset-0 opacity-40" />
         <Link to="/catalog" className="relative flex w-fit items-center gap-2 rounded-lg">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-spark font-display font-bold text-ink">?</span>
-          <span className="font-display text-xl font-semibold">{t('common.appName')}</span>
+          <LogoMark size={36} nameClassName="text-xl" />
         </Link>
         <div className="relative max-w-md">
           {variant === 'login' ? (
@@ -30,7 +31,7 @@ export function AuthLayout({ children, variant = 'login' }: { children: ReactNod
               {/* Сигнатурный мотив: вопрос ведёт к вопросу */}
               <div className="mb-6 font-mono text-sm text-spark">01 → 02 → 03 → ?</div>
               <h1 className="font-display text-4xl font-semibold leading-tight">{t('auth.tagline')}</h1>
-              <p className="mt-5 text-lg text-white/60">{t('auth.subtitle')}</p>
+              <p className="mt-5 text-lg text-white/80">{t('auth.subtitle')}</p>
             </>
           ) : (
             <>
@@ -41,7 +42,7 @@ export function AuthLayout({ children, variant = 'login' }: { children: ReactNod
                     <span className="font-mono text-sm font-semibold text-spark">{s.n}</span>
                     <div>
                       <div className="font-semibold">{s.title}</div>
-                      <div className="mt-0.5 text-sm text-white/55">{s.hint}</div>
+                      <div className="mt-0.5 text-body text-white/80">{s.hint}</div>
                     </div>
                   </li>
                 ))}
@@ -49,25 +50,29 @@ export function AuthLayout({ children, variant = 'login' }: { children: ReactNod
             </>
           )}
         </div>
-        <div className="relative text-xs text-white/40">© {new Date().getFullYear()} eduopen.kz</div>
+        <div className="relative text-sm text-white/70">© {new Date().getFullYear()} eduopen.kz</div>
       </div>
 
       {/* Правая панель — форма */}
-      <div className="flex min-h-screen flex-col bg-surface px-5 sm:px-6">
-        <div className="flex items-center justify-between gap-3 py-4">
-          <Link to="/catalog" className="rounded-lg text-sm font-semibold text-muted transition-colors hover:text-fg">
-            ← {t('catalog.navFull')}
+      <div className="flex min-h-screen flex-col bg-surface px-5 pt-[env(safe-area-inset-top,0px)] sm:px-6">
+        <div className="flex items-center justify-between gap-2 py-4">
+          <Link to="/catalog" className="inline-flex min-w-0 items-center gap-1 rounded-lg text-sm font-semibold text-fg-2 transition-colors hover:text-fg">
+            <Icon name="chevron-left" size={16} />
+            <span className="truncate">{t('catalog.navFull')}</span>
           </Link>
-          <LanguageSwitcher />
+          <div className="flex shrink-0 items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </div>
-        <div className="flex flex-1 items-center justify-center py-8">
+        <main id="main" className="flex flex-1 items-center justify-center py-8">
           <div className="w-full max-w-sm">
             <Link to="/catalog" className="mb-8 inline-flex lg:hidden" aria-label={t('common.appName')}>
-              <span className="grid h-10 w-10 place-items-center rounded-lg bg-spark font-display font-bold text-ink">?</span>
+              <LogoMark size={36} />
             </Link>
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

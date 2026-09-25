@@ -39,7 +39,8 @@ export function buildChatParams(req: CompletionRequest, opts: OpenAIParamOptions
   const purpose = req.purpose ?? 'generation';
   const maxTokens = req.maxTokens ?? 1024;
   const reasoning = opts.officialApi && isReasoningModel(req.model);
-  const effort = reasoning ? opts.effort[purpose] : '';
+  // Уровень конкретного вызова важнее уровня по назначению (A13.3).
+  const effort: ReasoningEffort = reasoning ? (req.reasoningEffort ?? opts.effort[purpose]) : '';
   const thinking = effort !== '' && effort !== 'none';
 
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];

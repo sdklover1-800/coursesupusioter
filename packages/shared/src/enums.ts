@@ -118,6 +118,8 @@ export const GenerationType = {
   /** Мини-квизы: после каждой лекции + итоговый по курсу (тренировочные) */
   MINI: 'MINI',
   ALL: 'ALL',
+  /** Краткое содержание лекций (Lecture.summary) */
+  LECTURE_SUMMARY: 'LECTURE_SUMMARY',
 } as const;
 export type GenerationType = (typeof GenerationType)[keyof typeof GenerationType];
 
@@ -154,3 +156,84 @@ export const CohortCondition = {
   CONTROL: 'CONTROL',
 } as const;
 export type CohortCondition = (typeof CohortCondition)[keyof typeof CohortCondition];
+
+/**
+ * Что студент видит после попытки оцениваемого теста (USER_DECISIONS §1):
+ *  - FULL_AFTER_FINAL (по умолчанию) — до сдачи или последней попытки только
+ *    «верно/неверно» по каждому вопросу; после — полный ключ и объяснения;
+ *  - SCORE_UNTIL_FINAL — до финала только балл, после — полный разбор;
+ *  - SCORE_ONLY — ключ не показывается никогда.
+ * Значения «полный разбор после каждой попытки» нет намеренно: он раскрыл бы ключ
+ * для второй попытки.
+ */
+export const QuizReviewPolicy = {
+  FULL_AFTER_FINAL: 'FULL_AFTER_FINAL',
+  SCORE_UNTIL_FINAL: 'SCORE_UNTIL_FINAL',
+  SCORE_ONLY: 'SCORE_ONLY',
+} as const;
+export type QuizReviewPolicy = (typeof QuizReviewPolicy)[keyof typeof QuizReviewPolicy];
+
+/** Какая попытка идёт в зачёт: лучшая (по умолчанию, USER_DECISIONS §1) или первая. */
+export const QuizScoringRule = {
+  BEST: 'BEST',
+  FIRST: 'FIRST',
+} as const;
+export type QuizScoringRule = (typeof QuizScoringRule)[keyof typeof QuizScoringRule];
+
+/** Объект жалобы на контент (ContentIssue.targetType). */
+export const ContentIssueTarget = {
+  QUIZ_QUESTION: 'QUIZ_QUESTION',
+  CHAT_MESSAGE: 'CHAT_MESSAGE',
+  LECTURE: 'LECTURE',
+  PRACTICAL_TASK: 'PRACTICAL_TASK',
+} as const;
+export type ContentIssueTarget = (typeof ContentIssueTarget)[keyof typeof ContentIssueTarget];
+
+/** Состояние разбора жалобы. */
+export const ContentIssueStatus = {
+  OPEN: 'OPEN',
+  RESOLVED: 'RESOLVED',
+  DISMISSED: 'DISMISSED',
+} as const;
+export type ContentIssueStatus = (typeof ContentIssueStatus)[keyof typeof ContentIssueStatus];
+
+/**
+ * Источник жалобы: студент или система (SYSTEM — отметки контент-скриптов:
+ * экспертная проверка, вычитка носителем языка, проверка фактов).
+ */
+export const ContentIssueOrigin = {
+  STUDENT: 'STUDENT',
+  SYSTEM: 'SYSTEM',
+} as const;
+export type ContentIssueOrigin = (typeof ContentIssueOrigin)[keyof typeof ContentIssueOrigin];
+
+/** Итог сессии практикума (PracticalSession.verdictCode). */
+export const VerdictCode = {
+  PASSED: 'PASSED',
+  /** Исчерпан лимит реплик ИИ (FR-6.4) */
+  FAILED_LIMIT: 'FAILED_LIMIT',
+  /** Исчерпан токен-потолок сессии (§5.6) */
+  FAILED_CEILING: 'FAILED_CEILING',
+  /** Студент завершил сессию сам */
+  ENDED_BY_STUDENT: 'ENDED_BY_STUDENT',
+  /** Сессия брошена и закрыта по неактивности (§5.7) */
+  ABANDONED: 'ABANDONED',
+} as const;
+export type VerdictCode = (typeof VerdictCode)[keyof typeof VerdictCode];
+
+/**
+ * Причина завершения сессии практикума (PracticalSession.endReason).
+ * TECH_ISSUE — только входная причина от студента: сессия ставится на паузу,
+ * как итоговая причина она НИКОГДА не сохраняется.
+ */
+export const SessionEndReason = {
+  DONE: 'DONE',
+  OTHER: 'OTHER',
+  TECH_ISSUE: 'TECH_ISSUE',
+  LIMIT: 'LIMIT',
+  CEILING: 'CEILING',
+  PASSED: 'PASSED',
+  IDLE: 'IDLE',
+  IDLE_AFTER_PAUSE: 'IDLE_AFTER_PAUSE',
+} as const;
+export type SessionEndReason = (typeof SessionEndReason)[keyof typeof SessionEndReason];

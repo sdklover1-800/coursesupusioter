@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta } from '../types.js';
+import type { CompletionRequest, CompletionResult, LlmAdapter, StreamDelta, TokenUsage } from '../types.js';
 import { env } from '../../config/env.js';
 import { buildChatParams, type OpenAIParamOptions } from './openaiParams.js';
 
@@ -31,7 +31,7 @@ export class OpenAIAdapter implements LlmAdapter {
   async complete(req: CompletionRequest): Promise<CompletionResult> {
     // SDK 4.x не знает значений none/xhigh у reasoning_effort — API их принимает.
     const params = buildChatParams(req, this.opts) as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming;
-    const res = await this.client.chat.completions.create(params);
+    const res = await this.client.chat.completions.create(params, req.signal ? { signal: req.signal } : undefined);
     const choice = res.choices[0];
     const text = choice?.message?.content ?? '';
     // Весь бюджет ушёл на рассуждения — пустой ответ не должен выглядеть как успех;
@@ -41,12 +41,10 @@ export class OpenAIAdapter implements LlmAdapter {
     }
     return {
       text,
-      usage: {
-        inputTokens: res.usage?.prompt_tokens ?? 0,
-        outputTokens: res.usage?.completion_tokens ?? 0,
-      },
+      usage: usageFrom(res.usage),
       model: res.model,
       provider: this.provider,
+      finishReason: choice?.finish_reason ?? undefined,
     };
   }
 
@@ -56,10 +54,10 @@ export class OpenAIAdapter implements LlmAdapter {
       stream: true,
       stream_options: { include_usage: true },
     } as OpenAI.Chat.ChatCompletionCreateParamsStreaming;
-    const stream = await this.client.chat.completions.create(params);
+    const stream = await this.client.chat.completions.create(params, req.signal ? { signal: req.signal } : undefined);
     let text = '';
-    let inputTokens = 0;
-    let outputTokens = 0;
+    let usage: TokenUsage = { inputTokens: 0, outputTokens: 0, cachedInputTokens: 0, reasoningTokens: 0 };
+    let finishReason: string | undefined;
     let model = req.model;
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta?.content ?? '';
@@ -67,12 +65,30 @@ export class OpenAIAdapter implements LlmAdapter {
         text += delta;
         onDelta(delta);
       }
-      if (chunk.usage) {
-        inputTokens = chunk.usage.prompt_tokens;
-        outputTokens = chunk.usage.completion_tokens;
-      }
+      if (chunk.choices[0]?.finish_reason) finishReason = chunk.choices[0].finish_reason;
+      if (chunk.usage) usage = usageFrom(chunk.usage);
       if (chunk.model) model = chunk.model;
     }
-    return { text, usage: { inputTokens, outputTokens }, model, provider: this.provider };
+    return { text, usage, model, provider: this.provider, finishReason };
   }
+}
+
+/**
+ * Учёт токенов (A3): кешированные входные и скрытые токены рассуждений приходят
+ * во вложенных *_details — без них стоимость и потолок сессии считались неверно.
+ */
+function usageFrom(u: OpenAI.Completions.CompletionUsage | null | undefined): TokenUsage {
+  const details = u as
+    | (OpenAI.Completions.CompletionUsage & {
+        prompt_tokens_details?: { cached_tokens?: number | null } | null;
+        completion_tokens_details?: { reasoning_tokens?: number | null } | null;
+      })
+    | null
+    | undefined;
+  return {
+    inputTokens: details?.prompt_tokens ?? 0,
+    outputTokens: details?.completion_tokens ?? 0,
+    cachedInputTokens: details?.prompt_tokens_details?.cached_tokens ?? 0,
+    reasoningTokens: details?.completion_tokens_details?.reasoning_tokens ?? 0,
+  };
 }

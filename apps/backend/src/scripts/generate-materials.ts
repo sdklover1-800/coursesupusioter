@@ -5,14 +5,18 @@
  *   QUIZ      — тесты модулей, у которых их ещё нет (стратегия KEEP);
  *   MINI      — мини-квизы лекций + итоговый по курсу, только недостающие (KEEP);
  *   PRACTICAL — с флагом --regen-practical: перегенерация итогового практического
- *               (OVERWRITE) — нужна после добавления лекций, чтобы эталон охватывал весь курс.
+ *               (OVERWRITE) — нужна после добавления лекций, чтобы эталон охватывал весь курс;
+ *               каноническое задание (canonicalRef) не перегенерируется никогда;
+ *   LECTURE_SUMMARY — с флагом --summaries: краткие содержания лекций, только недостающие (KEEP).
+ * Тест модуля — ровно MODULE_QUIZ_QUESTIONS вопросов SINGLE_CHOICE (USER_DECISIONS §5);
+ * оцениваемый тест с попытками не трогается (frozen).
  *
  * KEEP не трогает готовые материалы и ручные правки менеджера (FR-7.5), поэтому
  * скрипт можно перезапускать: он догенерирует только то, чего не хватает.
  * Требует запущенный воркер очереди (в dev — встроен в сервер; на проде — сервис worker)
  * и рабочий ключ провайдера LLM.
  *
- *   node dist/scripts/generate-materials.js [--course "..."] [--lang ru] [--regen-practical] [--no-wait]
+ *   node dist/scripts/generate-materials.js [--course "..."] [--lang ru] [--regen-practical] [--summaries] [--no-wait]
  *
  * --lang ограничивает одной языковой версией (например, чтобы повторить упавшую задачу).
  */
@@ -28,6 +32,7 @@ const COURSE_TITLE = ci !== -1 ? String(args[ci + 1]) : 'Введение в п�
 const li = args.indexOf('--lang');
 const ONLY_LANG = li !== -1 ? String(args[li + 1]) : undefined;
 const REGEN_PRACTICAL = args.includes('--regen-practical');
+const SUMMARIES = args.includes('--summaries');
 const WAIT = !args.includes('--no-wait');
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -44,16 +49,17 @@ async function main() {
 
   const jobs: { label: string; id: string }[] = [];
   for (const v of versions) {
-    const plan: { type: 'QUIZ' | 'MINI' | 'PRACTICAL'; strategy: 'KEEP' | 'OVERWRITE' }[] = [
+    const plan: { type: 'QUIZ' | 'MINI' | 'PRACTICAL' | 'LECTURE_SUMMARY'; strategy: 'KEEP' | 'OVERWRITE' }[] = [
       { type: 'QUIZ', strategy: 'KEEP' },
       { type: 'MINI', strategy: 'KEEP' },
     ];
     if (REGEN_PRACTICAL) plan.push({ type: 'PRACTICAL', strategy: 'OVERWRITE' });
+    if (SUMMARIES) plan.push({ type: 'LECTURE_SUMMARY', strategy: 'KEEP' });
     for (const p of plan) {
       const { id } = await enqueueGeneration({
         courseLanguageVersionId: v.id,
         type: p.type,
-        params: { regenStrategy: p.strategy, singleChoiceCount: 4, trueFalseCount: 2 },
+        params: { regenStrategy: p.strategy },
         createdById,
       });
       jobs.push({ label: `${v.language}/${p.type}`, id });
@@ -75,7 +81,9 @@ async function main() {
       if (row.status === 'ERROR') { failed++; console.log(`  ❌ ${j.label}: ${(row.error ?? '').slice(0, 80)}`); }
       else {
         const r = (row.result ?? {}) as Record<string, unknown>;
-        console.log(`  ✅ ${j.label}: тестов=${r.quizzes ?? 0} мини=${r.minis ?? 0} практ=${r.practicals ?? 0}`);
+        const skipped = (r.skipped ?? {}) as Record<string, number>;
+        const skip = Object.entries(skipped).filter(([, n]) => n > 0).map(([k, n]) => `${k}=${n}`).join(' ');
+        console.log(`  ✅ ${j.label}: тестов=${r.quizzes ?? 0} мини=${r.minis ?? 0} практ=${r.practicals ?? 0} кратк=${r.summaries ?? 0}${skip ? ` (пропуски: ${skip})` : ''}`);
       }
     }
   }

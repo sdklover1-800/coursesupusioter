@@ -1,13 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { LANGUAGES, Role, type Language, type PublicUser } from '@edu/shared';
+import { ApiErrorCode, EventType, LANGUAGES, Role, type Language, type PublicUser } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { env } from '../../config/env.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
 import { hashPassword, generateStartPassword } from '../../lib/password.js';
 import { paginationSchema, paginate, pageMeta } from '../../lib/pagination.js';
-import { audit } from '../../telemetry/events.js';
+import { audit, logEvent } from '../../telemetry/events.js';
 import { revokeAllSessions } from '../../lib/sessions.js';
 import { parseImportFile, validateAndMaybeApply, SELF_REGISTERED_EMAIL_TAKEN } from './import.service.js';
 
@@ -68,9 +68,20 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       prisma.user.findMany({ where, ...paginate(p), orderBy: { createdAt: 'desc' } }),
       prisma.user.count({ where }),
     ]);
-    // selfRegisteredAt/isActive — для админа: саморегистрация (email не подтверждён), деактивация.
+    // Последняя учебная активность — max(Enrollment.lastActivityAt) одним запросом на страницу.
+    const activity = items.length
+      ? await prisma.enrollment.groupBy({ by: ['userId'], where: { userId: { in: items.map((u) => u.id) } }, _max: { lastActivityAt: true } })
+      : [];
+    const lastActivity = new Map(activity.map((a) => [a.userId, a._max.lastActivityAt]));
+    // selfRegisteredAt/isActive — для админа: саморегистрация (email не подтверждён), деактивация;
+    // researchConsentAt/Version (в publicUser) и lastActivityAt — для контроля участия.
     return {
-      items: items.map((u) => ({ ...publicUser(u), isActive: u.isActive, selfRegisteredAt: u.selfRegisteredAt?.toISOString() ?? null })),
+      items: items.map((u) => ({
+        ...publicUser(u),
+        isActive: u.isActive,
+        selfRegisteredAt: u.selfRegisteredAt?.toISOString() ?? null,
+        lastActivityAt: lastActivity.get(u.id)?.toISOString() ?? null,
+      })),
       meta: pageMeta(total, p),
     };
   });
@@ -84,15 +95,26 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       interfaceLanguage: langEnum.optional(),
       isActive: z.boolean().optional(),
       resetPassword: z.boolean().optional(),
+      // Явное подтверждение смены группы при зафиксированном составе (STUDY_COHORTS_LOCKED)
+      force: z.boolean().optional(),
     });
     const data = parse(schema, req.body);
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw Errors.notFound('Пользователь не найден');
+    const cohortChanged = data.cohortId !== undefined && data.cohortId !== user.cohortId;
+    if (cohortChanged) {
+      if (env.STUDY_COHORTS_LOCKED && !data.force) {
+        throw Errors.coded(409, ApiErrorCode.COHORTS_LOCKED, 'Состав групп эксперимента зафиксирован — смена группы только с явным подтверждением (force)');
+      }
+      if (data.cohortId && !(await prisma.cohort.findUnique({ where: { id: data.cohortId }, select: { id: true } }))) {
+        throw Errors.badRequest('Когорта не найдена');
+      }
+    }
 
     let startPassword: string | undefined;
     const update: Record<string, unknown> = {};
     if (data.role) update.role = data.role;
-    if (data.cohortId !== undefined) update.cohortId = data.cohortId;
+    if (cohortChanged) update.cohortId = data.cohortId;
     if (data.interfaceLanguage) update.interfaceLanguage = data.interfaceLanguage;
     if (data.isActive !== undefined) update.isActive = data.isActive;
     if (data.resetPassword) {
@@ -104,7 +126,16 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     // Сброс пароля и деактивация обрывают все сессии: без этого ротация refresh-токена
     // продлевала бы сессию деактивированного аккаунта бесконечно.
     if (data.resetPassword || data.isActive === false) await revokeAllSessions(id);
-    await audit({ actorId: req.user!.id, action: 'USER_UPDATED', targetType: 'User', targetId: id, detail: { fields: Object.keys(update) } });
+    await audit({
+      actorId: req.user!.id, action: 'USER_UPDATED', targetType: 'User', targetId: id,
+      detail: { fields: Object.keys(update), ...(cohortChanged ? { cohort: { from: user.cohortId, to: data.cohortId ?? null } } : {}) },
+    });
+    // Смена группы эксперимента — отдельный аудит from/to и событие в журнал исследования (A27).
+    if (cohortChanged) {
+      const change = { from: user.cohortId, to: data.cohortId ?? null };
+      await audit({ actorId: req.user!.id, action: 'USER_COHORT_CHANGED', targetType: 'User', targetId: id, detail: { ...change, source: 'ADMIN_EDIT' } });
+      await logEvent({ eventType: EventType.COHORT_CHANGED, userId: id, cohortId: change.to, payload: { ...change, actorId: req.user!.id, source: 'ADMIN_EDIT' } });
+    }
     return { user: publicUser(updated), ...(startPassword ? { startPassword } : {}) };
   });
 

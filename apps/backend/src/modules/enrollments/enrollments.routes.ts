@@ -1,11 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
-import { Role, ADMITTED_ENROLLMENT_STATUSES, ENROLLMENT_BULK_APPROVE_MAX, ENROLLMENT_REVIEW_NOTE_MAX, type BulkApproveResult } from '@edu/shared';
+import { Role, ApiErrorCode, EventType, ENROLLMENT_BULK_APPROVE_MAX, ENROLLMENT_REVIEW_NOTE_MAX, type BulkApproveResult } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { parse } from '../../lib/validate.js';
 import { Errors } from '../../lib/errors.js';
-import { audit } from '../../telemetry/events.js';
+import { env } from '../../config/env.js';
+import { audit, logEvent } from '../../telemetry/events.js';
 import {
   APPROVABLE_STATUSES,
   canApprove,
@@ -14,6 +15,7 @@ import {
   cancelAction,
   decideCohortOnApprove,
   decideSelfRequest,
+  isAdmitted,
   requestListOrder,
   requestListWhere,
 } from './policy.js';
@@ -145,11 +147,17 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /enrollment-requests/approve-bulk — одобрить выбранные ожидающие заявки.
   // Не-PENDING (уже рассмотренные/отменённые) молча пропускаются. Заявки, где когорту
-  // назначить нельзя (decideCohortOnApprove) или аккаунт деактивирован, НЕ одобряются
-  // и возвращаются в skipped — чтобы студент не попал на курс не в ту группу молча.
+  // назначить нельзя (decideCohortOnApprove: нет прав, конфликт, нужна явная
+  // confirmCohortAssign, группы зафиксированы без force) или аккаунт деактивирован,
+  // НЕ одобряются и возвращаются в skipped — чтобы студент не попал на курс не в ту группу молча.
   app.post('/enrollment-requests/approve-bulk', managerGuard(app), async (req): Promise<BulkApproveResult> => {
-    const { ids, cohortId } = parse(
-      z.object({ ids: z.array(z.string().min(1)).min(1).max(ENROLLMENT_BULK_APPROVE_MAX), cohortId: z.string().min(1).optional() }),
+    const { ids, cohortId, confirmCohortAssign, force } = parse(
+      z.object({
+        ids: z.array(z.string().min(1)).min(1).max(ENROLLMENT_BULK_APPROVE_MAX),
+        cohortId: z.string().min(1).optional(),
+        confirmCohortAssign: z.boolean().optional(),
+        force: z.boolean().optional(),
+      }),
       req.body,
     );
     await assertCohortExists(cohortId);
@@ -162,17 +170,20 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
       where: { id: { in: unique }, status: 'PENDING' },
       select: { id: true, userId: true, user: { select: { cohortId: true, isActive: true } } },
     });
-    const admittedUsers = cohortId ? await usersWithAdmittedEnrollments(pending.map((r) => r.userId)) : new Set<string>();
+    const history = cohortId ? await studyHistory(prisma, pending.map((r) => r.userId)) : new Map<string, StudyHistory>();
     const skipped: BulkApproveResult['skipped'] = [];
     const toApprove: string[] = [];
     // Кому назначить когорту: группируем по прежней когорте (условное обновление).
     const assignByCurrent = new Map<string | null, Set<string>>();
     for (const r of pending) {
       if (!r.user.isActive) { skipped.push({ id: r.id, reason: INACTIVE_MESSAGE }); continue; }
+      const h = history.get(r.userId) ?? NO_HISTORY;
       const decision = decideCohortOnApprove({
-        requested: cohortId, current: r.user.cohortId, actorRole, hasAdmittedEnrollments: admittedUsers.has(r.userId),
+        requested: cohortId, current: r.user.cohortId, actorRole,
+        hasAdmittedEnrollments: h.admittedEnrollments > 0, hasPriorStudyData: hasStudyData(h),
+        confirmed: !!confirmCohortAssign, cohortsLocked: env.STUDY_COHORTS_LOCKED, force: !!force,
       });
-      if (decision.action === 'forbidden' || decision.action === 'conflict') { skipped.push({ id: r.id, reason: decision.message }); continue; }
+      if (decision.action !== 'keep' && decision.action !== 'assign') { skipped.push({ id: r.id, reason: decision.message }); continue; }
       toApprove.push(r.id);
       if (decision.action === 'assign') {
         const set = assignByCurrent.get(r.user.cohortId) ?? new Set<string>();
@@ -181,42 +192,55 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
       }
     }
 
-    const approved = await prisma.$transaction(async (tx) => {
-      if (!toApprove.length) return [];
+    const { approved, cohortChanges } = await prisma.$transaction(async (tx) => {
+      if (!toApprove.length) return { approved: [], cohortChanges: [] };
       const { count } = await tx.enrollment.updateMany({
         where: { id: { in: toApprove }, status: 'PENDING', user: { isActive: true } },
         data: { status: 'ACTIVE', startedAt: now, reviewedAt: now, reviewedById: actorId, reviewNote: null },
       });
-      if (count === 0) return [];
+      if (count === 0) return { approved: [], cohortChanges: [] };
       // Именно те строки, что перевели мы (метка reviewedAt+reviewedById этой операции).
       const rows = await tx.enrollment.findMany({
         where: { id: { in: toApprove }, status: 'ACTIVE', reviewedAt: now, reviewedById: actorId },
-        select: { id: true, userId: true, courseId: true, user: { select: { cohortId: true } } },
+        select: { id: true, userId: true, courseId: true },
       });
       const approvedUsers = new Set(rows.map((r) => r.userId));
+      // Фактические смены группы: только тех, чья когорта ещё прежняя (условное обновление).
+      const changes: CohortChange[] = [];
       for (const [current, userIds] of assignByCurrent) {
         const target = [...userIds].filter((u) => approvedUsers.has(u));
-        if (target.length) await tx.user.updateMany({ where: { id: { in: target }, cohortId: current }, data: { cohortId } });
+        if (!target.length) continue;
+        const candidates = await tx.user.findMany({ where: { id: { in: target }, cohortId: current }, select: { id: true } });
+        if (!candidates.length) continue;
+        await tx.user.updateMany({ where: { id: { in: candidates.map((c) => c.id) }, cohortId: current }, data: { cohortId } });
+        for (const c of candidates) changes.push({ userId: c.id, from: current, to: cohortId! });
       }
-      return rows;
+      return { approved: rows, cohortChanges: changes };
     });
 
+    const changedBy = new Map(cohortChanges.map((c) => [c.userId, c]));
     for (const r of approved) {
-      const assigned = !!cohortId && [...assignByCurrent.values()].some((set) => set.has(r.userId));
+      const change = changedBy.get(r.userId);
       await audit({
         actorId, action: 'ENROLLMENT_APPROVED', targetType: 'Enrollment', targetId: r.id,
-        detail: { userId: r.userId, courseId: r.courseId, bulk: true, ...(assigned ? { cohortId, previousCohortId: r.user.cohortId } : {}) },
+        detail: { userId: r.userId, courseId: r.courseId, bulk: true, ...(change ? { cohortId: change.to, previousCohortId: change.from } : {}) },
       });
     }
+    for (const c of cohortChanges) await recordCohortChange(c, actorId, 'APPROVE');
     return { approved: approved.length, skipped };
   });
 
   // POST /enrollment-requests/:id/approve — одобрить заявку (PENDING или ранее отклонённую).
   // cohortId — назначить студенту когорту (плечо эксперимента, FR-R.1) одновременно с
   // одобрением; правила — decideCohortOnApprove (сменить назначенную может только админ).
+  // Студенту без группы, но с учебными данными — 409 COHORT_CONFIRM_REQUIRED, повтор с
+  // confirmCohortAssign: true; при STUDY_COHORTS_LOCKED — 409 COHORTS_LOCKED без force.
   app.post('/enrollment-requests/:id/approve', managerGuard(app), async (req) => {
     const { id } = parse(idParams, req.params);
-    const { cohortId } = parse(z.object({ cohortId: z.string().min(1).optional() }), req.body ?? {});
+    const { cohortId, confirmCohortAssign, force } = parse(
+      z.object({ cohortId: z.string().min(1).optional(), confirmCohortAssign: z.boolean().optional(), force: z.boolean().optional() }),
+      req.body ?? {},
+    );
     const e = await prisma.enrollment.findUnique({ where: { id }, select: { id: true, status: true, userId: true, courseId: true } });
     if (!e) throw Errors.notFound('Заявка не найдена');
     if (!canApprove(e.status)) throw Errors.conflict('Заявка уже рассмотрена или не требует одобрения');
@@ -226,30 +250,42 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
     const now = new Date();
     // Проверки и запись — в одной транзакции: когорта студента и статус заявки
     // меняются только условными updateMany (гонки параллельных одобрений).
-    const previousCohortId = await prisma.$transaction(async (tx) => {
+    const change = await prisma.$transaction(async (tx): Promise<CohortChange | null> => {
       const user = await tx.user.findUniqueOrThrow({ where: { id: e.userId }, select: { cohortId: true, isActive: true } });
       if (!user.isActive) throw Errors.conflict(INACTIVE_MESSAGE);
-      const hasAdmittedEnrollments = cohortId
-        ? (await tx.enrollment.count({ where: { userId: e.userId, status: { in: [...ADMITTED_ENROLLMENT_STATUSES] } } })) > 0
-        : false;
-      const decision = decideCohortOnApprove({ requested: cohortId, current: user.cohortId, actorRole: req.user!.role, hasAdmittedEnrollments });
+      const h = cohortId ? ((await studyHistory(tx, [e.userId])).get(e.userId) ?? NO_HISTORY) : NO_HISTORY;
+      const decision = decideCohortOnApprove({
+        requested: cohortId, current: user.cohortId, actorRole: req.user!.role,
+        hasAdmittedEnrollments: h.admittedEnrollments > 0, hasPriorStudyData: hasStudyData(h),
+        confirmed: !!confirmCohortAssign, cohortsLocked: env.STUDY_COHORTS_LOCKED, force: !!force,
+      });
       if (decision.action === 'forbidden') throw Errors.forbidden(decision.message);
       if (decision.action === 'conflict') throw Errors.conflict(decision.message);
+      if (decision.action === 'locked') throw Errors.coded(409, ApiErrorCode.COHORTS_LOCKED, decision.message);
+      if (decision.action === 'confirm_required') {
+        throw Errors.coded(409, ApiErrorCode.COHORT_CONFIRM_REQUIRED, decision.message, {
+          requestedCohortId: cohortId,
+          priorEnrollments: h.admittedEnrollments,
+          priorAttempts: h.quizAttempts + h.practicalSessions,
+          priorLectures: h.lectureProgress,
+        });
+      }
 
       const { count } = await tx.enrollment.updateMany({
         where: { id, status: { in: [...APPROVABLE_STATUSES] } },
         data: { status: 'ACTIVE', startedAt: now, reviewedAt: now, reviewedById: actorId, reviewNote: null },
       });
       if (count === 0) throw Errors.conflict('Заявка уже рассмотрена или не требует одобрения');
-      if (decision.action !== 'assign') return undefined;
+      if (decision.action !== 'assign') return null;
       const moved = await tx.user.updateMany({ where: { id: e.userId, cohortId: user.cohortId }, data: { cohortId } });
       if (moved.count === 0) throw Errors.conflict('Группа студента уже изменилась, обновите страницу');
-      return user.cohortId;
+      return { userId: e.userId, from: user.cohortId, to: cohortId! };
     });
     await audit({
       actorId, action: 'ENROLLMENT_APPROVED', targetType: 'Enrollment', targetId: id,
-      detail: { userId: e.userId, courseId: e.courseId, fromStatus: e.status, ...(previousCohortId !== undefined ? { cohortId, previousCohortId } : {}) },
+      detail: { userId: e.userId, courseId: e.courseId, fromStatus: e.status, ...(change ? { cohortId: change.to, previousCohortId: change.from } : {}) },
     });
+    if (change) await recordCohortChange(change, actorId, 'APPROVE');
     const enrollment = await prisma.enrollment.findUniqueOrThrow({ where: { id }, select: requestItemSelect });
     return { enrollment };
   });
@@ -285,14 +321,53 @@ async function assertAccountActive(userId: string): Promise<void> {
   if (!user?.isActive) throw Errors.forbidden('Учётная запись деактивирована');
 }
 
-/** Студенты, уже допущенные (ACTIVE/COMPLETED) к какому-либо курсу. */
-async function usersWithAdmittedEnrollments(userIds: string[]): Promise<Set<string>> {
-  if (!userIds.length) return new Set();
-  const rows = await prisma.enrollment.groupBy({
-    by: ['userId'],
-    where: { userId: { in: [...new Set(userIds)] }, status: { in: [...ADMITTED_ENROLLMENT_STATUSES] } },
+/** Учебная история студента (по всем его записям) — для решения о группе эксперимента. */
+interface StudyHistory {
+  admittedEnrollments: number;
+  lectureProgress: number;
+  quizAttempts: number;
+  practicalSessions: number;
+}
+const NO_HISTORY: StudyHistory = { admittedEnrollments: 0, lectureProgress: 0, quizAttempts: 0, practicalSessions: 0 };
+const hasStudyData = (h: StudyHistory) =>
+  h.admittedEnrollments + h.lectureProgress + h.quizAttempts + h.practicalSessions > 0;
+
+/**
+ * Учебная история студентов одним запросом: допущенные записи (ACTIVE/COMPLETED) и
+ * прогресс лекций/попытки/сессии на ЛЮБЫХ записях — в т. ч. отозванных (данные,
+ * собранные вне условия эксперимента, остаются в выгрузке).
+ */
+async function studyHistory(db: Pick<Prisma.TransactionClient, 'enrollment'>, userIds: string[]): Promise<Map<string, StudyHistory>> {
+  const result = new Map<string, StudyHistory>();
+  if (!userIds.length) return result;
+  const rows = await db.enrollment.findMany({
+    where: { userId: { in: [...new Set(userIds)] } },
+    select: { userId: true, status: true, _count: { select: { lectureProgress: true, quizAttempts: true, practicalSessions: true } } },
   });
-  return new Set(rows.map((r) => r.userId));
+  for (const r of rows) {
+    const h = result.get(r.userId) ?? { ...NO_HISTORY };
+    if (isAdmitted(r.status)) h.admittedEnrollments++;
+    h.lectureProgress += r._count.lectureProgress;
+    h.quizAttempts += r._count.quizAttempts;
+    h.practicalSessions += r._count.practicalSessions;
+    result.set(r.userId, h);
+  }
+  return result;
+}
+
+interface CohortChange {
+  userId: string;
+  from: string | null;
+  to: string;
+}
+
+/**
+ * Фактическая смена группы эксперимента: аудит (from/to) + событие COHORT_CHANGED
+ * в журнал исследования (userId — студент), чтобы выгрузка знала момент смены плеча.
+ */
+async function recordCohortChange(c: CohortChange, actorId: string, source: 'APPROVE' | 'ADMIN_EDIT'): Promise<void> {
+  await audit({ actorId, action: 'USER_COHORT_CHANGED', targetType: 'User', targetId: c.userId, detail: { from: c.from, to: c.to, source } });
+  await logEvent({ eventType: EventType.COHORT_CHANGED, userId: c.userId, cohortId: c.to, payload: { from: c.from, to: c.to, actorId, source } });
 }
 
 async function assertCohortExists(cohortId: string | undefined): Promise<void> {

@@ -23,4 +23,10 @@ export const Errors = {
   /** Заявка на курс не одобрена — доступа к контенту нет (details: { status, courseId }). */
   enrollmentNotApproved: (msg: string, details?: unknown) => new AppError(403, 'ENROLLMENT_NOT_APPROVED', msg, details),
   internal: (msg = 'Внутренняя ошибка') => new AppError(500, 'INTERNAL', msg),
+  /**
+   * Ошибка с доменным кодом (ApiErrorCode из @edu/shared), напр. 409 COOLDOWN
+   * или 409 LANGUAGE_LOCKED — клиент ветвится по code, а не по тексту.
+   */
+  coded: (status: number, code: string, message: string, details?: unknown) =>
+    new AppError(status, code, message, details),
 };

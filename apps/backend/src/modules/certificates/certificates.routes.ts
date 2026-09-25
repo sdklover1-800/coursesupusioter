@@ -14,10 +14,10 @@ export async function certificateRoutes(app: FastifyInstance): Promise<void> {
     const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
     if (!enrollment || enrollment.userId !== req.user!.id) throw Errors.forbidden('Нет доступа');
     assertEnrollmentAdmitted(enrollment); // гейт одобрения заявки
-    if (enrollment.status !== 'COMPLETED') throw Errors.badRequest('Курс ещё не завершён');
-
+    // Гейт — сам факт выдачи (строка Certificate), а не текущий статус записи:
+    // выданный сертификат остаётся доступным, даже если статус позже пересчитан.
     const pdf = await buildCertificatePdf(enrollmentId);
-    if (!pdf) throw Errors.notFound('Сертификат не найден');
+    if (!pdf) throw Errors.notFound('Сертификат ещё не выдан');
     reply.header('Content-Type', 'application/pdf');
     reply.header('Content-Disposition', `attachment; filename="${pdf.filename}"`);
     return reply.send(pdf.stream);

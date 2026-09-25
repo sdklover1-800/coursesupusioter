@@ -349,16 +349,15 @@ function RubricCard() {
           </li>
         ))}
       </ul>
-      <div className="mt-5 overflow-x-auto">
-        <ol className="grid min-w-[30rem] grid-cols-4 gap-2">
-          {[0, 1, 2, 3].map((n) => (
-            <li key={n} className="rounded-lg border border-border bg-surface px-3 py-2">
-              <div className="num text-fg">{n}</div>
-              <div className="text-small text-fg-2">{t(`manager.pt.anchor.${n}`)}</div>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {/* Якоря шкалы: 2×2 на телефоне, в ряд с sm — без горизонтальной прокрутки и обрезанного «3» */}
+      <ol className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {[0, 1, 2, 3].map((n) => (
+          <li key={n} className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2">
+            <div className="num text-fg">{n}</div>
+            <div className="text-small text-fg-2">{t(`manager.pt.anchor.${n}`)}</div>
+          </li>
+        ))}
+      </ol>
     </Card>
   );
 }

@@ -10,13 +10,15 @@ export const issues: Loc<typeof ruIssues> = {
   statusTab: { OPEN: 'Open', RESOLVED: 'Resolved', DISMISSED: 'Dismissed', ALL: 'All' },
   status: { OPEN: 'Open', RESOLVED: 'Resolved', DISMISSED: 'Dismissed' },
   originAll: 'All',
+  // Пункт «все» в списке-фильтре на телефоне (в сегментах хватает короткого «Все»)
+  originAllSelect: 'All sources',
   origin: { STUDENT: 'From students', SYSTEM: 'Expert review', MIXED: 'Students and expert review' },
   allCourses: 'All courses', allLanguages: 'All languages', allTargets: 'All items',
   target: { QUIZ_QUESTION: 'Quiz question', LECTURE: 'Lecture', PRACTICAL_TASK: 'Practical task', CHAT_MESSAGE: 'Practical message' },
   reason: { EXPERT_REVIEW: 'Expert review', NATIVE_PROOFREAD: 'Native-speaker proofreading', FACT_CHECK: 'Fact check' },
   context: {
     PRACTICE: 'practice', REVIEW: 'review', OFFICIAL: 'official attempt', PRACTICAL: 'practical',
-    LECTURE: 'lecture', CONTENT_PIPELINE: 'content script',
+    LECTURE: 'lecture', CONTENT_PIPELINE: 'system',
   },
   reporters_one: 'reported by {{count}} student', reporters_other: 'reported by {{count}} students',
   key: 'key', roleTutor: 'Tutor message', roleStudent: 'Student message',
@@ -28,7 +30,12 @@ export const issues: Loc<typeof ruIssues> = {
   selected_one: '{{count}} group selected ({{issues}} reports)', selected_other: '{{count}} groups selected ({{issues}} reports)',
   loadMore: 'Show more',
   emptyOpen: 'No open reports', emptyOpenSystem: 'Everything is expert-reviewed', empty: 'No reports',
-  emptyHint: 'When students report a problem or a content script flags material for review, it appears here.',
+  emptyHintByStatus: {
+    OPEN: 'When students report a problem or material is flagged for expert review, the reports appear here.',
+    RESOLVED: 'Reports marked as resolved appear here.',
+    DISMISSED: 'Dismissed reports appear here — any of them can be reopened.',
+    ALL: 'No reports yet. If filters are set, try changing the course, language or item type.',
+  },
   noteLabel: 'Note (optional)', noteHint: 'Visible to staff and in the audit log; not sent to the student.',
   confirm: {
     RESOLVED: {

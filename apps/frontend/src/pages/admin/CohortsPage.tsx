@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { ApiError } from '../../lib/api';
+import { apiErrorMessage } from '../../lib/staff';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import {
@@ -10,7 +10,8 @@ import {
   type AdminCohort,
 } from '../../lib/staffAdmin';
 import { Button, Card, Field, Icon, Input, buttonClass, toast } from '../../components/ui';
-import { EmptyState, ErrorState, LoadingRows, PageHeader } from '../../components/page';
+import { EmptyState, LoadingRows, PageHeader } from '../../components/page';
+import { EdgeFade, LoadError } from '../../components/staff/primitives';
 import { ConditionBadge, ConsentMark, EmailText, RoleBadge, SectionTitle } from '../../components/staff/admin/bits';
 import { CohortFormSheet } from '../../components/staff/admin/CohortFormSheet';
 
@@ -56,7 +57,7 @@ export function CohortsPage() {
       {cohortsQ.isLoading ? (
         <LoadingRows rows={3} />
       ) : cohortsQ.isError ? (
-        <ErrorState message={(cohortsQ.error as ApiError)?.message ?? t('errors.generic')} />
+        <LoadError error={cohortsQ.error} onRetry={() => void cohortsQ.refetch()} retrying={cohortsQ.isFetching} />
       ) : !cohorts.length ? (
         <EmptyState
           title={t('admin.cohortsPage.empty')}
@@ -201,28 +202,31 @@ function CohortDetail({ cohort, onBack, onEdit }: { cohort: AdminCohort; onBack:
         {members.isLoading ? (
           <LoadingRows rows={3} />
         ) : members.isError ? (
-          <ErrorState message={(members.error as ApiError)?.message ?? t('errors.generic')} />
+          <LoadError error={members.error} onRetry={() => void members.refetch()} retrying={members.isFetching} />
         ) : !memberItems.length ? (
           <p className="text-body text-fg-2">{t('admin.cohortsPage.membersEmpty')}</p>
         ) : (
           <>
-            <ul className="max-h-[28rem] divide-y divide-border overflow-y-auto">
-              {memberItems.map((u) => (
-                <li key={u.id} className="flex flex-col gap-1.5 py-2.5 sm:flex-row sm:items-center sm:gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-fg">{u.name}</div>
-                    <EmailText email={u.email} className="block text-meta text-fg-2" />
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body">
-                    {u.role !== 'STUDENT' && <RoleBadge role={u.role} />}
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="text-fg-2">{t('admin.usersPage.colConsent')}:</span>
-                      <ConsentMark state={consentState(u, consentQ.data?.version)} compact />
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {/* Прокручиваемый состав: затухание у края показывает, что список продолжается */}
+            <EdgeFade bg="card" watch={memberItems.length}>
+              <ul className="max-h-[28rem] divide-y divide-border overflow-y-auto">
+                {memberItems.map((u) => (
+                  <li key={u.id} className="flex flex-col gap-1.5 py-2.5 sm:flex-row sm:items-center sm:gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-fg">{u.name}</div>
+                      <EmailText email={u.email} className="block text-meta text-fg-2" />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body">
+                      {u.role !== 'STUDENT' && <RoleBadge role={u.role} />}
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="text-fg-2">{t('admin.usersPage.colConsent')}:</span>
+                        <ConsentMark state={consentState(u, consentQ.data?.version)} compact />
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </EdgeFade>
             {total > memberItems.length && (
               <p className="mt-3 text-meta text-fg-2">{t('admin.cohortsPage.membersMore', { shown: memberItems.length, total })}</p>
             )}
@@ -255,7 +259,7 @@ function TeacherSessionsCard({ cohort }: { cohort: AdminCohort }) {
           setDate('');
           toast(t('admin.cohortsPage.sessionLogged'), 'teal');
         },
-        onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+        onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
       },
     );
   };

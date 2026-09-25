@@ -58,7 +58,7 @@ export function ItemAnalysisSheet({ quizId, courseId, onClose }: { quizId: strin
                     <p className="min-w-0 flex-1 text-body font-medium text-fg" lang={data.language}>{s.prompt}</p>
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 pl-5">
-                    <PValue p={s.pValue} />
+                    <PValue p={s.pValue} n={s.n} />
                     <SampleSize n={s.n} unit="answers" />
                     {s.canonicalKey && <span className="num text-small text-fg-2">{s.canonicalKey}</span>}
                     {s.openIssues > 0 && <MetaChip icon="flag" tone="danger">{t('manager.qe.reports', { count: s.openIssues })}</MetaChip>}

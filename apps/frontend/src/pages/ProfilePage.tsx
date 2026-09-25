@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { LANGUAGES, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, type Language, type PublicUser } from '@edu/shared';
 import { api, ApiError } from '../lib/api';
+import { apiErrorText } from '../lib/catalog';
 import { useAuth } from '../lib/auth';
 import { useA11yMode, useTheme, type ThemePreference } from '../lib/theme';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
@@ -155,7 +156,7 @@ export function PasswordChangeForm({ submitLabel, onDone }: { submitLabel: strin
       onDone();
     } catch (err) {
       if (err instanceof ApiError && err.status === 400) setErrors({ current: t('auth.errCurrent') });
-      else setFormError(err instanceof ApiError ? err.message : t('errors.generic'));
+      else setFormError(apiErrorText(t, err));
     } finally {
       setLoading(false);
     }

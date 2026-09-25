@@ -9,13 +9,14 @@ import {
   type CohortLite, type EnrollmentRequest, type RequestsFilter,
 } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
-import { apiErrorMessage, useManagedCourses } from '../../lib/staff';
+import { apiErrorMessage, cohortOptionLabel, useManagedCourses } from '../../lib/staff';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, ConfirmDialog, Dialog, Field, Select, Tabs, toast } from '../../components/ui';
 import { Icon } from '../../components/icons';
 import { PageHeader, EmptyState, ErrorState, LoadingRows } from '../../components/page';
 import { LangBadge, SelfRegisteredChip, StatusPill } from '../../components/enrollment';
 import { AutoTextarea, Checkbox, Notice } from '../../components/staff/primitives';
+import { EmailText } from '../../components/staff/admin/bits';
 
 /** Вкладка «Одобренные» — только клиентский фильтр поверх ALL (сервер знает PENDING|REJECTED|ALL). */
 type RequestsTab = RequestsFilter | 'APPROVED';
@@ -139,6 +140,7 @@ export function RequestsPage() {
 
       {/* Вкладки + фильтр курса */}
       <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        {/* Не помещаются на телефоне (kk) — Tabs сам прокручивается с маской у края и докручивает к выбранной */}
         <Tabs
           className="min-w-0 md:flex-1"
           ariaLabel={t('requests.title')}
@@ -284,22 +286,38 @@ export function RequestsPage() {
                       <Checkbox checked={selected.has(r.id)} onChange={() => toggle(r.id)} label={`${t('requests.selectRow')}: ${r.user.name}`} />
                     </div>
                   )}
+                  {/*
+                    Карточка (§8): имя → email на всю ширину → курс «Язык · название» → когорта текстом →
+                    предупреждение о саморегистрации строкой → один статус-чип с датами. Не больше одного чипа в строке.
+                  */}
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="font-semibold [overflow-wrap:anywhere]">{r.user.name}</div>
-                        <div className="text-meta text-fg-2 [overflow-wrap:anywhere]">{r.user.email}</div>
-                      </div>
+                    <div className="font-semibold text-fg [overflow-wrap:anywhere]">{r.user.name}</div>
+                    <EmailText email={r.user.email} className="block text-meta text-fg-2" />
+                    <p className="mt-2 text-body text-fg">
+                      <span className="text-fg-2">{t(`languages.${r.languageVersion.language}`, { defaultValue: r.languageVersion.language })} · </span>
+                      <span lang={r.languageVersion.language}>{r.languageVersion.title}</span>
+                    </p>
+                    {cohortName(r.user.cohortId) && (
+                      <p className="mt-1 inline-flex items-start gap-1.5 text-meta text-fg-2">
+                        <Icon name="users" size={16} className="mt-[3px]" />
+                        <span>{t('requests.cohort')}: {cohortName(r.user.cohortId)}</span>
+                      </p>
+                    )}
+                    {r.user.selfRegisteredAt && (
+                      <p className="mt-1 flex items-start gap-1.5 text-meta font-medium text-fg" title={t('requests.selfRegisteredHint')}>
+                        <Icon name="alert" size={16} className="mt-[3px] text-spark-ink" />
+                        <span>
+                          {t('requests.selfRegistered')}
+                          <span className="sr-only">. {t('requests.selfRegisteredHint')}</span>
+                        </span>
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
                       <StatusPill status={r.status} />
-                    </div>
-                    <UserChips cohort={cohortName(r.user.cohortId)} selfRegistered={!!r.user.selfRegisteredAt} />
-                    <div className="mt-3 flex items-start gap-2 text-body">
-                      <LangBadge lang={r.languageVersion.language} className="mt-px" />
-                      <span className="leading-snug">{r.languageVersion.title}</span>
-                    </div>
-                    <div className="mt-2 text-small text-fg-2">
-                      {t('requests.requestedOn', { date: formatDate(r.requestedAt) })}
-                      {r.status !== 'PENDING' && r.reviewedAt && <> · {t('requests.reviewedOn', { date: formatDate(r.reviewedAt) })}</>}
+                      <span className="text-small text-fg-2">
+                        {t('requests.requestedOn', { date: formatDate(r.requestedAt) })}
+                        {r.status !== 'PENDING' && r.reviewedAt && <> · {t('requests.reviewedOn', { date: formatDate(r.reviewedAt) })}</>}
+                      </span>
                     </div>
                     {r.reviewNote && <p className="mt-2 rounded-lg bg-surface px-3 py-2 text-small text-fg-2">«{r.reviewNote}»</p>}
                     {canApprove(r) && (
@@ -524,7 +542,7 @@ function ApproveDialog({ ids, single, targets, isAdmin, cohorts, cohortsAvailabl
                 <option value="">{t('requests.cohortKeep')}</option>
                 {cohorts.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}{c.condition ? ` · ${t(`conditions.${c.condition}`, { defaultValue: c.condition })}` : ''}
+                    {cohortOptionLabel(c.name, c.condition ? t(`conditions.${c.condition}`, { defaultValue: c.condition }) : null)}
                   </option>
                 ))}
               </Select>

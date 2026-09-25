@@ -25,6 +25,7 @@ import type { DraftQuestion } from '../../generation/drafts.js';
 import { prisma } from '../../lib/prisma.js';
 import { parseStoredAnswers, presentedQuestions, toPolicyQuestion } from '../../modules/quizzes/policy.js';
 import { scoreQuiz } from '../../modules/quizzes/scoring.js';
+import { type TextFix, applyTextEdits, validateTextFixes } from './revisions.js';
 
 export { prisma };
 
@@ -404,10 +405,32 @@ export function readArtifact<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
 }
 
-/** Пишет артефакт в content-data (стабильный JSON, 2 пробела). */
-export function writeArtifact(dataDir: string, name: string, data: unknown): string {
+/** Правки человека в артефакте: meta.reviewEdits / reviewNotes / textFixes (сколько записей). */
+export function reviewedEntries(path: string): number {
+  if (!existsSync(path)) return 0;
+  try {
+    const meta = (JSON.parse(readFileSync(path, 'utf8')) as { meta?: Record<string, unknown> }).meta ?? {};
+    return ['reviewEdits', 'reviewNotes', 'textFixes'].reduce((n, k) => n + (Array.isArray(meta[k]) ? (meta[k] as unknown[]).length : 0), 0);
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Пишет артефакт в content-data (стабильный JSON, 2 пробела). Проверенный человеком артефакт
+ * (есть записи в meta.reviewEdits/reviewNotes/textFixes) черновик НЕ перезаписывает: без
+ * --overwrite-reviewed он пишется рядом, в `<имя>.draft-<время>.json` — правки рецензента
+ * переносятся вручную (отдельный флаг, а не --force: у --draft некоторых скриптов --force уже
+ * означает «перегенерировать и заданное вручную»).
+ */
+export function writeArtifact(dataDir: string, name: string, data: unknown, opts: { overwriteReviewed?: boolean } = {}): string {
   mkdirSync(dataDir, { recursive: true });
-  const path = join(dataDir, name);
+  let path = join(dataDir, name);
+  const reviewed = reviewedEntries(path);
+  if (reviewed && !opts.overwriteReviewed) {
+    path = join(dataDir, name.replace(/\.json$/u, `.draft-${new Date().toISOString().replace(/[:.]/g, '-')}.json`));
+    console.warn(`⚠ ${name} проверен человеком (правок рецензента: ${reviewed}) — черновик записан отдельно: ${path}; перезапись — только с --overwrite-reviewed`);
+  }
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
   return path;
 }
@@ -676,6 +699,114 @@ export async function courseQuestions(db: Db, course: CourseCtx): Promise<{ lang
     }
   }
   return out;
+}
+
+/* ── Ревизия рецензента после применения (meta.textFixes) ─────────── */
+
+export interface ApplyTextFixesOptions {
+  script: string;
+  fixes: readonly TextFix[];
+  course: CourseCtx;
+  langs: readonly Language[];
+  apply: boolean;
+  force: boolean;
+  report: Report;
+  /** Причина отложить правку (или null) — напр., незавершённая серия попыток у студентов. */
+  guard?: (fix: TextFix, q: QuestionRow, quizId: string) => Promise<string | null>;
+}
+
+/**
+ * Переносит правки рецензента (`meta.textFixes`) на стенд, где артефакт УЖЕ применён: вопрос
+ * ищется по canonicalKey (или позиции + снимку формулировки), правка — по точному якорю
+ * «было → стало» (revisions.applyTextEdits). Порядок вариантов и ключ не меняются. Одна
+ * транзакция и одна строка сводки на правку; журнал `content:v1:<скрипт>:fix:<id>`; отметка на
+ * проверку — если задана в правке. На стенде, получившем уже исправленный артефакт, — «уже исправлено».
+ */
+export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
+  const invalid = validateTextFixes(o.fixes);
+  for (const p of invalid) o.report.line('textFixes', 'error', p);
+  if (invalid.length) return;
+  for (const fix of o.fixes) {
+    if (!o.langs.includes(fix.lang)) continue;
+    const unit = `fix:${fix.id}`;
+    const key = ledgerKey(o.script, unit);
+    const v = version(o.course, fix.lang);
+    const quizId = resolveQuiz(v, fix.quiz);
+    if (!quizId) {
+      o.report.line(unit, 'error', `тест ${locatorLabel(fix.lang, fix.quiz)} не найден`);
+      continue;
+    }
+    if (await ledgerGet(prisma, key)) {
+      o.report.line(unit, 'skip', 'уже применено (журнал)');
+      continue;
+    }
+    const qs = await activeQuestions(prisma, quizId);
+    const q = fix.canonicalKey ? qs.find((x) => x.canonicalKey === fix.canonicalKey) : qs.find((x) => x.orderIndex === fix.orderIndex);
+    const where = `${locatorLabel(fix.lang, fix.quiz)} ${fix.canonicalKey ?? `#${(fix.orderIndex ?? 0) + 1}`}`;
+    if (!q) {
+      o.report.line(unit, fix.canonicalKey ? 'error' : 'skip', `${where}: вопроса нет${fix.canonicalKey ? ' (банк не применён?)' : ' (иной стенд)'}`);
+      continue;
+    }
+    const outcome = applyTextEdits(q, fix.edits);
+    if (outcome.status === 'already') {
+      o.report.line(unit, 'skip', `${where}: уже исправлено`);
+      continue;
+    }
+    if (fix.prompt !== undefined && q.prompt !== fix.prompt) {
+      o.report.line(unit, 'skip', `${where}: формулировка отличается от снимка (иной стенд или правка вручную)`);
+      continue;
+    }
+    if (outcome.status === 'mismatch') {
+      o.report.line(unit, 'error', `${where}: ${outcome.problems.join('; ')} — ничего не записано`);
+      continue;
+    }
+    const refusal = o.guard ? await o.guard(fix, q, quizId) : null;
+    if (refusal && !o.force) {
+      o.report.line(unit, 'error', `${where}: отложено — ${refusal} (--force — применить всё равно)`);
+      continue;
+    }
+    const summary = `${where}: ${outcome.changedFields.join(', ')} · ${fix.note}${fix.review ? ` · отметка ${fix.review.reason}` : ''}${refusal ? ` · ПРИНУДИТЕЛЬНО: ${refusal}` : ''}`;
+    if (!o.apply) {
+      o.report.line(unit, 'would-change', summary);
+      continue;
+    }
+    const done = await prisma.$transaction(async (tx) => {
+      const row = await tx.quizQuestion.findUniqueOrThrow({ where: { id: q.id } });
+      const fresh = applyTextEdits(toQuestionRow(row), fix.edits);
+      if (fresh.status !== 'apply' || (await ledgerGet(tx, key))) return false;
+      await tx.quizQuestion.update({
+        where: { id: q.id },
+        data: {
+          prompt: fresh.next.prompt,
+          options: fresh.next.options,
+          explanation: fresh.next.explanation,
+          ...(fresh.next.optionRationales ? { optionRationales: fresh.next.optionRationales } : {}),
+        },
+      });
+      await ledgerPut(tx, key, {
+        questionId: q.id,
+        quizId,
+        canonicalKey: q.canonicalKey,
+        fields: fresh.changedFields,
+        note: fix.note,
+        before: { prompt: row.prompt, options: row.options, explanation: row.explanation, optionRationales: row.optionRationales },
+        ...(refusal ? { forced: refusal } : {}),
+      });
+      if (fix.review) {
+        await flagForReview(tx, {
+          reason: fix.review.reason,
+          targetType: 'QUIZ_QUESTION',
+          targetId: q.id,
+          courseId: o.course.courseId,
+          languageVersionId: v.id,
+          comment: fix.review.comment,
+          dedupeKey: `review:v1:${fix.review.reason}:${q.id}:${fix.id}`,
+        });
+      }
+      return true;
+    });
+    o.report.line(unit, done ? 'changed' : 'skip', done ? summary : `${where}: вопрос изменился во время работы — повторите`);
+  }
 }
 
 /** Черновик вопроса в артефакте: как DraftQuestion, но источник — по позиции лекции. */

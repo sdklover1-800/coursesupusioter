@@ -19,19 +19,39 @@ const variants: Record<ButtonVariant, string> = {
    */
   spark: 'bg-spark text-ink hover:brightness-105 shadow-soft',
 };
-// Кнопки — 15px (lg — 16px): §12 «читаемость», мельче не делаем
+// Кнопки — 15px (lg — 16px): §12 «читаемость», мельче не делаем.
+// Цель касания на мобильных ≥ 44px (§4): sm компактна (36px) только от sm; min-w — для кнопок-иконок.
 const sizes: Record<ButtonSize, string> = {
-  sm: 'h-9 px-3 text-body',
-  md: 'h-11 px-5 text-body',
+  sm: 'h-11 min-w-11 px-3 text-body sm:h-9 sm:min-w-9',
+  md: 'h-11 min-w-11 px-5 text-body',
   lg: 'h-13 px-6 text-base',
 };
 
-/** Классы кнопки — для ссылок, оформленных как кнопка (<Link className={buttonClass(...)}>). */
-export function buttonClass(variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string): string {
+/**
+ * Недоступная кнопка — приглушёнными токенами, а не opacity-50 (давала 2.4–2.6:1):
+ * текст fg-2 на border ≈ 7:1, muted на surface-2 ≥ 4.8:1 в обеих темах. На ink-панелях
+ * с data-theme="dark" (лобби теста) токены тёмные — кнопка читается как недоступная.
+ * disabled: (0,2,0) сильнее вариантов и их hover:.
+ */
+const FILLED_DISABLED = 'disabled:bg-border disabled:text-fg-2 disabled:shadow-none disabled:filter-none';
+const disabledLook: Record<ButtonVariant, string> = {
+  primary: FILLED_DISABLED,
+  danger: FILLED_DISABLED,
+  spark: FILLED_DISABLED,
+  secondary: 'disabled:border-border disabled:bg-surface-2 disabled:text-muted',
+  outline: 'disabled:border-border disabled:bg-transparent disabled:text-muted',
+  ghost: 'disabled:bg-transparent disabled:text-muted',
+};
+
+/**
+ * Классы кнопки — для ссылок, оформленных как кнопка (<Link className={buttonClass(...)}>).
+ * busy — идёт запрос (Button loading): кнопка disabled, но сохраняет цвет варианта рядом со спиннером.
+ */
+export function buttonClass(variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string, busy?: boolean): string {
   return clsx(
-    'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150',
-    'disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]',
+    'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 active:scale-[0.98]',
     variants[variant],
+    busy ? 'disabled:cursor-wait' : ['disabled:cursor-not-allowed', disabledLook[variant]],
     sizes[size],
     className,
   );
@@ -45,7 +65,7 @@ export const Button = forwardRef<
     ref={ref}
     disabled={disabled || loading}
     aria-busy={loading || undefined}
-    className={buttonClass(variant, size, className)}
+    className={buttonClass(variant, size, className, !!loading && !disabled)}
     {...props}
   >
     {loading && <Spinner className="h-4 w-4" />}

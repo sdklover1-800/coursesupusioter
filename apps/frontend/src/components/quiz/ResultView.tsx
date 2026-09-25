@@ -6,7 +6,7 @@ import type { AttemptResult, QuizLobby } from '@edu/shared';
 import { routes } from '../../lib/learn';
 import { formatPercent } from '../../lib/format';
 import { quizRoutes } from '../../lib/quiz';
-import { buttonClass, ProgressRing, Tabs } from '../ui';
+import { buttonClass, ModeBadge, ProgressRing, Tabs } from '../ui';
 import { Icon } from '../icons';
 import { CooldownCountdown } from './CooldownCountdown';
 import { CorrectnessList } from './CorrectnessList';
@@ -144,7 +144,9 @@ export function ResultView({
             {attempt.passed && <SparkBurst />}
           </div>
           <div className="min-w-0 flex-1">
-            <h1 id="result-headline" className="font-display text-display-lg text-fg">
+            {/* Режим — те же метки, что в лобби и на карте курса (design_direction §8) */}
+            <ModeBadge mode="graded" />
+            <h1 id="result-headline" className="mt-2 font-display text-display-lg text-fg">
               {headline}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -238,7 +240,7 @@ export function ResultView({
                 ]}
               />
               <nav aria-label={t('quiz.review.jumpLabel')} className="mt-2">
-                <ol className="flex gap-1.5 overflow-x-auto py-1">
+                <ol className="flex gap-1.5 overflow-x-auto py-1 max-sm:py-1.5">
                   {review.map((r, i) => (
                     <li key={r.questionId} className="shrink-0">
                       <button
@@ -249,7 +251,8 @@ export function ResultView({
                         }}
                         aria-label={t('quiz.review.jumpItem', { n: i + 1, state: r.isCorrect ? t('quiz.review.itemCorrect') : t('quiz.review.itemWrong') })}
                         className={clsx(
-                          'inline-flex h-8 items-center gap-1 rounded-lg px-2 font-mono text-sm font-semibold tabular-nums transition-colors',
+                          // Телефон: зона нажатия 44px псевдоэлементом (§4); ol даёт ему место по вертикали
+                          "relative inline-flex h-8 items-center gap-1 rounded-lg px-2 font-mono text-sm font-semibold tabular-nums transition-colors max-sm:before:absolute max-sm:before:-inset-y-1.5 max-sm:before:inset-x-[-3px] max-sm:before:content-['']",
                           r.isCorrect ? 'bg-teal/12 text-teal-ink' : 'bg-danger/12 text-danger-ink',
                         )}
                       >

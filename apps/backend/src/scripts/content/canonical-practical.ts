@@ -114,7 +114,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     console.log(`   тезисов ${content.rubricSpec.key_points.length}/${rubric.key_points.length} · предупреждения: ${art.meta.warnings[lang]!.join('; ') || 'нет'}`);
   }
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path}`);
   for (const lang of ['kk', 'en'] as Language[]) {

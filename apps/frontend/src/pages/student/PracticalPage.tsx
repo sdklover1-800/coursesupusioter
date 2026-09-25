@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  invalidatePractical, moduleShortTitle, practicalKeys, screenFor, startConflictOf, startSession, useSessionDetail, useSessionsView,
+  invalidatePractical, practicalKeys, screenFor, startConflictOf, startSession, useSessionDetail, useSessionsView,
   type PracticalScreen, type SessionDetail, type StartConflict,
 } from '../../lib/practical';
 import { routes, useLearnView } from '../../lib/learn';
@@ -55,7 +55,7 @@ export function PracticalPage() {
   const crumbs: Crumb[] = [
     ...(courseId && enrollmentId ? [{ label: learn.data?.version.title ?? t('nav.myCourses'), to: routes.course(courseId, enrollmentId) }] : []),
     ...(module && courseId && enrollmentId
-      ? [{ label: `${romanOf(module.orderIndex)}. ${moduleShortTitle(module.title)}`, to: routes.course(courseId, enrollmentId, { hash: `module-${module.id}` }) }]
+      ? [{ label: t('course.moduleNo', { roman: romanOf(module.orderIndex) }), to: routes.course(courseId, enrollmentId, { hash: `module-${module.id}` }) }]
       : []),
     { label: t('ui.kind.PRACTICAL') },
   ];

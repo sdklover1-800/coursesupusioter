@@ -8,7 +8,16 @@ import {
   leakCheckOutputSchema,
   evaluationSummaryOutputSchema,
 } from './schemas/dialog.js';
-import { judgeSystemPrompt, judgeTranscript, tutorSystemPrompt, leakCheckSystemPrompt, DIALOG_PROMPT_VERSION } from './prompts/dialog.js';
+import {
+  judgeSystemPrompt,
+  judgeTranscript,
+  tutorSystemPrompt,
+  leakCheckSystemPrompt,
+  evaluationSummarySystemPrompt,
+  evaluationSummaryUserMessage,
+  scoreLevel,
+  DIALOG_PROMPT_VERSION,
+} from './prompts/dialog.js';
 
 /** Схемы вывода диалога практикума (§5.4, Прил. D) — перенесены из @edu/shared (A9). */
 describe('dialog schemas (§5.4, Прил. D)', () => {
@@ -80,7 +89,47 @@ describe('промпты диалога (калибровка A.1, A.2)', () => 
   const sys = judgeSystemPrompt({ language: 'kk', scenario: 'Сценарий', referenceSolution: 'Эталон', rubricKeyPoints: kp, answerReachedCriteria: 'Критерий дословно' });
 
   it('версия промптов поднята (A26)', () => {
-    expect(DIALOG_PROMPT_VERSION).toBe('mvp-2.0');
+    expect(DIALOG_PROMPT_VERSION).toBe('mvp-2.1');
+  });
+
+  it('судья: просьбы выдать ответ/критерии/план — 0 по всей рубрике; вопросы — только содержательные', () => {
+    expect(sys).toMatch(/Рубрика оценивает ТОЛЬКО рассуждение по кейсу/);
+    expect(sys).toMatch(/0 по всем четырём критериям/);
+    expect(sys).toMatch(/не самокоррекция и не методичность/);
+    expect(sys).toMatch(/question_quality выше 0 — только за содержательные вопросы/);
+    // правило рубрики стоит до формата вывода (модель читает его прежде, чем писать баллы)
+    expect(sys.indexOf('Рубрика оценивает ТОЛЬКО')).toBeLessThan(sys.indexOf('{"reasoning_assessment"'));
+  });
+
+  it('тьютор: отказ — повествовательное предложение на языке сессии, без переспрашивания', () => {
+    const ru = tutorSystemPrompt({ language: 'ru', difficulty: 'MEDIUM', scenario: 'x' });
+    expect(ru).toContain('«Готовый ответ, критерии оценивания или план ответа я дать не могу.»');
+    expect(ru).toMatch(/Не переспрашивай, чего хочет студент/);
+    expect(tutorSystemPrompt({ language: 'kk', difficulty: 'MEDIUM', scenario: 'x' })).toContain('бере алмаймын.»');
+    expect(tutorSystemPrompt({ language: 'en', difficulty: 'MEDIUM', scenario: 'x' })).toContain('I can’t give you a ready answer');
+  });
+
+  it('обращение kk: притяжательные формы на «Сіз» и запрет «репликаңда»', () => {
+    const kk = tutorSystemPrompt({ language: 'kk', difficulty: 'MEDIUM', scenario: 'x' });
+    expect(kk).toContain('«Сіздің репликаңызда»');
+    expect(kk).toContain('«репликаңда»');
+    expect(evaluationSummarySystemPrompt('kk')).toContain('«Сіздің репликаңызда»');
+  });
+
+  it('итоговый отзыв: просьбы выдать ответ — не сильная сторона; тон по баллу; plus/minus по баллу реплики', () => {
+    const p = evaluationSummarySystemPrompt('ru');
+    expect(p).toMatch(/не называй сильной стороной и не отмечай как plus/);
+    expect(p).toMatch(/соответствовать ИТОГОВОМУ баллу/);
+    expect(p).toMatch(/plus — только если балл этой реплики по критерию 2–3/);
+    const m = evaluationSummaryUserMessage([{ id: 'a', content: 'Текст', scores: { methodicalness: 1 } }], { methodicalness: 2.83, self_correction: 0.5 });
+    expect(m).toContain('methodicalness=2.83 (проявлялось устойчиво)');
+    expect(m).toContain('self_correction=0.5 (почти не проявлялось)');
+    expect(m.indexOf('ИТОГОВЫЕ БАЛЛЫ')).toBeLessThan(m.indexOf('РЕПЛИКИ СТУДЕНТА'));
+    expect(evaluationSummaryUserMessage([{ id: 'a', content: 'Текст', scores: null }])).not.toContain('ИТОГОВЫЕ');
+  });
+
+  it('уровень балла: границы 1, 2, 2.5', () => {
+    expect([0, 0.99, 1, 1.99, 2, 2.49, 2.5, 3].map(scoreLevel)).toEqual([0, 0, 1, 1, 2, 2, 3, 3]);
   });
 
   it('судья: тезисы пронумерованы K1..Kn, критерий передан дословно, вердикт последним', () => {

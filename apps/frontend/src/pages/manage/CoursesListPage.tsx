@@ -11,8 +11,8 @@ import {
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, Field, Input, Select, toast } from '../../components/ui';
 import { Icon } from '../../components/icons';
-import { PageHeader, LoadingRows, EmptyState, ErrorState } from '../../components/page';
-import { AutoTextarea } from '../../components/staff/primitives';
+import { PageHeader, LoadingRows, EmptyState } from '../../components/page';
+import { AutoTextarea, LoadError } from '../../components/staff/primitives';
 
 const LANG_ORDER = LANGUAGES as readonly string[];
 
@@ -40,7 +40,7 @@ export function CoursesListPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
-  const { data, isLoading, isError, error } = useManagedCourses();
+  const { data, isLoading, isError, error, refetch, isFetching } = useManagedCourses();
   const items = useMemo(() => data?.items ?? [], [data]);
   const catalog = useCatalog();
 
@@ -152,7 +152,7 @@ export function CoursesListPage() {
       {isLoading ? (
         <LoadingRows rows={4} />
       ) : isError ? (
-        <ErrorState message={apiErrorMessage(error, t)} />
+        <LoadError error={error} onRetry={() => void refetch()} retrying={isFetching} />
       ) : items.length === 0 ? (
         <EmptyState
           title={t('manager.coursesEmpty')}

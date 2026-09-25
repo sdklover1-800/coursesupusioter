@@ -1,20 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, Role } from '@edu/shared';
 import { useAuth } from '../../lib/auth';
 import { useCohortsLite } from '../../lib/catalog';
 import { formatPercent, useFormat } from '../../lib/format';
 import {
-  apiErrorMessage, downloadCsv, romanNumeral, useCourseMatrix, useDashCourse, useDashStudents, useManagedCourses,
+  cohortOptionLabel, downloadCsv, romanNumeral, useCourseMatrix, useDashCourse, useDashStudents, useManagedCourses,
 } from '../../lib/staff';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, Field, RubricBars, Select } from '../../components/ui';
 import { Icon } from '../../components/icons';
-import { PageHeader, EmptyState, ErrorState, LoadingRows, MeterBar } from '../../components/page';
+import { PageHeader, EmptyState, LoadingRows, MeterBar } from '../../components/page';
 import { LangBadge } from '../../components/enrollment';
 import { CohortMatrix, matrixCsvRows } from '../../components/staff/CohortMatrix';
 import { ItemAnalysisSheet } from '../../components/staff/ItemAnalysisSheet';
-import { MetricCard, SampleSize, SectionTitle } from '../../components/staff/primitives';
+import { LoadError, MetricCard, SampleSize, SectionTitle } from '../../components/staff/primitives';
 
 const STORAGE_KEY = 'edu.dash.course';
 const LANG_ORDER = LANGUAGES as readonly string[];
@@ -111,8 +111,7 @@ export function DashboardsPage() {
               <option value="">{t('dashboard.allCohorts')}</option>
               {(cohorts.data?.items ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name}
-                  {c.condition ? ` · ${t(`conditions.${c.condition}`, { defaultValue: c.condition })}` : ''}
+                  {cohortOptionLabel(c.name, c.condition ? t(`conditions.${c.condition}`, { defaultValue: c.condition }) : null)}
                 </option>
               ))}
             </Select>
@@ -123,12 +122,15 @@ export function DashboardsPage() {
 
       {courses.isLoading ? (
         <LoadingRows rows={4} />
+      ) : courses.isError ? (
+        // Сбой списка курсов — это ошибка, а не «нет курсов для аналитики»
+        <LoadError error={courses.error} onRetry={() => void courses.refetch()} retrying={courses.isFetching} />
       ) : !accessible.length ? (
         <EmptyState title={t('dashboard.noCourses')} hint={t('dashboard.noCoursesHint')} />
       ) : dash.isLoading ? (
         <LoadingRows rows={5} />
       ) : dash.isError || !d ? (
-        <ErrorState message={apiErrorMessage(dash.error, t)} />
+        <LoadError error={dash.error} onRetry={() => void dash.refetch()} retrying={dash.isFetching} />
       ) : (
         <div className="space-y-6">
           {/* Ключевые метрики по курсу (все языки и когорты) */}
@@ -138,28 +140,24 @@ export function DashboardsPage() {
               value={formatPercent(d.enrollment.completionRate)}
               sub={t('dashboard.completedOf', { completed: d.enrollment.completed, total: d.enrollment.total })}
               n={d.enrollment.n}
-              tone="ink"
             />
             <MetricCard
               label={t('dashboard.avgProgress')}
               value={`${Math.round(d.enrollment.avgProgress)}%`}
               sub={t('dashboard.studentsCount', { count: d.enrollment.total })}
               n={d.enrollment.n}
-              tone="brand"
             />
             <MetricCard
               label={t('dashboard.avgCountedScore')}
               value={d.quizzes.n ? formatPercent(d.quizzes.avgScore) : '—'}
               sub={t('dashboard.attemptsCount', { count: d.quizzes.attempts })}
               n={d.quizzes.n}
-              tone="teal"
             />
             <MetricCard
               label={t('dashboard.passRate')}
               value={d.practical.n ? formatPercent(d.practical.passRate) : '—'}
               sub={t('dashboard.practicalOutcomes', { passed: d.practical.studentsPassed, failed: d.practical.studentsFailed })}
               n={d.practical.n}
-              tone="spark"
             />
           </div>
 
@@ -195,7 +193,7 @@ export function DashboardsPage() {
             {matrix.isLoading ? (
               <LoadingRows rows={3} />
             ) : matrix.isError ? (
-              <ErrorState message={apiErrorMessage(matrix.error, t)} />
+              <LoadError error={matrix.error} onRetry={() => void matrix.refetch()} retrying={matrix.isFetching} />
             ) : !matrix.data || matrix.data.rows.length === 0 ? (
               <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-body text-fg-2">{t('dashboard.matrix.empty')}</p>
             ) : (
@@ -203,7 +201,8 @@ export function DashboardsPage() {
             )}
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          {/* items-start: карточка рубрики не растягивается на высоту длинного списка тестов */}
+          <div className="grid items-start gap-6 lg:grid-cols-2">
             {/* Тесты модулей: зачётный балл, сдача, анализ заданий */}
             <Card className="!p-4 sm:!p-6">
               <SectionTitle hint={t('dashboard.quizzesHint')}>{t('dashboard.quizzesTitle')}</SectionTitle>
@@ -239,8 +238,8 @@ export function DashboardsPage() {
               )}
             </Card>
 
-            {/* Критическое мышление — рубрика 0–3 */}
-            <Card className="!p-4 sm:!p-6">
+            {/* Критическое мышление — рубрика 0–3 (на широких экранах остаётся в поле зрения) */}
+            <Card className="!p-4 sm:!p-6 lg:sticky lg:top-[5.25rem]">
               <SectionTitle hint={t('dashboard.rubricHint')}>{t('dashboard.criticalThinking')}</SectionTitle>
               {d.practical.rubricN === 0 ? (
                 <p className="py-6 text-center text-body text-fg-2">{t('dashboard.noData')}</p>
@@ -287,42 +286,67 @@ export function DashboardsPage() {
             <SectionTitle hint={t('dashboard.perStudentHint')}>{t('dashboard.perStudent')}</SectionTitle>
             {students.isLoading ? (
               <LoadingRows rows={3} />
+            ) : students.isError ? (
+              <LoadError error={students.error} onRetry={() => void students.refetch()} retrying={students.isFetching} />
             ) : studentRows.length === 0 ? (
               <p className="py-6 text-center text-body text-fg-2">{t('dashboard.noData')}</p>
             ) : (
-              <div className="relative overflow-x-auto rounded-xl border border-border" role="region" aria-label={t('dashboard.perStudent')} tabIndex={0}>
-                <table className="w-full min-w-[40rem] border-separate border-spacing-0 text-body">
-                  <thead>
-                    <tr className="text-left text-small text-fg-2">
-                      <th scope="col" className="sticky left-0 z-10 border-b border-r border-border bg-card px-3 py-2 font-semibold">{t('dashboard.student')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.cohort')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.language')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.progress')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.countedScore')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.practicalCol')}</th>
-                      <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.duration')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {studentRows.map((s) => (
-                      <tr key={s.enrollmentId}>
-                        <th scope="row" className="sticky left-0 z-10 max-w-[14rem] border-b border-r border-border bg-card px-3 py-2 text-left font-medium text-fg">
-                          <span className="block truncate" title={s.name}>{s.name}</span>
-                          {s.status === 'COMPLETED' && <span className="block text-small font-normal text-teal-ink">{t('dashboard.completed')}</span>}
-                        </th>
-                        <td className="border-b border-border px-3 py-2 text-fg-2">{cohortName(s.cohortId)}</td>
-                        <td className="border-b border-border px-3 py-2"><LangBadge lang={s.language} /></td>
-                        <td className="border-b border-border px-3 py-2"><span className="num text-fg">{Math.round(s.progressPercent)}%</span></td>
-                        <td className="border-b border-border px-3 py-2"><span className="num text-fg">{s.avgQuizScore === null ? '—' : formatPercent(s.avgQuizScore)}</span></td>
-                        <td className="border-b border-border px-3 py-2 text-fg-2">
-                          {s.practicalOutcome ? t(`dashboard.outcome.${s.practicalOutcome.outcome}`, { defaultValue: s.practicalOutcome.outcome }) : '—'}
-                        </td>
-                        <td className="border-b border-border px-3 py-2"><span className="num text-fg">{s.durationDays === null ? '—' : s.durationDays}</span></td>
+              <>
+                {/* Телефон: карточки «имя / когорта · язык / прогресс · балл · практикум · дни» */}
+                <ul className="divide-y divide-border sm:hidden" aria-label={t('dashboard.perStudent')}>
+                  {studentRows.map((s) => (
+                    <li key={s.enrollmentId} className="py-3 first:pt-0 last:pb-0">
+                      <div className="font-semibold text-fg [overflow-wrap:anywhere]">{s.name}</div>
+                      <div className="mt-0.5 text-meta text-fg-2">
+                        {[s.cohortId && cohortName(s.cohortId), t(`languages.${s.language}`, { defaultValue: s.language }), s.status === 'COMPLETED' && t('dashboard.completed')]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </div>
+                      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-small">
+                        <StudentStat label={t('dashboard.progress')}><span className="num text-fg">{Math.round(s.progressPercent)}%</span></StudentStat>
+                        <StudentStat label={t('dashboard.countedScore')}><span className="num text-fg">{s.avgQuizScore === null ? '—' : formatPercent(s.avgQuizScore)}</span></StudentStat>
+                        <StudentStat label={t('dashboard.practicalCol')}>
+                          <span className="text-fg">{s.practicalOutcome ? t(`dashboard.outcome.${s.practicalOutcome.outcome}`, { defaultValue: s.practicalOutcome.outcome }) : '—'}</span>
+                        </StudentStat>
+                        <StudentStat label={t('dashboard.duration')}><span className="num text-fg">{s.durationDays === null ? '—' : s.durationDays}</span></StudentStat>
+                      </dl>
+                    </li>
+                  ))}
+                </ul>
+                <div className="relative hidden overflow-x-auto rounded-xl border border-border sm:block" role="region" aria-label={t('dashboard.perStudent')} tabIndex={0}>
+                  <table className="w-full min-w-[40rem] border-separate border-spacing-0 text-body">
+                    <thead>
+                      <tr className="text-left text-small text-fg-2">
+                        <th scope="col" className="sticky left-0 z-10 border-b border-r border-border bg-card px-3 py-2 font-semibold">{t('dashboard.student')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.cohort')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.language')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.progress')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.countedScore')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.practicalCol')}</th>
+                        <th scope="col" className="border-b border-border px-3 py-2 font-semibold">{t('dashboard.duration')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {studentRows.map((s) => (
+                        <tr key={s.enrollmentId}>
+                          <th scope="row" className="sticky left-0 z-10 max-w-[14rem] border-b border-r border-border bg-card px-3 py-2 text-left font-medium text-fg">
+                            <span className="block truncate" title={s.name}>{s.name}</span>
+                            {s.status === 'COMPLETED' && <span className="block text-small font-normal text-teal-ink">{t('dashboard.completed')}</span>}
+                          </th>
+                          <td className="border-b border-border px-3 py-2 text-fg-2">{cohortName(s.cohortId)}</td>
+                          <td className="border-b border-border px-3 py-2"><LangBadge lang={s.language} /></td>
+                          <td className="border-b border-border px-3 py-2"><span className="num text-fg">{Math.round(s.progressPercent)}%</span></td>
+                          <td className="border-b border-border px-3 py-2"><span className="num text-fg">{s.avgQuizScore === null ? '—' : formatPercent(s.avgQuizScore)}</span></td>
+                          <td className="border-b border-border px-3 py-2 text-fg-2">
+                            {s.practicalOutcome ? t(`dashboard.outcome.${s.practicalOutcome.outcome}`, { defaultValue: s.practicalOutcome.outcome }) : '—'}
+                          </td>
+                          <td className="border-b border-border px-3 py-2"><span className="num text-fg">{s.durationDays === null ? '—' : s.durationDays}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </Card>
         </div>
@@ -330,5 +354,15 @@ export function DashboardsPage() {
 
       <ItemAnalysisSheet quizId={itemsQuiz} courseId={courseId || null} onClose={() => setItemsQuiz(null)} />
     </>
+  );
+}
+
+/** Пара «подпись — значение» в карточке студента (телефон). */
+function StudentStat({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-fg-2">{label}</dt>
+      <dd className="mt-0.5">{children}</dd>
+    </div>
   );
 }

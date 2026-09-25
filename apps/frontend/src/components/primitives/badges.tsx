@@ -37,7 +37,7 @@ function GradedDiamond({ size = 10 }: { size?: number }) {
 
 /**
  * «Тренировка / Жаттығу / Practice» — пунктир brand на brand-soft/60 с ↻;
- * «Оценивание / Бағалау / Graded» — сплошной ink с ◆.
+ * «Оценивание / Бағалау / Graded» — сплошной ink с ◆ (в тёмной теме — светлая заливка fg).
  * long — у тренировки добавляется «· не влияет на результат».
  */
 export function ModeBadge({ mode, long, className }: { mode: LearningMode; long?: boolean; className?: string }) {
@@ -63,7 +63,8 @@ export function ModeBadge({ mode, long, className }: { mode: LearningMode; long?
     <span
       title={t('ui.mode.gradedHint')}
       className={clsx(
-        'inline-flex items-center gap-1.5 rounded-full bg-ink px-2.5 py-0.5 text-small font-semibold text-white dark:ring-1 dark:ring-inset dark:ring-border-strong',
+        // В тёмной теме ink (8 9 20) сливается с карточкой (≈ 1.1:1) — инверсия, как у прочих ink-заливок
+        'inline-flex items-center gap-1.5 rounded-full bg-ink px-2.5 py-0.5 text-small font-semibold text-white dark:bg-fg dark:text-ink',
         className,
       )}
     >

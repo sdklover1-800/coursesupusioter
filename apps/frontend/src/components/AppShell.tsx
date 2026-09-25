@@ -408,7 +408,7 @@ export function AppShell() {
             {/* Мобильная верхняя панель 52px */}
             <header className="sticky top-0 z-30 border-b border-border bg-surface/90 pt-[env(safe-area-inset-top,0px)] backdrop-blur lg:hidden">
               <div className="flex h-[52px] items-center gap-1 pl-4 pr-2">
-                <Link to="/" className="mr-auto rounded-lg" aria-label={t('common.appName')}>
+                <Link to="/" className="mr-auto inline-flex min-h-11 items-center rounded-lg" aria-label={t('common.appName')}>
                   <LogoMark size={28} nameClassName="text-base" />
                 </Link>
                 <LanguageSwitcher variant="menu" />

@@ -30,4 +30,17 @@ export const student: Loc<typeof ruStudent> = {
   emptyHint: 'Pick a course in the catalog and apply — access opens once your request is approved.',
   openCatalog: 'Open the catalog',
   requestsTitle: 'My requests',
+  errors: {
+    invalid: 'The request was not accepted. Refresh the page and try again.',
+    conflict: 'The data has already changed — refresh the page.',
+    tooMany: 'Too many requests. Wait a minute and try again.',
+  },
+  contentError: {
+    forbiddenTitle: 'This material is unavailable',
+    forbiddenText: 'It is not part of your course version, or the course is temporarily closed. Open the course from “My courses”.',
+    notFoundTitle: 'Material not found',
+    notFoundText: 'The link may be out of date. Open the course from “My courses”.',
+    genericTitle: 'Could not open the material',
+    genericText: 'Check your connection and try again.',
+  },
 };

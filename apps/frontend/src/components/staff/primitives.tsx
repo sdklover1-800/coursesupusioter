@@ -1,10 +1,10 @@
 import { clsx } from 'clsx';
-import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Textarea } from '../ui';
+import { Button, Card, Textarea } from '../ui';
 import { Icon, type IconName } from '../icons';
 import { toneClasses, type Tone } from '../../lib/tones';
-import { isLowN } from '../../lib/staff';
+import { apiErrorMessage, isLowN } from '../../lib/staff';
 
 /**
  * Мелкие элементы поверхностей сотрудника (FE5). Staff UI плоский: без «губы»
@@ -73,6 +73,24 @@ export function MetaChip({
   );
 }
 
+/*
+ * ── Метка «мало данных» (n < 10, A16) ──
+ * Единый вид на «Аналитике» и в «Обзоре» админки: приглушённый текст fg-2 с иконкой,
+ * без тонированной плашки (амбер зарезервирован за тьютором и маркером «сейчас/далее», §1).
+ */
+export function LowDataMark({ label, hint, className }: { label?: string; hint?: string; className?: string }) {
+  const { t } = useTranslation();
+  const text = label ?? t('dashboard.lowData');
+  const title = hint ?? t('dashboard.lowDataHint');
+  return (
+    <span className={clsx('inline-flex items-center gap-1 whitespace-nowrap text-small text-fg-2', className)} title={title}>
+      <Icon name="info" size={14} />
+      {text}
+      <span className="sr-only">. {title}</span>
+    </span>
+  );
+}
+
 /* ── Размер выборки: «n = 12» и «мало данных» при n < 10 (A16) ── */
 export function SampleSize({ n, className, unit = 'students' }: { n: number; className?: string; unit?: 'students' | 'answers' | 'attempts' }) {
   const { t } = useTranslation();
@@ -82,13 +100,90 @@ export function SampleSize({ n, className, unit = 'students' }: { n: number; cla
       <span title={t(`dashboard.nTitle.${unit}`)}>
         <span className="num text-small">n = {n}</span>
       </span>
-      {low && (
-        <span className="inline-flex items-center gap-1 text-fg-2" title={t('dashboard.lowDataHint')}>
-          <Icon name="info" size={14} />
-          {t('dashboard.lowData')}
-        </span>
-      )}
+      {low && <LowDataMark />}
     </span>
+  );
+}
+
+/*
+ * ── Ошибка загрузки с «Повторить» ──
+ * Сообщение — через apiErrorMessage: известные коды переведены, текст сервера показывается
+ * только для 4xx (при 5xx — локализованное «Что-то пошло не так», а не «Internal error»).
+ */
+export function LoadError({ error, onRetry, retrying, className }: { error: unknown; onRetry?: () => void; retrying?: boolean; className?: string }) {
+  const { t } = useTranslation();
+  return (
+    <Card className={clsx('flex flex-col items-center gap-3 border-danger/30 text-center', className)}>
+      <div role="alert" className="inline-flex items-start gap-2 text-body text-danger-ink">
+        <Icon name="alert" size={18} className="mt-0.5" />
+        <span>{apiErrorMessage(error, t)}</span>
+      </div>
+      {onRetry && (
+        <Button variant="secondary" size="sm" onClick={onRetry} loading={retrying}>
+          {!retrying && <Icon name="refresh" size={16} />}
+          {t('common.retry')}
+        </Button>
+      )}
+    </Card>
+  );
+}
+
+/* ── Пустое состояние с нейтральной иконкой (без «?» — это знак тьютора) ── */
+export function QuietEmpty({ icon = 'inbox', title, hint, action, className }: { icon?: IconName; title: string; hint?: string; action?: ReactNode; className?: string }) {
+  return (
+    <Card className={clsx('flex flex-col items-center justify-center gap-3 py-14 text-center', className)}>
+      <span className="grid h-12 w-12 place-items-center rounded-full bg-surface-2 text-fg-2" aria-hidden>
+        <Icon name={icon} size={24} />
+      </span>
+      <div className="text-base font-semibold text-fg">{title}</div>
+      {hint && <p className="max-w-sm text-body text-fg-2">{hint}</p>}
+      {action}
+    </Card>
+  );
+}
+
+/*
+ * ── Признак прокрутки у длинного списка с max-height ──
+ * Оборачивает прокручиваемый блок (первый потомок) и рисует затухание у верхнего/нижнего края,
+ * за которым ещё есть строки: иначе срезанная посередине последняя строка выглядит как конец списка.
+ * (Горизонтальные вкладки это уже умеют сами — primitives/nav Tabs.)
+ */
+const FADE_FROM = { surface: 'from-surface', card: 'from-card' } as const;
+export function EdgeFade({ children, bg = 'surface', watch, className }: {
+  children: ReactNode;
+  /** Цвет подложки под затуханием: фон страницы или карточки */
+  bg?: 'surface' | 'card';
+  /** Значение, при смене которого пересчитать края (например, число строк) */
+  watch?: unknown;
+  className?: string;
+}) {
+  const host = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ top: false, bottom: false });
+
+  useEffect(() => {
+    const el = host.current?.firstElementChild as HTMLElement | null | undefined;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      const next = { top: el.scrollTop > 2, bottom: el.scrollTop < max - 2 };
+      setEdges((prev) => (prev.top === next.top && prev.bottom === next.bottom ? prev : next));
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro?.disconnect();
+    };
+  }, [watch]);
+
+  return (
+    <div ref={host} className={clsx('relative', className)}>
+      {children}
+      {edges.top && <span aria-hidden className={clsx('pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b to-transparent', FADE_FROM[bg])} />}
+      {edges.bottom && <span aria-hidden className={clsx('pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent', FADE_FROM[bg])} />}
+    </div>
   );
 }
 
@@ -163,18 +258,21 @@ export function SectionTitle({ children, hint, action, as: Tag = 'h2', className
   );
 }
 
-/* ── Карточка метрики с размером выборки (n = …, «мало данных») ── */
-export function MetricCard({ label, value, sub, n, unit, tone = 'brand' }: {
+/*
+ * ── Карточка метрики с размером выборки (n = …, «мало данных») ──
+ * Полоса слева — декоративная и нейтральная: teal (успех) и spark (тьютор) на метриках
+ * без оценки «хорошо/плохо» вводили бы в заблуждение (§1).
+ */
+export function MetricCard({ label, value, sub, n, unit }: {
   label: string;
   value: ReactNode;
   sub?: ReactNode;
   n?: number;
   unit?: 'students' | 'answers' | 'attempts';
-  tone?: 'brand' | 'spark' | 'teal' | 'ink';
 }) {
   return (
     <Card className="relative overflow-hidden !p-5">
-      <div className={clsx('absolute left-0 top-0 h-full w-1', toneClasses[tone].fill)} aria-hidden />
+      <div className="absolute left-0 top-0 h-full w-1 bg-border-strong" aria-hidden />
       <div className="text-label text-fg-2">{label}</div>
       <div className="mt-2 font-display text-3xl font-semibold tabular-nums text-fg">{value}</div>
       {sub && <div className="mt-1 text-small text-fg-2">{sub}</div>}

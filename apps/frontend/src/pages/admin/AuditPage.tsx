@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { ApiError } from '../../lib/api';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import {
@@ -10,7 +9,8 @@ import {
   type AuditEntry, type AuditFilter,
 } from '../../lib/staffAdmin';
 import { Button, Card, Field, Icon, Input, Select } from '../../components/ui';
-import { EmptyState, ErrorState, LoadingRows, PageHeader } from '../../components/page';
+import { EmptyState, LoadingRows, PageHeader } from '../../components/page';
+import { LoadError } from '../../components/staff/primitives';
 import { EmailText, RoleBadge, Th } from '../../components/staff/admin/bits';
 import { AuditDetail } from '../../components/staff/admin/AuditDetail';
 
@@ -137,7 +137,7 @@ export function AuditPage() {
       {log.isLoading ? (
         <LoadingRows rows={6} />
       ) : log.isError ? (
-        <ErrorState message={(log.error as ApiError)?.message ?? t('errors.generic')} />
+        <LoadError error={log.error} onRetry={() => void log.refetch()} retrying={log.isFetching} />
       ) : !items.length ? (
         <EmptyState title={t('admin.auditPage.empty')} hint={t('admin.auditPage.emptyHint')} />
       ) : (
@@ -145,12 +145,13 @@ export function AuditPage() {
           {/* Десктоп: таблица; прокрутка — внутри контейнера */}
           <div className="card hidden overflow-hidden !p-0 lg:block">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] table-fixed text-body">
+              {/* Ширины: «Кто» — под email целиком; «Подробности» забирает остаток (там сводка и «Все поля») */}
+              <table className="w-full min-w-[60rem] table-fixed text-body">
                 <colgroup>
-                  <col className="w-[10.5rem]" />
-                  <col className="w-[15rem]" />
-                  <col className="w-[13rem]" />
-                  <col className="w-[12rem]" />
+                  <col className="w-[10rem]" />
+                  <col className="w-[17.5rem]" />
+                  <col className="w-[12.5rem]" />
+                  <col className="w-[11rem]" />
                   <col />
                 </colgroup>
                 <thead className="border-b border-border">
@@ -174,7 +175,8 @@ export function AuditPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-fg">{targetLabel(a.targetType)}</div>
-                        {a.targetId && <div className="break-all font-mono text-small text-fg-2">{a.targetId}</div>}
+                        {/* Служебный id — одной строкой с многоточием; целиком — в подсказке и при копировании */}
+                        {a.targetId && <div className="truncate font-mono text-small text-fg-2" title={a.targetId}>{a.targetId}</div>}
                       </td>
                       <td className="px-4 py-3">
                         <AuditDetail entry={a} cohortName={cohortName} courseName={courseName} />

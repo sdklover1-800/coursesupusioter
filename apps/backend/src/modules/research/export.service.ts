@@ -13,6 +13,7 @@ import { prisma } from '../../lib/prisma.js';
 import { env } from '../../config/env.js';
 import { isAnswerCorrect } from '../quizzes/scoring.js';
 import { effectiveCooldownMinutes, parsePresentation, parseStoredAnswers, presentedQuestions, secondsBetween, toPolicyQuestion, type PolicyQuestion } from '../quizzes/policy.js';
+import { realUserWhere } from './testAccounts.js';
 
 /**
  * Экспорт исследовательских данных в CSV (FR-R.4) с псевдонимизацией (DP-6).
@@ -23,6 +24,8 @@ import { effectiveCooldownMinutes, parsePresentation, parseStoredAnswers, presen
  *
  * Новые столбцы ДОПИСЫВАЮТСЯ в конец строки — прежние скрипты анализа, читающие
  * столбцы по позиции, не ломаются. Попытки тестов — только отправленные.
+ * Тестовые аккаунты (зарезервированные домены email, testAccounts.ts) не выгружаются
+ * ни в одном типе: они не участники исследования.
  */
 
 const BATCH = 1000;
@@ -95,9 +98,9 @@ function range(f: ExportFilters): Prisma.DateTimeFilter | undefined {
   return { ...(f.from ? { gte: f.from } : {}), ...(f.to ? { lte: f.to } : {}) };
 }
 
-/** Фильтр записи на курс: курс и ТЕКУЩАЯ когорта студента. */
+/** Фильтр записи на курс: курс и ТЕКУЩАЯ когорта студента; тестовые аккаунты исключены. */
 function enrollmentWhere(f: ExportFilters): Prisma.EnrollmentWhereInput {
-  return { ...(f.courseId ? { courseId: f.courseId } : {}), ...(f.cohortId ? { user: { cohortId: f.cohortId } } : {}) };
+  return { ...(f.courseId ? { courseId: f.courseId } : {}), user: { ...(f.cohortId ? { cohortId: f.cohortId } : {}), ...realUserWhere } };
 }
 
 /**
@@ -108,7 +111,8 @@ function enrollmentWhere(f: ExportFilters): Prisma.EnrollmentWhereInput {
  * выгружаются вместе со всеми.
  */
 async function eventsWhere(f: ExportFilters): Promise<Prisma.EventLogWhereInput> {
-  const and: Prisma.EventLogWhereInput[] = [];
+  // События без пользователя остаются; события тестовых аккаунтов — нет.
+  const and: Prisma.EventLogWhereInput[] = [{ OR: [{ userId: null }, { user: realUserWhere }] }];
   if (f.courseId) {
     const enr = await prisma.enrollment.findMany({ where: { courseId: f.courseId }, select: { id: true, userId: true } });
     and.push({
@@ -118,7 +122,7 @@ async function eventsWhere(f: ExportFilters): Promise<Prisma.EventLogWhereInput>
   if (f.cohortId) and.push({ cohortId: f.cohortId });
   const r = range(f);
   if (r) and.push({ createdAt: r });
-  return and.length ? { AND: and } : {};
+  return { AND: and };
 }
 
 /* ── Вспомогательные для попыток ─────────────────────────────────────── */
@@ -431,7 +435,7 @@ export async function streamExportCsv(type: ExportType, write: Write, f: ExportF
 export async function buildCohortSummary(f: ExportFilters = {}): Promise<(string | number)[][]> {
   const cohorts = await prisma.cohort.findMany({
     where: f.cohortId ? { id: f.cohortId } : {},
-    include: { users: { select: { id: true } }, _count: { select: { teacherSessions: true } } },
+    include: { users: { where: realUserWhere, select: { id: true } }, _count: { select: { teacherSessions: true } } },
   });
   const userToCohort = new Map<string, string>();
   for (const c of cohorts) for (const u of c.users) userToCohort.set(u.id, c.id);

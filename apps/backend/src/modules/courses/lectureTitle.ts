@@ -20,11 +20,27 @@ function metadataIndex(title: string): number {
   return m && m.index > 0 ? m.index : -1;
 }
 
+/** Вид проблемы названия (для структурированных пунктов «здоровья» версии). */
+export type LectureTitleProblemCode = 'METADATA' | 'TOO_LONG';
+
+/** Почему название нельзя публиковать — кодом; null — всё в порядке. */
+export function lectureTitleProblemCode(title: string): LectureTitleProblemCode | null {
+  if (metadataIndex(title) !== -1) return 'METADATA';
+  if (title.trim().length > LECTURE_TITLE_MAX) return 'TOO_LONG';
+  return null;
+}
+
+/** Русский текст проблемы названия (API редактора, CLI-скрипты). */
+export function lectureTitleProblemText(code: LectureTitleProblemCode): string {
+  return code === 'METADATA'
+    ? 'в названии служебные метаданные («Course:», «Format:»…) — оставьте только название'
+    : `название длиннее ${LECTURE_TITLE_MAX} символов`;
+}
+
 /** Почему название нельзя публиковать; null — всё в порядке. */
 export function lectureTitleProblem(title: string): string | null {
-  if (metadataIndex(title) !== -1) return 'в названии служебные метаданные («Course:», «Format:»…) — оставьте только название';
-  if (title.trim().length > LECTURE_TITLE_MAX) return `название длиннее ${LECTURE_TITLE_MAX} символов`;
-  return null;
+  const code = lectureTitleProblemCode(title);
+  return code ? lectureTitleProblemText(code) : null;
 }
 
 /** Название без склеенных метаданных (идемпотентно; чистое название не меняется). */

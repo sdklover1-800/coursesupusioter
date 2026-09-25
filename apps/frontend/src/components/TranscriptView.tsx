@@ -466,7 +466,8 @@ function Highlighted({ text, ranges, current, uid }: { text: string; ranges: Ran
       <mark
         key={r.g}
         id={`${uid}-m-${r.g}`}
-        className={clsx('rounded-sm px-0.5 text-fg', r.g === current ? 'bg-spark/60 ring-2 ring-spark-ink/50' : 'bg-spark/30')}
+        // Текущее совпадение в тёмной теме — тёмный текст на плотном амбере (светлый fg на spark/60 — 3.1:1)
+        className={clsx('rounded-sm px-0.5 text-fg', r.g === current ? 'bg-spark/60 ring-2 ring-spark-ink/50 dark:bg-spark/80 dark:text-ink' : 'bg-spark/30')}
       >
         {text.slice(r.start, r.end)}
       </mark>,

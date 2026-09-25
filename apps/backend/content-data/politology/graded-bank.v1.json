@@ -182,12 +182,415 @@
       "en polit:M1:Q6 explanation: «закрепляют» → «reinforce» (кириллица в переводе)",
       "M3:Q3 заменён рецензентом (повторный черновик дал снова «сравнительный метод» — дубль M1:Q8, источник — введение L8); новый вопрос по L9 (массовая партия), ключ на прежней позиции A; kk/en — translateQuestions",
       "M4:Q2: формулировка уточнена (прежняя допускала и модель повторения); варианты и ключ прежние; kk/en переведены заново",
-      "варианты с заглавной буквы: вопросов 33"
+      "варианты с заглавной буквы: вопросов 33",
+      "[2026-09-26] en polit:M4:Q5: кириллица в en-переводе: «кадровые» → «personnel» (формулировка и обоснование ключа)",
+      "[2026-09-26] kk polit:M1:Q5: ключ «із ізі әсері» → термин kk-03 «даму жолына тәуелділік» (вариант, обоснование, пояснение); порядок и ключ прежние",
+      "[2026-09-26] kk polit:M1:Q6: подсказка длиной: ключ 77 → 65 симв. (дистракторы 46–67), смысл прежний; kk M1 «самый длинный = ключ» 0.5 → 0.375",
+      "[2026-09-26] kk polit:M4:Q6: дистрактор «Заңдылық дағдарысы» → «Легитимдік дағдарысы» (термин kk-13) + обоснование; kk M4 «самый длинный = ключ» 0.5 → 0.375",
+      "[2026-09-26] kk polit:M3:Q2: дистрактор: «квота есебінен» → «сайлау шегі есебінен» (термин kk-08, ru «за счёт порога»)",
+      "[2026-09-26] ru polit:M3:Q4: созвучие: «механизм» → «эффект» в вопросе (ключ «Механический эффект»); kk/en — так же",
+      "[2026-09-26] en polit:M3:Q4: созвучие: «mechanism» → «effect» в вопросе",
+      "[2026-09-26] kk polit:M3:Q4: вслед за ru: «қай тетігі … жұмыс істеді?» → «қай әсері … көрініс тапты?»",
+      "[2026-09-26] ru polit:M1:Q8: созвучие: вопрос без «сравнение/сопоставляет» (ключ «Сравнительный метод»); kk/en — так же",
+      "[2026-09-26] kk polit:M1:Q8: созвучие: вопрос без «салыстырып» (ключ «Салыстырмалы әдіс»)",
+      "[2026-09-26] en polit:M1:Q8: созвучие: вопрос без «comparison/compares» (ключ «Comparative method»)",
+      "[2026-09-26] ru polit:M2:Q7: созвучие: «усилить экологическую политику» → «сократить загрязнение воздуха и рек» (ключ «Правовая и экологическая»); kk/en — так же",
+      "[2026-09-26] kk polit:M2:Q7: созвучие: «экологиялық саясатты күшейтіп» → «ауа мен өзендердің ластануын азайтып»",
+      "[2026-09-26] en polit:M2:Q7: созвучие: «strengthen environmental policy» → «reduce air and river pollution»",
+      "[2026-09-26] en polit:M2:Q5: созвучие только в en: ключ «total control» → «complete control» (как ru «полному», kk «толық»), так же в пояснении",
+      "[2026-09-26] ru polit:M1:Q8: стилистика новой формулировки — «общие для них закономерности и различия» → «общие закономерности и различия между ними» (правка rev2b; у rev2 «стало» = итоговый текст)"
     ],
     "reviewNotes": [
       "M2: повторный черновик — Q3 дублировал понятие «сравнительный метод» из M1:Q8; у Q5 три дистрактора с «только/лишь» (подсказка абсолютными словами)",
       "M3: повторный черновик — Q2 имел несколько защитимых ответов (A≈B, D тоже верно); Q3 и Q8 проверяли одно понятие (кадровая партия); ключ Q5 противоречил Олсону (A и D по сути совпадали)",
-      "M4: повторный черновик — Q8 вне модуля (эффекты избирательной системы — модуль III, источник указан неверно)"
+      "M4: повторный черновик — Q8 вне модуля (эффекты избирательной системы — модуль III, источник указан неверно)",
+      "ревизия 2026-09-26 (переносится на применённый банк через meta.textFixes): en M4:Q5 «кадровые»; kk M1:Q5 «із ізі әсері»; подсказка длиной kk M1:Q6 и (попутно) kk M4:Q6; термины kk M4:Q6, kk M3:Q2; созвучие M1:Q8, M2:Q7, M3:Q4 (ru/kk/en), en M2:Q5",
+      "en polit:M4:Q4: дистрактор «Subject culture system» ближе к «подданнической культуре», чем к «Подданническая система»; «Subject system» дал бы подсказку длиной (22/14 = 1.57 > 1.5) — решить при вычитке (NATIVE_PROOFREAD)",
+      "en polit:M2:Q8: ключ «Competitive authoritarianism» (28) длиннее дистракторов (17–19, отношение 1.47 < 1.5) — термин длиннее по природе; модуль en M2 «самый длинный = ключ» 0.25 — оставлено"
+    ],
+    "textFixes": [
+      {
+        "id": "rev2-en-M4Q5-personnel",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "polit:M4:Q5",
+        "note": "кириллица в en-переводе: «кадровые» → «personnel» (формулировка и обоснование ключа)",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "en polit:M4:Q5: русское «кадровые» в формулировке и обосновании заменено на «personnel» (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "concentrated кадровые decisions",
+            "to": "concentrated personnel decisions"
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "from": "concentration of кадровые, financial",
+            "to": "concentration of personnel, financial"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M1Q5-path-dependency",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q5",
+        "note": "ключ «із ізі әсері» → термин kk-03 «даму жолына тәуелділік» (вариант, обоснование, пояснение); порядок и ключ прежние",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M1:Q5: ключ «із ізі әсері» (бессмыслица) заменён термином kk-03 «даму жолына тәуелділік (path dependency)» в варианте, обосновании и пояснении (ревизия 2026-09-26) — проверить"
+        },
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "from": "Тарихи институционализмдегі із ізі әсері",
+            "to": "Тарихи институционализмдегі даму жолына тәуелділік",
+            "match": "whole"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Дұрыс: із ізі әсері бір рет таңдалған институционалдық жолға ұзақ мерзімді тәуелділікті сипаттайды.",
+            "to": "Дұрыс: даму жолына тәуелділік (path dependency) — бір рет таңдалған институционалдық жолға ұзақ мерзімді тәуелділік."
+          },
+          {
+            "field": "explanation",
+            "from": "Із ізі әсері бір кезде",
+            "to": "Даму жолына тәуелділік (path dependency) бір кезде"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M1Q6-length",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q6",
+        "note": "подсказка длиной: ключ 77 → 65 симв. (дистракторы 46–67), смысл прежний; kk M1 «самый длинный = ключ» 0.5 → 0.375",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M1:Q6: ключ сокращён (подсказка длиной: 77 симв. при дистракторах 46–67) — «…ешқашан бейтарап емес, жасырын мағыналарын талдау қажет» (ревизия 2026-09-26) — проверить"
+        },
+        "edits": [
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Саяси тіл ешқашан бейтарап емес және жасырын мағыналарды талдауды қажет етеді",
+            "to": "Саяси тіл ешқашан бейтарап емес, жасырын мағыналарын талдау қажет"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M4Q6-legitimacy",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "polit:M4:Q6",
+        "note": "дистрактор «Заңдылық дағдарысы» → «Легитимдік дағдарысы» (термин kk-13) + обоснование; kk M4 «самый длинный = ключ» 0.5 → 0.375",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M4:Q6: дистрактор «Заңдылық дағдарысы» → «Легитимдік дағдарысы» (термин kk-13; ru «Кризис легитимности») (ревизия 2026-09-26) — проверить"
+        },
+        "edits": [
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Заңдылық дағдарысы",
+            "to": "Легитимдік дағдарысы"
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "from": "Дұрыс емес: заңдылық дағдарысы",
+            "to": "Дұрыс емес: легитимдік дағдарысы"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M3Q2-threshold",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "polit:M3:Q2",
+        "note": "дистрактор: «квота есебінен» → «сайлау шегі есебінен» (термин kk-08, ru «за счёт порога»)",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M3:Q2: в дистракторе «квота есебінен» → «сайлау шегі есебінен» (термин kk-08; ru «за счёт порога») (ревизия 2026-09-26) — проверить"
+        },
+        "edits": [
+          {
+            "field": "options",
+            "index": 2,
+            "from": "Ол квота есебінен",
+            "to": "Ол сайлау шегі есебінен"
+          }
+        ]
+      },
+      {
+        "id": "rev2-ru-M3Q4-cue",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "polit:M3:Q4",
+        "note": "созвучие: «механизм» → «эффект» в вопросе (ключ «Механический эффект»); kk/en — так же",
+        "substantive": true,
+        "review": {
+          "reason": "EXPERT_REVIEW",
+          "comment": "созвучие (ревизия 2026-09-26): было «Какой механизм избирательной системы…» при ключе «Механический эффект» — стало «Какой эффект избирательной системы…» (слово есть во всех вариантах); проверить формулировку"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "Какой механизм избирательной системы вероятнее всего сработал?",
+            "to": "Какой эффект избирательной системы вероятнее всего сработал?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-en-M3Q4-cue",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "polit:M3:Q4",
+        "note": "созвучие: «mechanism» → «effect» в вопросе",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "en polit:M3:Q4: «Which mechanism…» → «Which effect…» вслед за ru (созвучие с «Mechanical effect») (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "Which mechanism of the electoral system most likely operated?",
+            "to": "Which effect of the electoral system most likely operated?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M3Q4-cue",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "polit:M3:Q4",
+        "note": "вслед за ru: «қай тетігі … жұмыс істеді?» → «қай әсері … көрініс тапты?»",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M3:Q4: «қай тетігі … жұмыс істеді?» → «қай әсері … көрініс тапты?» вслед за ru (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "Сайлау жүйесінің қай тетігі ең ықтимал түрде жұмыс істеді?",
+            "to": "Сайлау жүйесінің қай әсері ең ықтимал түрде көрініс тапты?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-ru-M1Q8-cue",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q8",
+        "note": "созвучие: вопрос без «сравнение/сопоставляет» (ключ «Сравнительный метод»); kk/en — так же",
+        "substantive": true,
+        "review": {
+          "reason": "EXPERT_REVIEW",
+          "comment": "созвучие (ревизия 2026-09-26): было «Что лучше всего описывает сравнение двух стран, где исследователь сопоставляет…» при ключе «Сравнительный метод» — стало «Исследователь изучает политические институты, процессы и решения двух стран, чтобы выявить общие закономерности и различия между ними. Какой метод он применяет?»; проверить"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Что лучше всего описывает сравнение двух стран, где исследователь сопоставляет их политические институты, процессы и решения для выявления общих закономерностей и различий?",
+            "to": "Исследователь изучает политические институты, процессы и решения двух стран, чтобы выявить общие закономерности и различия между ними. Какой метод он применяет?"
+          }
+        ]
+      },
+      {
+        "id": "rev2b-ru-M1Q8-wording",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q8",
+        "note": "стилистика новой формулировки: «общие для них закономерности и различия» → «общие закономерности и различия между ними»",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Исследователь изучает политические институты, процессы и решения двух стран, чтобы выявить общие для них закономерности и различия. Какой метод он применяет?",
+            "to": "Исследователь изучает политические институты, процессы и решения двух стран, чтобы выявить общие закономерности и различия между ними. Какой метод он применяет?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M1Q8-cue",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q8",
+        "note": "созвучие: вопрос без «салыстырып» (ключ «Салыстырмалы әдіс»)",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M1:Q8: новая формулировка вслед за ru (созвучие «салыстырып» → «Салыстырмалы әдіс») (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Зерттеуші екі елдің саяси институттарын, үдерістерін және шешімдерін салыстырып, ортақ заңдылықтар мен айырмашылықтарды анықтайды. Бұл нені ең жақсы сипаттайды?",
+            "to": "Зерттеуші екі елдің саяси институттарын, үдерістерін және шешімдерін зерделеп, олардың ортақ заңдылықтары мен айырмашылықтарын анықтайды. Ол қандай әдісті қолданады?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-en-M1Q8-cue",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "polit:M1:Q8",
+        "note": "созвучие: вопрос без «comparison/compares» (ключ «Comparative method»)",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "en polit:M1:Q8: новая формулировка вслед за ru (созвучие «comparison… compares» → «Comparative method») (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "What best describes a comparison of two countries in which the researcher compares their political institutions, processes, and decisions in order to identify common patterns and differences?",
+            "to": "A researcher examines the political institutions, processes, and decisions of two countries in order to identify the patterns they share and the differences between them. Which method is the researcher using?"
+          }
+        ]
+      },
+      {
+        "id": "rev2-ru-M2Q7-cue",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "polit:M2:Q7",
+        "note": "созвучие: «усилить экологическую политику» → «сократить загрязнение воздуха и рек» (ключ «Правовая и экологическая»); kk/en — так же",
+        "substantive": true,
+        "review": {
+          "reason": "EXPERT_REVIEW",
+          "comment": "созвучие (ревизия 2026-09-26): было «…хотят усилить экологическую политику…» при ключе «Правовая и экологическая» — стало «…хотят сократить загрязнение воздуха и рек…» (задание на применение понятия); проверить"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "В стране хотят усилить экологическую политику и одновременно",
+            "to": "В стране хотят сократить загрязнение воздуха и рек и одновременно"
+          }
+        ]
+      },
+      {
+        "id": "rev2-kk-M2Q7-cue",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "polit:M2:Q7",
+        "note": "созвучие: «экологиялық саясатты күшейтіп» → «ауа мен өзендердің ластануын азайтып»",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "kk polit:M2:Q7: «экологиялық саясатты күшейтіп» → «ауа мен өзендердің ластануын азайтып» вслед за ru (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "Елде экологиялық саясатты күшейтіп, сонымен қатар",
+            "to": "Елде ауа мен өзендердің ластануын азайтып, сонымен қатар"
+          }
+        ]
+      },
+      {
+        "id": "rev2-en-M2Q7-cue",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "polit:M2:Q7",
+        "note": "созвучие: «strengthen environmental policy» → «reduce air and river pollution»",
+        "substantive": true,
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "en polit:M2:Q7: «strengthen environmental policy» → «reduce air and river pollution» вслед за ru (ревизия 2026-09-26) — проверить перевод"
+        },
+        "edits": [
+          {
+            "field": "prompt",
+            "from": "the authorities want to strengthen environmental policy and at the same time",
+            "to": "the authorities want to reduce air and river pollution and at the same time"
+          }
+        ]
+      },
+      {
+        "id": "rev2-en-M2Q5-cue",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "polit:M2:Q5",
+        "note": "созвучие только в en: ключ «total control» → «complete control» (как ru «полному», kk «толық»), так же в пояснении",
+        "review": {
+          "reason": "NATIVE_PROOFREAD",
+          "comment": "en polit:M2:Q5: в ключе «total control» → «complete control» (как ru «полному контролю», kk «толық бақылауға»; созвучие с «totalitarian») (ревизия 2026-09-26) — проверить"
+        },
+        "edits": [
+          {
+            "field": "options",
+            "index": 3,
+            "from": "It seeks total control over",
+            "to": "It seeks complete control over"
+          },
+          {
+            "field": "explanation",
+            "from": "the claim to total control over",
+            "to": "the claim to complete control over"
+          }
+        ]
+      }
     ]
   },
   "ru": {
@@ -390,7 +793,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Что лучше всего описывает сравнение двух стран, где исследователь сопоставляет их политические институты, процессы и решения для выявления общих закономерностей и различий?",
+        "prompt": "Исследователь изучает политические институты, процессы и решения двух стран, чтобы выявить общие закономерности и различия между ними. Какой метод он применяет?",
         "options": [
           "Кейс-стади",
           "Количественный анализ",
@@ -588,7 +991,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "В стране хотят усилить экологическую политику и одновременно ужесточить контроль за исполнением уже принятых норм. Какая пара функций государства здесь затрагивается?",
+        "prompt": "В стране хотят сократить загрязнение воздуха и рек и одновременно ужесточить контроль за исполнением уже принятых норм. Какая пара функций государства здесь затрагивается?",
         "options": [
           "Правовая и экологическая",
           "Политическая и внешнеполитическая",
@@ -730,7 +1133,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "После реформы избирательного законодательства небольшая партия получила 12 процентов голосов по стране, но почти не представлена в парламенте. Какой механизм избирательной системы вероятнее всего сработал?",
+        "prompt": "После реформы избирательного законодательства небольшая партия получила 12 процентов голосов по стране, но почти не представлена в парламенте. Какой эффект избирательной системы вероятнее всего сработал?",
         "options": [
           "Психологический эффект",
           "Механический эффект",
@@ -1214,7 +1617,7 @@
         "type": "SINGLE_CHOICE",
         "prompt": "Елдің саяси жүйесі бір рет кездейсоқ дерлік таңдалған сәйкес сайлау тетігінен кейін ұзақ уақыт бойы бірпартиялық үстемдікті сақтап келеді. Мұнда қандай түсіндіру ең орынды?",
         "options": [
-          "Тарихи институционализмдегі із ізі әсері",
+          "Тарихи институционализмдегі даму жолына тәуелділік",
           "Постмодернистік тілдік деконструкция",
           "Бихевиористік дауыс беру түсіндірмесі",
           "Саяси философияның нормативтік тәсілі"
@@ -1222,9 +1625,9 @@
         "correctOptionIds": [
           0
         ],
-        "explanation": "Із ізі әсері бір кезде қабылданған институционалдық шешім өз-өзін қайта өндіре бастайтынын және әрі қарайғы дамудың бағытын айқындайтынын білдіреді. Бұл — саяси нәтижелердің тұрақтылығын тарихи-институционалдық тұрғыдан түсіндіру.",
+        "explanation": "Даму жолына тәуелділік (path dependency) бір кезде қабылданған институционалдық шешім өз-өзін қайта өндіре бастайтынын және әрі қарайғы дамудың бағытын айқындайтынын білдіреді. Бұл — саяси нәтижелердің тұрақтылығын тарихи-институционалдық тұрғыдан түсіндіру.",
         "optionRationales": [
-          "Дұрыс: із ізі әсері бір рет таңдалған институционалдық жолға ұзақ мерзімді тәуелділікті сипаттайды.",
+          "Дұрыс: даму жолына тәуелділік (path dependency) — бір рет таңдалған институционалдық жолға ұзақ мерзімді тәуелділік.",
           "Қате: постмодернистік деконструкция тіл мен жасырын мағыналарды талдайды, ал институционалдық жолдың қайта өндірілуін емес.",
           "Қате: бихевиоризм адамдардың нақты мінез-құлқына шоғырланады, бірақ тұрақтылықты институционалдық тәуелділік арқылы түсіндірмейді.",
           "Қате: нормативтік тәсіл нақты траекторияның неге сақталатынын емес, қандай құрылым болуы керектігін талқылайды."
@@ -1244,7 +1647,7 @@
         "options": [
           "Саяси тіл тек құқықтық бекітілген нормаларды ғана бейнелейді",
           "Саяси тіл нақты институттармен толық сәйкеседі",
-          "Саяси тіл ешқашан бейтарап емес және жасырын мағыналарды талдауды қажет етеді",
+          "Саяси тіл ешқашан бейтарап емес, жасырын мағыналарын талдау қажет",
           "Саяси тіл тек сайлаулар мен статистиканы сипаттау үшін ғана маңызды"
         ],
         "correctOptionIds": [
@@ -1296,7 +1699,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Зерттеуші екі елдің саяси институттарын, үдерістерін және шешімдерін салыстырып, ортақ заңдылықтар мен айырмашылықтарды анықтайды. Бұл нені ең жақсы сипаттайды?",
+        "prompt": "Зерттеуші екі елдің саяси институттарын, үдерістерін және шешімдерін зерделеп, олардың ортақ заңдылықтары мен айырмашылықтарын анықтайды. Ол қандай әдісті қолданады?",
         "options": [
           "Кейс-стади",
           "Сандық талдау",
@@ -1494,7 +1897,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Елде экологиялық саясатты күшейтіп, сонымен қатар бұрын қабылданған нормалардың орындалуын бақылауды қатаңдатқысы келеді. Мұнда мемлекеттік функциялардың қандай жұбы қозғалады?",
+        "prompt": "Елде ауа мен өзендердің ластануын азайтып, сонымен қатар бұрын қабылданған нормалардың орындалуын бақылауды қатаңдатқысы келеді. Мұнда мемлекеттік функциялардың қандай жұбы қозғалады?",
         "options": [
           "Құқықтық және экологиялық",
           "Саяси және сыртқы саяси",
@@ -1584,7 +1987,7 @@
         "options": [
           "Ол дауыстарға дәл пропорционал орын алады",
           "Ол депутаттық орынсыз қалуы мүмкін",
-          "Ол квота есебінен автоматты түрде парламентке өтеді",
+          "Ол сайлау шегі есебінен автоматты түрде парламентке өтеді",
           "Ол тек бір өтемдік мандат алады"
         ],
         "correctOptionIds": [
@@ -1636,7 +2039,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Сайлау заңнамасы реформасынан кейін шағын партия ел бойынша 12 пайыз дауыс алды, бірақ парламентте дерлік өкілдікке ие болмады. Сайлау жүйесінің қай тетігі ең ықтимал түрде жұмыс істеді?",
+        "prompt": "Сайлау заңнамасы реформасынан кейін шағын партия ел бойынша 12 пайыз дауыс алды, бірақ парламентте дерлік өкілдікке ие болмады. Сайлау жүйесінің қай әсері ең ықтимал түрде көрініс тапты?",
         "options": [
           "Психологиялық әсер",
           "Механикалық әсер",
@@ -1921,7 +2324,7 @@
         "prompt": "Елде қандай саяси қауымдастыққа жататынын түсінбейтін адамдар саны тез өсіп, бұл жүйенің тұрақтылығын әлсіретеді. Мұнда қандай даму дағдарысы туындайды?",
         "options": [
           "Ену дағдарысы",
-          "Заңдылық дағдарысы",
+          "Легитимдік дағдарысы",
           "Бірегейлік дағдарысы",
           "Қатысу дағдарысы"
         ],
@@ -1931,7 +2334,7 @@
         "explanation": "Бірегейлік дағдарысы халықтың елеулі бөлігі өзінің саяси қауымдастыққа тиістілігін анықтай алмаған кезде туындайды. Шартта дәл осы жағдай сипатталған.",
         "optionRationales": [
           "Дұрыс емес: ену дағдарысы орталықтың шешімдерді ел аумағының бәрінде жүзеге асыра алмауын білдіреді.",
-          "Дұрыс емес: заңдылық дағдарысы билік институттарының құқықтылығын танудың жоғалуымен байланысты.",
+          "Дұрыс емес: легитимдік дағдарысы билік институттарының құқықтылығын танудың жоғалуымен байланысты.",
           "Дұрыс: әңгіме халықтың саяси тиістілігінің анық еместігі және қауымдастық сезімінің ыдырауы туралы.",
           "Дұрыс емес: қатысу дағдарысы жаңа топтардың шешім қабылдауға енгізілуін талап етуімен байланысты."
         ],
@@ -2202,7 +2605,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "What best describes a comparison of two countries in which the researcher compares their political institutions, processes, and decisions in order to identify common patterns and differences?",
+        "prompt": "A researcher examines the political institutions, processes, and decisions of two countries in order to identify the patterns they share and the differences between them. Which method is the researcher using?",
         "options": [
           "Case study",
           "Quantitative analysis",
@@ -2349,12 +2752,12 @@
           "It is limited to targeted suppression of real opponents",
           "It controls only the political sphere and does not affect private life",
           "It allows broad political pluralism with a weak ideology",
-          "It seeks total control over all spheres of life and consciousness"
+          "It seeks complete control over all spheres of life and consciousness"
         ],
         "correctOptionIds": [
           3
         ],
-        "explanation": "Totalitarianism is marked by the claim to total control over all spheres of life, including thoughts and beliefs. This is its main qualitative difference from authoritarianism.",
+        "explanation": "Totalitarianism is marked by the claim to complete control over all spheres of life, including thoughts and beliefs. This is its main qualitative difference from authoritarianism.",
         "optionRationales": [
           "Incorrect: targeted suppression of opponents is characteristic of authoritarianism.",
           "Incorrect: such limited control is closer to authoritarianism, not totalitarianism.",
@@ -2400,7 +2803,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "In a country, the authorities want to strengthen environmental policy and at the same time tighten control over compliance with already adopted rules. Which pair of state functions is involved here?",
+        "prompt": "In a country, the authorities want to reduce air and river pollution and at the same time tighten control over compliance with already adopted rules. Which pair of state functions is involved here?",
         "options": [
           "Legal and environmental",
           "Political and foreign policy",
@@ -2542,7 +2945,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "After a reform of electoral law, a small party received 12 percent of the votes nationwide, but is barely represented in parliament. Which mechanism of the electoral system most likely operated?",
+        "prompt": "After a reform of electoral law, a small party received 12 percent of the votes nationwide, but is barely represented in parliament. Which effect of the electoral system most likely operated?",
         "options": [
           "Psychological effect",
           "Mechanical effect",
@@ -2796,7 +3199,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "The leader of a large party has gradually concentrated кадровые decisions, finances, and control over internal party communication in their own hands. Which conclusion about the party best fits this situation?",
+        "prompt": "The leader of a large party has gradually concentrated personnel decisions, finances, and control over internal party communication in their own hands. Which conclusion about the party best fits this situation?",
         "options": [
           "The party has shifted to Track II diplomacy",
           "The party is experiencing a crisis of distribution",
@@ -2811,7 +3214,7 @@
           "Incorrect: Track II diplomacy means informal contacts between experts and intermediaries, not intra-party centralization.",
           "Incorrect: a crisis of distribution is about the system’s inability to distribute benefits fairly, not about internal power in a party.",
           "Incorrect: a consociational coalition refers to a power-sharing model in deeply divided societies, not to a party’s internal structure.",
-          "Correct: concentration of кадровые, financial, and communication resources in the leadership is a typical sign of oligarchization."
+          "Correct: concentration of personnel, financial, and communication resources in the leadership is a typical sign of oligarchization."
         ],
         "source": {
           "module": 3,

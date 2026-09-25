@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import { useRef, useState, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { ApiError } from '../../../lib/api';
+import { apiErrorMessage } from '../../../lib/staff';
 import {
   IMPORT_COLUMNS, csvCell, downloadText, useImportUsers, type AdminCohort, type ImportReport,
 } from '../../../lib/staffAdmin';
@@ -57,7 +57,7 @@ export function ImportPanel({ cohorts }: { cohorts: AdminCohort[] }) {
     const f = e.dataTransfer.files?.[0];
     if (f) pick(f);
   };
-  const fail = (err: unknown) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger');
+  const fail = (err: unknown) => toast(apiErrorMessage(err, t), 'danger');
 
   const check = () => {
     if (!file) return;

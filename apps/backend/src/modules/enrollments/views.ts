@@ -35,5 +35,6 @@ export const requestItemSelect = {
   reviewNote: true,
   courseId: true,
   user: { select: { id: true, name: true, email: true, cohortId: true, selfRegisteredAt: true } },
-  languageVersion: { select: { id: true, language: true, title: true } },
+  // status — заявку на архивную версию можно только отклонить (одобрение → 409 VERSION_ARCHIVED)
+  languageVersion: { select: { id: true, language: true, title: true, status: true } },
 } satisfies Prisma.EnrollmentSelect;

@@ -9,10 +9,10 @@ import {
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, SegmentedControl, Select, Tabs, toast } from '../../components/ui';
 import { Icon } from '../../components/icons';
-import { PageHeader, LoadingRows, EmptyState, ErrorState } from '../../components/page';
+import { PageHeader, LoadingRows } from '../../components/page';
 import { IssueRow } from '../../components/staff/IssueRow';
 import { NoteDialog } from '../../components/staff/NoteDialog';
-import { Checkbox } from '../../components/staff/primitives';
+import { Checkbox, LoadError, QuietEmpty } from '../../components/staff/primitives';
 
 const STATUSES: (IssueStatus | 'ALL')[] = ['OPEN', 'RESOLVED', 'DISMISSED', 'ALL'];
 const TARGETS: IssueTarget[] = ['QUIZ_QUESTION', 'LECTURE', 'PRACTICAL_TASK', 'CHAT_MESSAGE'];
@@ -107,6 +107,12 @@ export function ContentIssuesPage() {
 
   const pendingCount = pending ? (pending.status === 'OPEN' ? pending.groups.reduce((s, g) => s + g.issueIds.length, 0) : pending.groups.reduce((s, g) => s + g.openIssueIds.length, 0)) : 0;
   const emptyTitle = status === 'OPEN' ? (origin === 'SYSTEM' ? t('issues.emptyOpenSystem') : t('issues.emptyOpen')) : t('issues.empty');
+  const emptyHint = t(`issues.emptyHintByStatus.${status}`);
+  const originOptions: { value: OriginFilter; label: string }[] = [
+    { value: 'ALL', label: t('issues.originAll') },
+    { value: 'STUDENT', label: t('issues.origin.STUDENT') },
+    { value: 'SYSTEM', label: t('issues.origin.SYSTEM') },
+  ];
 
   return (
     <>
@@ -121,6 +127,7 @@ export function ContentIssuesPage() {
 
       {/* Фильтры */}
       <div className="mb-5 space-y-3">
+        {/* Не помещаются на телефоне (kk) — Tabs сам прокручивается с маской у края и докручивает к выбранной */}
         <Tabs
           ariaLabel={t('issues.statusFilter')}
           value={status}
@@ -132,18 +139,21 @@ export function ContentIssuesPage() {
           }))}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <SegmentedControl
-            ariaLabel={t('issues.originFilter')}
-            tone="brand"
-            value={origin}
-            onChange={(v) => setParam('origin', v === 'ALL' ? '' : v)}
-            options={[
-              { value: 'ALL', label: t('issues.originAll') },
-              { value: 'STUDENT', label: t('issues.origin.STUDENT') },
-              { value: 'SYSTEM', label: t('issues.origin.SYSTEM') },
-            ]}
-            className="max-w-full overflow-x-auto"
-          />
+          {/* Телефон: список вместо сегментов — длинные kk-подписи не обрезаются */}
+          <Select aria-label={t('issues.originFilter')} className="w-full sm:hidden" value={origin} onChange={(e) => setParam('origin', e.target.value === 'ALL' ? '' : e.target.value)}>
+            {originOptions.map((o) => (
+              <option key={o.value} value={o.value}>{o.value === 'ALL' ? t('issues.originAllSelect') : o.label}</option>
+            ))}
+          </Select>
+          <div className="hidden sm:block">
+            <SegmentedControl
+              ariaLabel={t('issues.originFilter')}
+              tone="brand"
+              value={origin}
+              onChange={(v) => setParam('origin', v === 'ALL' ? '' : v)}
+              options={originOptions}
+            />
+          </div>
           <Select aria-label={t('issues.courseFilter')} className="w-full sm:w-64" value={courseId} onChange={(e) => setParam('courseId', e.target.value)}>
             <option value="">{t('issues.allCourses')}</option>
             {courseOptions.map((c) => (
@@ -196,12 +206,9 @@ export function ContentIssuesPage() {
       {q.isLoading ? (
         <LoadingRows rows={4} />
       ) : q.isError ? (
-        <div className="space-y-3 text-center">
-          <ErrorState message={apiErrorMessage(q.error, t)} />
-          <Button variant="secondary" onClick={() => void q.refetch()}>{t('common.retry')}</Button>
-        </div>
+        <LoadError error={q.error} onRetry={() => void q.refetch()} retrying={q.isFetching} />
       ) : groups.length === 0 ? (
-        <EmptyState title={emptyTitle} hint={status === 'OPEN' ? t('issues.emptyHint') : undefined} />
+        <QuietEmpty icon={status === 'RESOLVED' ? 'check' : 'inbox'} title={emptyTitle} hint={emptyHint} />
       ) : (
         <>
           <ul className="space-y-3">

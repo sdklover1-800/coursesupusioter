@@ -71,7 +71,7 @@ function CertificateItem({ cert: c }: { cert: Cert }) {
 
   return (
     <article className="card flex flex-col p-5">
-      <CertificatePreview title={c.course} holder={user?.name} serial={c.serialNumber} label={`${t('course.certificate.heading')}: ${c.course}`} />
+      <CertificatePreview title={c.course} holder={user?.name} label={`${t('course.certificate.heading')}: ${c.course}`} />
       <h2 className="mt-4 line-clamp-2 font-sans text-title" lang={c.language}>{c.course}</h2>
       <p className="mt-1 text-meta text-fg-2">
         {languageName(t, c.language)} · {t('certificate.issuedOn', { date: keepTogether(formatDate(c.issuedAt)) })}
@@ -128,9 +128,12 @@ function EmptyCertificates() {
           return (
             <li key={e.id} className="flex flex-col rounded-xl border border-border bg-surface/60 p-4">
               <h3 className="line-clamp-2 text-title" lang={e.languageVersion.language}>{e.languageVersion.title}</h3>
-              <p className="mt-1 text-meta text-fg-2">{languageName(t, e.languageVersion.language)}</p>
-              <div className="mt-3">
-                <MeterBar value={pct / 100} label={t('student.progress')} />
+              {/* Процент — в мета-строке, полоса без подписи (§8: ≤ 3 уровня текста) */}
+              <p className="mt-1 text-meta text-fg-2">
+                {languageName(t, e.languageVersion.language)} · {t('student.completePercent', { percent: pct })}
+              </p>
+              <div className="mt-3" aria-hidden>
+                <MeterBar value={pct / 100} />
               </div>
               {s.certificate.eligible ? (
                 <p className="mt-3 text-meta font-medium text-teal-ink">{t('certificate.allDone')}</p>

@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '../icons';
@@ -13,9 +13,18 @@ export interface TabItem<T extends string = string> {
   disabled?: boolean;
 }
 
+/** Градиент-маска у края прокрутки: вкладки продолжаются за краем (мобильные, длинные kk-подписи). */
+const TAB_FADE = '1.5rem';
+function edgeMask(start: boolean, end: boolean): CSSProperties | undefined {
+  if (!start && !end) return undefined;
+  const g = `linear-gradient(to right, ${start ? 'transparent' : '#000'} 0, #000 ${start ? TAB_FADE : '0px'}, #000 calc(100% - ${end ? TAB_FADE : '0px'}), ${end ? 'transparent' : '#000'} 100%)`;
+  return { maskImage: g, WebkitMaskImage: g };
+}
+
 /**
  * Вкладки WAI-ARIA: ←/→/Home/End переводят фокус и выбирают вкладку.
  * Панели — <TabPanel idPrefix=… id=…> с тем же idPrefix (связь aria-controls/labelledby).
+ * Не помещаются — прокрутка по горизонтали с маской у края; выбранная вкладка прокручивается в вид.
  */
 export function Tabs<T extends string>({
   tabs, value, onChange, ariaLabel, idPrefix, className, size = 'md',
@@ -31,7 +40,46 @@ export function Tabs<T extends string>({
   const auto = useId();
   const prefix = idPrefix ?? auto;
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ start: false, end: false });
   const enabled = tabs.map((tab, i) => ({ tab, i })).filter((x) => !x.tab.disabled);
+  const selectedIndex = tabs.findIndex((tab) => tab.id === value);
+
+  // Есть ли скрытые вкладки слева/справа: прокрутка, ресайз, смена подписей (язык)
+  const measure = () => {
+    const el = listRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const start = max > 1 && el.scrollLeft > 1;
+    const end = max > 1 && el.scrollLeft < max - 1;
+    setEdges((p) => (p.start === start && p.end === end ? p : { start, end }));
+  };
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', measure, { passive: true });
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', measure);
+      ro?.disconnect();
+    };
+    // measure читает только ref
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(measure);
+
+  // Выбранная вкладка — в видимую область (с запасом на маску); вертикальную прокрутку страницы не трогаем
+  useEffect(() => {
+    const list = listRef.current;
+    const el = refs.current[selectedIndex];
+    if (!list || !el || list.scrollWidth <= list.clientWidth) return;
+    const lr = list.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    const pad = 24;
+    if (er.left < lr.left + pad) list.scrollLeft -= lr.left + pad - er.left;
+    else if (er.right > lr.right - pad) list.scrollLeft += er.right - (lr.right - pad);
+  }, [selectedIndex]);
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, index: number) {
     const pos = enabled.findIndex((x) => x.i === index);
@@ -49,7 +97,13 @@ export function Tabs<T extends string>({
   }
 
   return (
-    <div role="tablist" aria-label={ariaLabel} className={clsx('flex gap-1 overflow-x-auto border-b border-border', className)}>
+    <div
+      ref={listRef}
+      role="tablist"
+      aria-label={ariaLabel}
+      className={clsx('flex gap-1 overflow-x-auto border-b border-border', className)}
+      style={edgeMask(edges.start, edges.end)}
+    >
       {tabs.map((tab, i) => {
         const selected = tab.id === value;
         return (
@@ -69,7 +123,8 @@ export function Tabs<T extends string>({
             onKeyDown={(e) => onKeyDown(e, i)}
             className={clsx(
               '-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-              size === 'sm' ? 'h-9 px-2.5 text-sm' : 'h-11 px-3 text-body',
+              // md: на мобильных px-2 — четыре вкладки лекции (ru) помещаются в 358px без прокрутки
+              size === 'sm' ? 'h-9 px-2.5 text-sm' : 'h-11 px-2 text-body sm:px-3',
               selected ? 'border-brand text-fg' : 'border-transparent text-fg-2 hover:text-fg',
             )}
           >

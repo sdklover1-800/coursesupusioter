@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { formatPercent } from '../../lib/format';
-import { optionLetter, type ItemStatRow } from '../../lib/staff';
+import { isLowN, optionLetter, type ItemStatRow } from '../../lib/staff';
 import { Icon } from '../icons';
 import { SampleSize } from './primitives';
 
@@ -11,17 +11,19 @@ const DISTRACTOR_FILLS = ['bg-brand/70', 'bg-border-strong', 'bg-muted/70', 'bg-
 /**
  * Трудность вопроса: p-value (доля верных среди показов; пропуск = неверно).
  * Метка словами — не только число (цвет не единственный носитель смысла).
+ * При малой выборке (n < 10, A16) вердикт «трудный/лёгкий» не ставим — только «мало данных».
  */
-export function pValueBand(p: number | null): 'none' | 'hard' | 'ok' | 'easy' {
+export function pValueBand(p: number | null, n?: number): 'none' | 'hard' | 'ok' | 'easy' {
   if (p === null) return 'none';
+  if (n !== undefined && isLowN(n)) return 'none';
   if (p < 0.3) return 'hard';
   if (p > 0.9) return 'easy';
   return 'ok';
 }
 
-export function PValue({ p, className }: { p: number | null; className?: string }) {
+export function PValue({ p, n, className }: { p: number | null; n?: number; className?: string }) {
   const { t } = useTranslation();
-  const band = pValueBand(p);
+  const band = pValueBand(p, n);
   return (
     <span className={clsx('inline-flex items-center gap-1.5 whitespace-nowrap', className)} title={t('manager.item.pHint')}>
       <span className="num text-small text-fg">p = {p === null ? '—' : p.toFixed(2)}</span>
@@ -70,7 +72,7 @@ export function ItemAnalysisPanel({ stat, options, correct }: { stat: ItemStatRo
         <h4 className="text-sm font-semibold text-fg">{t('manager.item.title')}</h4>
         {stat && (
           <div className="flex flex-wrap items-center gap-3">
-            <PValue p={stat.pValue} />
+            <PValue p={stat.pValue} n={stat.n} />
             <SampleSize n={stat.n} unit="answers" />
           </div>
         )}

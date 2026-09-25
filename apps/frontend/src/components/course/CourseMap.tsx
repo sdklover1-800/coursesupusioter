@@ -52,7 +52,8 @@ export function CourseMap({
               <span className={clsx('font-display text-display-md', started ? 'text-fg' : 'text-fg-2')} aria-hidden>
                 {romanOf(m.orderIndex)}
               </span>
-              <a href={`#module-${m.id}`} className="min-w-0 truncate rounded text-meta text-fg-2 hover:text-fg" title={m.title}>
+              {/* Название переносится, а не режется многоточием (kk длиннее на ~30%, §8) */}
+              <a href={`#module-${m.id}`} className="min-w-0 break-words rounded text-meta text-fg-2 hover:text-fg">
                 <span className="sr-only">{t('course.moduleNo', { roman: romanOf(m.orderIndex) })}: </span>
                 {cleanModuleTitle(m.title)}
               </a>

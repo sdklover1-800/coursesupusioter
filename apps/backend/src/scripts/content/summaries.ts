@@ -71,7 +71,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
   });
   art.rows.sort((a, b) => a.lang.localeCompare(b.lang) || a.lecture - b.lecture);
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path}`);
   if (art.meta.warnings.length) console.log(`Предупреждения:\n   ${art.meta.warnings.join('\n   ')}`);

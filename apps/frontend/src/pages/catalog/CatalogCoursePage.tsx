@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
@@ -6,7 +6,7 @@ import { Role } from '@edu/shared';
 import { ApiError } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import {
-  isApproved, pickVersion, useCancelRequest, useCatalogCourse, useMyCourses, useRequestEnrollment,
+  apiErrorText, byLangOrder, isApproved, pickVersion, useCancelRequest, useCatalogCourse, useMyCourses, useRequestEnrollment,
   type CatalogCourse, type CatalogVersion, type MyEnrollment,
 } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
@@ -102,7 +102,7 @@ export function CatalogCoursePage() {
           {course.versions.length > 1 && (
             <div role="radiogroup" aria-label={t('catalog.courseLanguage')} className="mb-6 flex flex-wrap items-center gap-2">
               <span className="eyebrow mr-1">{t('catalog.courseLanguage')}</span>
-              {course.versions.map((v) => {
+              {[...course.versions].sort((a, b) => byLangOrder(a.language, b.language)).map((v) => {
                 const active = v.id === version.id;
                 return (
                   <button
@@ -112,9 +112,10 @@ export function CatalogCoursePage() {
                     aria-checked={active}
                     lang={v.language}
                     onClick={() => setVersionId(v.id)}
+                    // Выбранный — белая заливка (spark — только тьютор и «далее», §1); 44px на телефоне (§4)
                     className={clsx(
-                      'min-h-[2.25rem] rounded-full px-3.5 py-1 text-label font-semibold transition-colors focus-visible:outline-spark',
-                      active ? 'bg-spark text-ink' : 'bg-white/[0.08] text-fg-2 hover:bg-white/15 hover:text-fg',
+                      'min-h-11 rounded-full px-3.5 py-1 text-label font-semibold transition-colors sm:min-h-[2.25rem]',
+                      active ? 'bg-white text-ink' : 'bg-white/[0.08] text-fg-2 hover:bg-white/15 hover:text-fg',
                     )}
                   >
                     {t(`languages.${v.language}`)}
@@ -208,14 +209,28 @@ function Included({
   hasMini: boolean;
 }) {
   const { t } = useTranslation();
-  const langs = course.versions.map((v) => t(`languages.${v.language}`)).join(', ');
-  const items: { key: string; icon: ReactNode; text: string; badge?: ReactNode }[] = [
+  // Названия языков — каждое со своим lang (скринридер читает «Қазақша» казахским голосом), казахский первым
+  const langCodes = [...new Set(course.versions.map((v) => v.language))].sort(byLangOrder);
+  const [langsBefore = '', langsAfter = ''] = t('catalog.incLanguages', { list: '\u0000' }).split('\u0000');
+  const langs = (
+    <>
+      {langsBefore}
+      {langCodes.map((l, i) => (
+        <Fragment key={l}>
+          {i > 0 && ', '}
+          <span lang={l}>{t(`languages.${l}`)}</span>
+        </Fragment>
+      ))}
+      {langsAfter}
+    </>
+  );
+  const items: { key: string; icon: ReactNode; text: ReactNode; badge?: ReactNode }[] = [
     { key: 'lectures', icon: <KindIcon kind="LECTURE" size={28} />, text: t('catalog.incLectures', { count: lectureCount }) },
     ...(hasMini ? [{ key: 'mini', icon: <KindIcon kind="MINI_QUIZ" size={28} />, text: t('catalog.inc.mini'), badge: <ModeBadge mode="practice" /> }] : []),
     ...(quizCount ? [{ key: 'quiz', icon: <KindIcon kind="MODULE_QUIZ" size={28} />, text: t('course.count.quizzes', { count: quizCount }), badge: <ModeBadge mode="graded" /> }] : []),
     ...(hasPractical ? [{ key: 'practical', icon: <KindIcon kind="PRACTICAL" size={28} />, text: t('catalog.inc.practical') }] : []),
     { key: 'certificate', icon: <KindIcon kind="CERTIFICATE" size={28} />, text: t('catalog.inc.certificate') },
-    { key: 'languages', icon: <span className="grid h-7 w-7 place-items-center rounded-md border border-border-strong text-fg-2"><Icon name="globe" size={16} /></span>, text: t('catalog.incLanguages', { list: langs }) },
+    { key: 'languages', icon: <span className="grid h-7 w-7 place-items-center rounded-md border border-border-strong text-fg-2"><Icon name="globe" size={16} /></span>, text: langs },
   ];
   return (
     <Card className="!p-5 sm:!p-6">
@@ -454,7 +469,7 @@ function ApplyPanel({ course, version, onVersionChange, enrollment }: {
   function submit() {
     request.mutate(version.id, {
       onSuccess: () => toast(t('catalog.applied'), 'teal'),
-      onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+      onError: (err) => toast(apiErrorText(t, err), 'danger'),
     });
   }
 
@@ -486,7 +501,9 @@ function ApplyPanel({ course, version, onVersionChange, enrollment }: {
         <label htmlFor="apply-lang" className="text-label font-semibold text-fg">{t('catalog.studyLanguage')}</label>
         {course.versions.length > 1 ? (
           <Select id="apply-lang" value={version.id} onChange={(e) => onVersionChange(e.target.value)}>
-            {course.versions.map((v) => <option key={v.id} value={v.id}>{t(`languages.${v.language}`)}</option>)}
+            {[...course.versions].sort((a, b) => byLangOrder(a.language, b.language)).map((v) => (
+              <option key={v.id} value={v.id} lang={v.language}>{t(`languages.${v.language}`)}</option>
+            ))}
           </Select>
         ) : (
           <div id="apply-lang" className="flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-body" lang={version.language}>
@@ -513,15 +530,15 @@ function PendingPanel({ enrollment }: { enrollment: MyEnrollment }) {
   function doCancel() {
     cancel.mutate(enrollment.id, {
       onSuccess: () => { toast(t('catalog.cancelled'), 'brand'); setConfirming(false); },
-      onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+      onError: (err) => toast(apiErrorText(t, err), 'danger'),
     });
   }
 
   return (
-    <Card className="border-spark/40 !p-5 sm:!p-6">
-      <span className="relative grid h-10 w-10 place-items-center rounded-full bg-spark/15 text-spark-ink" aria-hidden>
+    // Ожидание — brand, без пульса: spark — только тьютор и маркер «сейчас/далее» (§1)
+    <Card className="border-brand/30 !p-5 sm:!p-6">
+      <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-soft text-brand" aria-hidden>
         <Icon name="clock" size={20} />
-        <span className="absolute right-0 top-0 h-2.5 w-2.5 animate-pulse rounded-full bg-spark ring-2 ring-card" />
       </span>
       <h2 className="mt-3 font-sans text-title">{t('catalog.pendingTitle')}</h2>
       <p className="mt-2 text-body text-fg-2">{t('catalog.pendingText')}</p>

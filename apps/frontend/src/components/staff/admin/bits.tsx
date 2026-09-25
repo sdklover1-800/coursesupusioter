@@ -5,6 +5,7 @@ import type { TFunction } from 'i18next';
 import { Badge, Icon } from '../../ui';
 import { conditionTone, roleTone, toneOf } from '../../../lib/tones';
 import { LOW_N, type ConsentState } from '../../../lib/staffAdmin';
+import { LowDataMark } from '../primitives';
 
 /**
  * Мелкие общие элементы админ-экранов (FE5b). Подписи условий — ТОЛЬКО t('conditions.*'),
@@ -56,7 +57,10 @@ export function RoleBadge({ role, className }: { role: string; className?: strin
   );
 }
 
-/** Статус согласия: глиф + слово (+ версия моно-цифрами). Цвет не единственный носитель смысла. */
+/**
+ * Статус согласия: глиф + слово (+ «версия 2026-07-01» — именно версия документа, а не дата
+ * согласия: подпись словом, чтобы её не читали как «дал согласие 1 июля»). Цвет не единственный носитель смысла.
+ */
 export function ConsentMark({ state, version, compact }: { state: ConsentState; version?: string | null; compact?: boolean }) {
   const { t } = useTranslation();
   if (state === 'missing') {
@@ -69,27 +73,24 @@ export function ConsentMark({ state, version, compact }: { state: ConsentState; 
   }
   const given = state === 'given';
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+    <span className="inline-flex flex-col items-start gap-0.5">
       <span className={clsx('inline-flex items-center gap-1.5 font-medium', given ? 'text-teal-ink' : 'text-spark-ink')}>
         <Icon name={given ? 'check' : 'alert'} size={16} strokeWidth={2} />
         {t(`admin.consent.${state}`)}
       </span>
-      {version && !compact && <span className="num text-fg-2">{version}</span>}
+      {version && !compact && <span className="text-small text-fg-2">{t('admin.consent.version', { version })}</span>}
     </span>
   );
 }
 
-/** Метка «мало данных» (n < 10): слова + иконка, тон — нейтральный (это предупреждение, не ошибка). */
+/**
+ * Метка «мало данных» (n < 10) — тот же приглушённый вид, что у SampleSize на «Аналитике»
+ * (без амбер-плашки: амбер зарезервирован за тьютором, §1); подсказка — про базу обзора.
+ */
 export function LowNBadge({ n, className }: { n: number; className?: string }) {
   const { t } = useTranslation();
   if (n >= LOW_N) return null;
-  return (
-    <span title={t('admin.overviewPage.lowNHint')} className={clsx('inline-flex items-center gap-1 rounded-md bg-spark/15 px-2 py-0.5 text-small font-semibold text-spark-ink', className)}>
-      <Icon name="info" size={14} strokeWidth={2} />
-      {t('admin.overviewPage.lowN')}
-      <span className="sr-only">. {t('admin.overviewPage.lowNHint')}</span>
-    </span>
-  );
+  return <LowDataMark label={t('admin.overviewPage.lowN')} hint={t('admin.overviewPage.lowNHint')} className={className} />;
 }
 
 /** Заголовок столбца таблицы: слова — sentence case, 14px, fg-2 (§12: без моно-капса). */

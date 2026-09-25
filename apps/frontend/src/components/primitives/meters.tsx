@@ -2,6 +2,7 @@ import { clsx } from 'clsx';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RubricCriterion } from '@edu/shared';
+import { useFormat } from '../../lib/format';
 import { RUBRIC_ORDER, rubricTone, toneClasses } from '../../lib/tones';
 
 /* ── ProgressRing ───────────────────────────────────────── */
@@ -82,6 +83,7 @@ export function RubricBars({
   className?: string;
 }) {
   const { t } = useTranslation();
+  const { formatNumber } = useFormat();
   const map: Partial<Record<RubricCriterion, { score: number | null; line?: string | null }>> = {};
   if (Array.isArray(scores)) for (const s of scores) map[s.key] = { score: s.score, line: s.line };
   else for (const k of RUBRIC_ORDER) if (k in scores) map[k] = { score: scores[k] ?? null };
@@ -97,7 +99,7 @@ export function RubricBars({
             <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
               <span className="font-medium text-fg">{t(`ui.rubric.${k}`)}</span>
               <span className="num font-semibold text-fg">
-                {s === null || s === undefined ? '—' : s.toFixed(1)} <span className="text-fg-2">/ {max}</span>
+                {s === null || s === undefined ? '—' : formatNumber(s, 1)} <span className="text-fg-2">/ {max}</span>
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-border/60" aria-hidden>

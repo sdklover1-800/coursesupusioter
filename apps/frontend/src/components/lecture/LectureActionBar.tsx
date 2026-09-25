@@ -21,7 +21,7 @@ export interface NavTarget {
  * «Далее» — рекомендация: порядок изучения свободный (USER_DECISIONS §3).
  */
 export function LectureActionBar({
-  prev, completed, completing, onComplete, sections, activeSection, onSeekSection, next, outline, wide, className,
+  prev, completed, completing, onComplete, sections, activeSection, onSeekSection, next, outline, className,
 }: {
   prev: NavTarget | null;
   completed: boolean;
@@ -34,8 +34,6 @@ export function LectureActionBar({
   next: NavTarget;
   /** Кнопка «Содержание» (лист на планшете, раскрыть свёрнутый рельс на десктопе) */
   outline?: { onClick: () => void; expanded?: boolean; className?: string };
-  /** Сцена без рельса (или очень широкий экран): в «пилюле» помещается название раздела */
-  wide?: boolean;
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -66,17 +64,21 @@ export function LectureActionBar({
       )}
 
       {timed.length > 1 && (
+        // «Часть 3/7 · Легитимность ⌄»: с lg название главы занимает свободное место ряда и
+        // усекается многоточием. Сетка auto | minmax(0,1fr) | auto: минимум «пилюли» — счётчик
+        // и стрелка (min-w-min), название ряд не переносит (flex-basis 0)
         <Menu
           align="left"
+          className="min-w-min flex-[1_1_0%]"
           triggerLabel={`${t('lecture.sections')}: ${t('lecture.chapter', { k, n: timed.length })} · ${chapterHeading}`}
-          triggerClassName="!h-9 !rounded-xl border border-border bg-card px-3 hover:!bg-brand-soft/40"
+          triggerClassName="!flex !h-9 max-w-full !rounded-xl border border-border bg-card px-3 hover:!bg-brand-soft/40"
           trigger={
-            <span className="inline-flex max-w-[18rem] items-center gap-2 text-body font-medium text-fg">
-              <span className="shrink-0 text-fg-2">
+            <span className="grid max-w-[20rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-body font-medium text-fg">
+              <span className="col-start-1 whitespace-nowrap text-fg-2">
                 {t('lecture.chapterWord')} <span className="num">{k}/{timed.length}</span>
               </span>
-              <span className={clsx('truncate', wide ? 'hidden xl:inline' : 'hidden 2xl:inline')}>{chapterHeading}</span>
-              <Icon name="chevron-down" size={16} className="shrink-0 text-fg-2" />
+              {chapterHeading && <span className="col-start-2 hidden min-w-0 truncate lg:block">{chapterHeading}</span>}
+              <Icon name="chevron-down" size={16} className="col-start-3 text-fg-2" />
             </span>
           }
           items={timed.map((s, i) => ({

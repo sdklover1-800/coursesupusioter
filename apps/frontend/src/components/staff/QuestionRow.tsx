@@ -5,8 +5,8 @@ import { Difficulty, QuestionType } from '@edu/shared';
 import { Badge, Button, Field, Input, Select } from '../ui';
 import { Icon } from '../icons';
 import { authorshipTone } from '../../lib/tones';
-import { isValidTimecode, optionLetter, type EditQuestion, type ItemStatRow, type QuestionPatch } from '../../lib/staff';
-import { AutoTextarea, MetaChip } from './primitives';
+import { isLowN, isValidTimecode, optionLetter, type EditQuestion, type ItemStatRow, type QuestionPatch } from '../../lib/staff';
+import { AutoTextarea, MetaChip, SampleSize } from './primitives';
 import { ItemAnalysisPanel, PValue } from './ItemAnalysis';
 
 /* ── Черновик вопроса и патч (только изменённые поля) ── */
@@ -169,7 +169,9 @@ export function QuestionRow({
             {stat && stat.n > 0 && (
               <>
                 <span aria-hidden>·</span>
-                <PValue p={stat.pValue} />
+                {/* При n < 10 без вердикта «трудный/лёгкий» — рядом «n = … мало данных» (A16) */}
+                <PValue p={stat.pValue} n={stat.n} />
+                {isLowN(stat.n) && <SampleSize n={stat.n} unit="answers" />}
               </>
             )}
             {question.openIssueCount > 0 && (

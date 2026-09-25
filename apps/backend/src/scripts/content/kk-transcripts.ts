@@ -281,7 +281,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
       notes: t3.notes,
     },
   };
-  const path = writeArtifact(args.dataDir, ARTIFACT, artifact);
+  const path = writeArtifact(args.dataDir, ARTIFACT, artifact, { overwriteReviewed: args.has('--overwrite-reviewed') });
   console.log(`\nЧерновик: ${path}`);
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   // Читаемый предпросмотр: начало каждого раздела до/после.

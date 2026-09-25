@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { ADMITTED_ENROLLMENT_STATUSES, EnrollmentStatus, Role } from '@edu/shared';
+import { ADMITTED_ENROLLMENT_STATUSES, EnrollmentStatus, Role, type PublishStatus } from '@edu/shared';
 
 /**
  * Политика статусов записи на курс (заявки из каталога).
@@ -61,6 +61,15 @@ export function decideSelfRequest(existing: EnrollmentStatus | null): SelfReques
 export const APPROVABLE_STATUSES = [EnrollmentStatus.PENDING, EnrollmentStatus.REJECTED] as const;
 export function canApprove(status: EnrollmentStatus): boolean {
   return (APPROVABLE_STATUSES as readonly EnrollmentStatus[]).includes(status);
+}
+
+/**
+ * Одобрить заявку можно, пока её языковая версия не в архиве: архивная студентам
+ * недоступна навсегда, её заявку можно только отклонить. Снятая с публикации (DRAFT)
+ * — временно: одобрить можно, доступ откроется при повторной публикации.
+ */
+export function versionAllowsApproval(versionStatus: PublishStatus): boolean {
+  return versionStatus !== 'ARCHIVED';
 }
 
 /** Отклонить — только ожидающую; отменить (студент) — только свою ожидающую. */

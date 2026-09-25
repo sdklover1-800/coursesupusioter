@@ -21,7 +21,7 @@ import { logEvent, audit } from '../../telemetry/events.js';
 import { learnViewOptions, loadLearnInput, loadLearnInputs, recomputeProgress, recomputeProgressWithView } from './progress.service.js';
 import { loadOwnedEnrollment, assertLectureInEnrollment, assertEnrollmentAdmitted } from './access.js';
 import { buildCourseSummary, buildLearnView, lectureNeighbors, locateLecture } from './learn.view.js';
-import { languageLockState, matchParallelLectures, type ParallelModule } from './language.js';
+import { languageLockState, lockEnrollmentLanguage, matchParallelLectures, type ParallelModule } from './language.js';
 import { decideManagerEnroll, isAdmitted, languageSwitchDecision } from '../enrollments/policy.js';
 import { studentEnrollmentSelect } from '../enrollments/views.js';
 
@@ -204,7 +204,9 @@ export async function learnRoutes(app: FastifyInstance): Promise<void> {
 
     const now = new Date();
     const carriedLectures = await prisma.$transaction(async (tx) => {
-      // Проверка блокировки — в транзакции с переключением (узкое окно гонки с первой попыткой).
+      // Строка записи блокируется ДО проверки: старт оцениваемой попытки берёт ту же
+      // блокировку, поэтому проверка видит уже созданную попытку (гонки нет).
+      await lockEnrollmentLanguage(tx, id);
       const lock = await languageLockState(tx, id, env.LANGUAGE_LOCK);
       if (lock.locked) {
         throw Errors.coded(409, ApiErrorCode.LANGUAGE_LOCKED, 'Язык курса закреплён после первого оценивания', { reason: lock.reason });

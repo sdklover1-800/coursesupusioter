@@ -22,6 +22,7 @@ import { HealthChips } from '../../components/staff/HealthChips';
 import { LectureSheet } from '../../components/staff/LectureSheet';
 import { GenerateDialog } from '../../components/staff/GenerateDialog';
 import { MetaChip, Notice } from '../../components/staff/primitives';
+import { lectureDisplayTitle, moduleDisplayTitle } from '../../components/lecture/lectureUtils';
 
 const LANG_ORDER = LANGUAGES as readonly string[];
 
@@ -485,10 +486,11 @@ function ModuleCard({
                 className="min-w-0 text-left text-body font-medium text-fg hover:text-brand focus-visible:text-brand"
                 lang={version.language}
               >
-                {l.title}
+                {/* Номер уже в «Л5» слева — из названия «1. …» его убираем (одна нумерация, как у студента) */}
+                {lectureDisplayTitle(l.title)}
               </button>
               <div className="-mt-1 flex shrink-0 items-center gap-1">
-                <Button variant="ghost" size="sm" className="!px-2" onClick={() => onOpenLecture(l.id, null)} aria-label={`${t('common.edit')}: ${l.title}`}>
+                <Button variant="ghost" size="sm" className="!px-2" onClick={() => onOpenLecture(l.id, null)} aria-label={`${t('common.edit')}: ${lectureDisplayTitle(l.title)}`}>
                   <Icon name="pencil" size={18} />
                 </Button>
                 <Button
@@ -498,7 +500,7 @@ function ModuleCard({
                   disabled={published}
                   title={published ? lockHint : undefined}
                   onClick={() => onDeleteLecture(l)}
-                  aria-label={`${t('common.delete')}: ${l.title}`}
+                  aria-label={`${t('common.delete')}: ${lectureDisplayTitle(l.title)}`}
                 >
                   <Icon name="trash" size={18} />
                 </Button>
@@ -513,21 +515,25 @@ function ModuleCard({
         {module.quiz && (
           <Link
             to={`/manage/quiz/${module.quiz.id}?course=${course.id}`}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-semibold text-fg transition-colors hover:border-brand/50"
+            className="inline-flex max-w-full items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-semibold text-fg transition-colors hover:border-brand/50"
           >
-            <Icon name="diamond" size={16} />
-            {t('manager.quizEditor')}
-            <span className="font-normal text-fg-2">· {t('manager.count.questions', { count: module.quiz.questions.length })}</span>
+            <Icon name="diamond" size={16} className="mt-1" />
+            {/* Текст и уточнение — одним строчным блоком: на узком экране переносится как фраза, а не двумя колонками */}
+            <span className="min-w-0">
+              {t('manager.quizEditor')} <span className="font-normal text-fg-2">· {t('manager.count.questions', { count: module.quiz.questions.length })}</span>
+            </span>
           </Link>
         )}
         {module.practicalTask && (
           <Link
             to={`/manage/practical/${module.practicalTask.id}?course=${course.id}`}
-            className="inline-flex items-center gap-2 rounded-lg border border-spark-ink/30 bg-spark/10 px-3 py-2 text-body font-semibold text-fg transition-colors hover:border-spark-ink"
+            className="inline-flex max-w-full items-start gap-2 rounded-lg border border-spark-ink/30 bg-spark/10 px-3 py-2 text-body font-semibold text-fg transition-colors hover:border-spark-ink"
           >
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-spark font-display text-small font-bold text-ink" aria-hidden>?</span>
-            {t('manager.practicalEditor')}
-            {module.practicalTask.canonicalRef && <span className="font-normal text-fg-2">· {t('manager.canonicalShort')}</span>}
+            <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-spark font-display text-small font-bold text-ink" aria-hidden>?</span>
+            <span className="min-w-0">
+              {t('manager.practicalEditor')}
+              {module.practicalTask.canonicalRef && <> <span className="font-normal text-fg-2">· {t('manager.canonicalShort')}</span></>}
+            </span>
           </Link>
         )}
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -604,7 +610,8 @@ function ModuleTitle({ module, courseId, language }: { module: StaffModule; cour
   }
   return (
     <div className="flex items-start gap-1.5">
-      <h3 className="text-title" lang={language}>{module.title}</h3>
+      {/* Римский номер — в бейдже слева; «Раздел I.» из названия не повторяем (полное название — в поле правки) */}
+      <h3 className="text-title" lang={language}>{moduleDisplayTitle(module.title)}</h3>
       <button
         type="button"
         onClick={() => { setValue(module.title); setEditing(true); }}
@@ -628,7 +635,7 @@ function DeleteLectureDialog({ courseId, target, onClose }: { courseId: string; 
       title={t('manager.deleteLectureTitle', { n: target?.number ?? '' })}
       body={
         <span className="block space-y-2">
-          <span className="block font-medium text-fg">{target?.lecture.title}</span>
+          <span className="block font-medium text-fg">{target ? lectureDisplayTitle(target.lecture.title) : ''}</span>
           <span className="block">{t('manager.deleteLectureBody')}</span>
         </span>
       }
@@ -677,7 +684,7 @@ function StructureDialog({ open, version, numbers, onClose }: { open: boolean; v
                 <span className="grid h-7 min-w-[1.75rem] place-items-center rounded-md bg-ink px-1 font-display text-small font-semibold text-white dark:bg-fg dark:text-ink">
                   {romanNumeral(m.orderIndex)}
                 </span>
-                <h3 className="min-w-0 flex-1 font-semibold text-fg">{m.title}</h3>
+                <h3 className="min-w-0 flex-1 font-semibold text-fg">{moduleDisplayTitle(m.title)}</h3>
               </div>
               <ol className="mt-2 space-y-1.5 pl-9">
                 {[...m.lectures].sort((a, b) => a.orderIndex - b.orderIndex).map((l) => {
@@ -685,7 +692,7 @@ function StructureDialog({ open, version, numbers, onClose }: { open: boolean; v
                   return (
                     <li key={l.id} className="flex items-start gap-2 text-body text-fg">
                       <span className="num w-9 shrink-0 text-fg-2">{t('manager.lectureShort', { n: numbers.get(l.id) ?? '' })}</span>
-                      <span className="min-w-0 flex-1">{l.title}</span>
+                      <span className="min-w-0 flex-1">{lectureDisplayTitle(l.title)}</span>
                       {placeholder && (
                         <MetaChip icon="alert" tone="spark">{t('manager.health.videoPlaceholder')}</MetaChip>
                       )}

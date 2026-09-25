@@ -8,10 +8,46 @@ import {
   isNearCeiling,
   mapVerdict,
   passGate,
+  replyLimitTokenFloor,
   tutorReplyCounts,
   tutorWindow,
   TUTOR_WINDOW_STUDENT_TURNS,
 } from './rules.js';
+
+describe('replyLimitTokenFloor: потолок не обрывает многословного студента раньше лимита (FR-6.4)', () => {
+  // Размеры системных промптов канонического задания polisia-v1 (промпты mvp-2.1) и лимиты env.
+  const polisia = {
+    ru: { judgeSystemChars: 7764, tutorSystemChars: 3284, tutorMaxTokens: 200, tutorMaxChars: 600 },
+    kk: { judgeSystemChars: 7721, tutorSystemChars: 3654, tutorMaxTokens: 250, tutorMaxChars: 700 },
+    en: { judgeSystemChars: 8080, tutorSystemChars: 3316, tutorMaxTokens: 200, tutorMaxChars: 600 },
+  } as const;
+  // Замер 25.09 (gpt-5.4-mini): сырые токены судьи и тьютора за 24 хода при репликах ~1300–1450 символов.
+  const measured = { ru: 259_917, kk: 302_979, en: 216_841 };
+  const floor = (lang: keyof typeof polisia, over: Partial<Parameters<typeof replyLimitTokenFloor>[0]> = {}) =>
+    replyLimitTokenFloor({ maxAiMessages: 24, language: lang, maxStudentChars: 1500, judgeMaxTokens: 600, ...polisia[lang], ...over });
+
+  it('покрывает замеренную многословную сессию с запасом (замер ≤ 0.85 границы) — при текущих 160k/190k/120k она обрывалась на 17–18-м ходу', () => {
+    for (const lang of ['ru', 'kk', 'en'] as const) {
+      expect(measured[lang] / floor(lang)).toBeLessThanOrEqual(0.85);
+    }
+    expect(floor('ru')).toBeGreaterThan(160_000);
+    expect(floor('kk')).toBeGreaterThan(190_000);
+    expect(floor('en')).toBeGreaterThan(120_000);
+  });
+
+  it('с этой границей замеренная сессия доходит до лимита реплик, а не до потолка', () => {
+    const ceiling = Math.max(160_000, floor('ru'));
+    expect(decideTurnOutcome({ reached: false, aiMessageCount: 23, maxAiMessages: 24, tokensUsedBeforeTutor: measured.ru, tokenCeiling: ceiling })).toBe('CONTINUE');
+    expect(decideTurnOutcome({ reached: false, aiMessageCount: 24, maxAiMessages: 24, tokensUsedBeforeTutor: measured.ru, tokenCeiling: ceiling })).toBe('FAILED_LIMIT');
+  });
+
+  it('растёт с числом реплик и длиной реплики; без реплик — 0; неизвестный язык — как самый «плотный»', () => {
+    expect(floor('ru', { maxAiMessages: 30 })).toBeGreaterThan(floor('ru'));
+    expect(floor('ru', { maxStudentChars: 3000 })).toBeGreaterThan(floor('ru'));
+    expect(floor('ru', { maxAiMessages: 0 })).toBe(0);
+    expect(replyLimitTokenFloor({ maxAiMessages: 24, language: 'uz', maxStudentChars: 1500, judgeMaxTokens: 600, ...polisia.kk })).toBe(floor('kk'));
+  });
+});
 import { IntegrityFlagType } from '@edu/shared';
 
 describe('decideTurnOutcome (§5.4, FR-6.4)', () => {

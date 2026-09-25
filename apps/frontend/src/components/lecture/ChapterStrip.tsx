@@ -19,7 +19,10 @@ export function ChapterStrip({
   duration: number;
   currentTime: number;
   onSeek: (sec: number) => void;
-  /** stage — 6px с подсказками; mobile — 4px под липким плеером */
+  /**
+   * stage — 6px с подсказками; mobile — 4px под липким плеером: только указатель (вне порядка Tab
+   * и дерева доступности) — цель 12px меньше 44px (§4), а те же переходы дают таймкоды ▶ конспекта
+   */
   variant?: 'stage' | 'mobile';
   className?: string;
 }) {
@@ -31,7 +34,12 @@ export function ChapterStrip({
   const mobile = variant === 'mobile';
 
   return (
-    <div role="group" aria-label={t('lecture.chapterStrip')} className={clsx('flex w-full items-center', mobile ? 'gap-px' : 'gap-[2px]', className)}>
+    <div
+      role={mobile ? undefined : 'group'}
+      aria-label={mobile ? undefined : t('lecture.chapterStrip')}
+      aria-hidden={mobile || undefined}
+      className={clsx('flex w-full items-center', mobile ? 'gap-px' : 'gap-[2px]', className)}
+    >
       {timed.map((s, i) => {
         const start = s.startSec ?? 0;
         const end = Math.min(total, timed[i + 1]?.startSec ?? s.endSec ?? total);
@@ -47,6 +55,7 @@ export function ChapterStrip({
             key={s.index}
             type="button"
             onClick={() => onSeek(start)}
+            tabIndex={mobile ? -1 : undefined}
             aria-label={`${t('ui.seekTo', { time })} · ${heading}`}
             aria-current={isCurrent ? 'true' : undefined}
             className={clsx('group relative flex min-w-[6px] items-center focus-visible:outline-offset-4', mobile ? 'h-3' : 'h-6')}

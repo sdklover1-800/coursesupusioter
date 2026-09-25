@@ -11,6 +11,7 @@ import {
   RegenStrategy,
   LECTURE_SUMMARY_MAX_CHARS,
   PLACEHOLDER_VIDEO_ID,
+  type CourseHealthItem,
 } from '@edu/shared';
 import { prisma } from '../../lib/prisma.js';
 import { parse } from '../../lib/validate.js';
@@ -19,7 +20,7 @@ import { extractYoutubeId } from '../../lib/youtube.js';
 import { audit } from '../../telemetry/events.js';
 import { enqueueGeneration } from '../../generation/enqueue.js';
 import { llmRateLimit } from '../../plugins/rateLimits.js';
-import { courseStatusFrom, publishCheckInclude, publishProblems, publishWarnings, type SiblingVersion } from './publishValidation.js';
+import { courseStatusFrom, healthItemText, publishCheckInclude, publishProblemItems, publishWarningItems, type SiblingVersion } from './publishValidation.js';
 import { lectureTitleProblem } from './lectureTitle.js';
 
 const langEnum = z.enum(LANGUAGES);
@@ -106,6 +107,8 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
   // по лекции — мини-квиз, длина расшифровки, длительность, видео, краткое содержание;
   // по версии — итоговый мини-квиз, блокеры (problems), предупреждения (warnings) и
   // число открытых системных отметок на экспертную проверку (openReviewIssues).
+  // problems/warnings — русский текст; problemItems/warningItems — код + параметры
+  // для перевода на клиенте. Экспертная проверка в warnings не входит — у неё свой счётчик.
   app.get('/courses/:id', guard, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const course = await prisma.course.findUnique({ where: { id }, include: { languageVersions: { include: publishCheckInclude } } });
@@ -125,11 +128,15 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
         ...course,
         languageVersions: course.languageVersions.map((v) => {
           const openReviewIssues = openReview.get(v.id) ?? 0;
+          const problemItems = publishProblemItems(v);
+          const warningItems = publishWarningItems(v, siblings);
           return {
             ...v,
             finalMiniQuizId: v.finalMiniQuiz?.id ?? null,
-            problems: publishProblems(v),
-            warnings: publishWarnings(v, siblings, { openReviewIssues }),
+            problems: problemItems.map(healthItemText),
+            problemItems,
+            warnings: warningItems.map(healthItemText),
+            warningItems,
             openReviewIssues,
             modules: v.modules.map((m) => ({
               ...m,
@@ -329,7 +336,8 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
       },
     });
     if (!version) throw Errors.notFound('Версия не найдена');
-    return { version, warnings: await versionWarnings(id) };
+    const warningItems = await versionWarnings(id);
+    return { version, warnings: warningItems.map(healthItemText), warningItems };
   });
 
   // POST /language-versions/:id/publish — публикация с валидацией (FR-2.9, FR-3.5).
@@ -339,15 +347,18 @@ export async function courseRoutes(app: FastifyInstance): Promise<void> {
     if (!version) throw Errors.notFound('Версия не найдена');
 
     // Валидация перед публикацией (FR-2.9); предупреждения публикацию не блокируют
-    const problems = publishProblems(version);
-    const warnings = await versionWarnings(id);
-    if (problems.length > 0) throw Errors.validation('Версия не готова к публикации', { problems, warnings });
+    const problemItems = publishProblemItems(version);
+    const warningItems = await versionWarnings(id);
+    const warnings = warningItems.map(healthItemText);
+    if (problemItems.length > 0) {
+      throw Errors.validation('Версия не готова к публикации', { problems: problemItems.map(healthItemText), warnings, problemItems, warningItems });
+    }
 
     const updated = await prisma.courseLanguageVersion.update({ where: { id }, data: { status: 'PUBLISHED', publishedAt: new Date() } });
     // Курс становится PUBLISHED, если есть хотя бы одна опубликованная версия
     await syncCourseStatus(version.courseId);
     await audit({ actorId: req.user!.id, action: 'COURSE_PUBLISHED', targetType: 'CourseLanguageVersion', targetId: id, detail: { warnings: warnings.length } });
-    return { version: updated, warnings };
+    return { version: updated, warnings, warningItems };
   });
 
   // POST /language-versions/:id/unpublish — снятие с публикации (FR-2.7).
@@ -387,7 +398,7 @@ async function syncCourseStatus(courseId: string): Promise<void> {
 }
 
 /** Предупреждения публикации версии (с учётом параллельных версий и системных отметок). */
-async function versionWarnings(versionId: string): Promise<string[]> {
+async function versionWarnings(versionId: string): Promise<CourseHealthItem[]> {
   const version = await prisma.courseLanguageVersion.findUnique({ where: { id: versionId }, include: publishCheckInclude });
   if (!version) return [];
   const [siblings, openReviewIssues] = await Promise.all([
@@ -397,5 +408,5 @@ async function versionWarnings(versionId: string): Promise<string[]> {
     }),
     prisma.contentIssue.count({ where: { languageVersionId: versionId, origin: 'SYSTEM', status: 'OPEN' } }),
   ]);
-  return publishWarnings(version, siblings, { openReviewIssues });
+  return publishWarningItems(version, siblings, { openReviewIssues });
 }

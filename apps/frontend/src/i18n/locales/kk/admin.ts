@@ -329,7 +329,7 @@ export const admin: Loc<typeof ruAdmin> = {
   auditPage: {
     subtitle: 'Кім не өзгертті: қызметкерлердің әрекеттері және студенттердің негізгі қадамдары',
     anyAction: 'Барлық әрекеттер',
-    anyActor: 'Барлық қызметкерлер',
+    anyActor: 'Барлық пайдаланушылар',
     target: 'Нысан',
     anyTarget: 'Барлық нысандар',
     colDetail: 'Толығырақ',

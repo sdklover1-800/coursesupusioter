@@ -15,6 +15,7 @@ import {
   decideCohortOnApprove,
   COHORT_CONFIRM_MESSAGE,
   COHORTS_LOCKED_MESSAGE,
+  versionAllowsApproval,
 } from './policy.js';
 
 const ALL = Object.values(EnrollmentStatus);
@@ -60,6 +61,11 @@ describe('повторная подача заявки студентом', () =
 describe('рассмотрение заявки', () => {
   it('одобрить можно PENDING и REJECTED', () => {
     expect(ALL.filter(canApprove).sort()).toEqual(['PENDING', 'REJECTED']);
+  });
+  it('заявку на архивную версию одобрить нельзя (только отклонить); снятую с публикации — можно', () => {
+    expect(versionAllowsApproval('ARCHIVED')).toBe(false);
+    expect(versionAllowsApproval('PUBLISHED')).toBe(true);
+    expect(versionAllowsApproval('DRAFT')).toBe(true);
   });
   it('отклонить и отменить можно только PENDING', () => {
     expect(ALL.filter(canReject)).toEqual(['PENDING']);

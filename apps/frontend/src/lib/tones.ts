@@ -13,8 +13,8 @@ export type Tone = 'brand' | 'ink' | 'spark' | 'teal' | 'danger' | 'muted';
 /** Классы по тону: badge — тонированная плашка (*-ink текст), fill — заливка полос/точек, text — текст. */
 export const toneClasses: Record<Tone, { badge: string; fill: string; text: string; soft: string }> = {
   brand: { badge: 'bg-brand-soft text-brand', fill: 'bg-brand', text: 'text-brand', soft: 'bg-brand-soft' },
-  // «Чернильный» в тёмной теме почти сливается с фоном — заливки берут fg, плашка получает обводку
-  ink: { badge: 'bg-ink text-white dark:ring-1 dark:ring-inset dark:ring-border-strong', fill: 'bg-ink dark:bg-fg', text: 'text-fg', soft: 'bg-ink/8' },
+  // «Чернильный» в тёмной теме почти сливается с фоном (≈ 1.1:1) — заливки и плашка инвертируются в fg
+  ink: { badge: 'bg-ink text-white dark:bg-fg dark:text-ink', fill: 'bg-ink dark:bg-fg', text: 'text-fg', soft: 'bg-ink/8' },
   spark: { badge: 'bg-spark/15 text-spark-ink', fill: 'bg-spark', text: 'text-spark-ink', soft: 'bg-spark/15' },
   teal: { badge: 'bg-teal/12 text-teal-ink', fill: 'bg-teal', text: 'text-teal-ink', soft: 'bg-teal/12' },
   danger: { badge: 'bg-danger/12 text-danger-ink', fill: 'bg-danger', text: 'text-danger-ink', soft: 'bg-danger/12' },

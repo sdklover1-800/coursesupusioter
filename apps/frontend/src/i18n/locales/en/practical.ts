@@ -120,10 +120,11 @@ export const practical: Loc<typeof ruPractical> = {
       FAILED_CEILING: 'Technical session limit',
       ABANDONED: 'Session closed after inactivity',
     },
+    headlineFailed: 'Task not completed',
     reason: {
       PASSED: 'You reached a well-justified final conclusion.',
-      FAILED_LIMIT: 'Not passed: no final conclusion was stated within the reply budget.',
-      ENDED_BY_STUDENT: 'Not passed: a final conclusion had not yet formed when you finished.',
+      FAILED_LIMIT: 'The tutor replies ran out before a final conclusion was stated.',
+      ENDED_BY_STUDENT: 'You finished the dialogue before a final conclusion had formed.',
       FAILED_CEILING: 'The dialogue reached its technical size limit. If this was not your fault, tell your instructor.',
       ABANDONED: 'The dialogue was inactive for a long time, so the session closed automatically.',
     },

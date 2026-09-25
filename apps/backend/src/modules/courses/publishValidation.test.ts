@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { courseStatusFrom, publishProblems, publishWarnings, type VersionForPublish } from './publishValidation.js';
+import { courseStatusFrom, healthItemText, publishProblemItems, publishProblems, publishWarningItems, publishWarnings, ruTitlePrefixesFor, type VersionForPublish } from './publishValidation.js';
 
 /** Предупреждения публикации (не блокеры) и статус курса по версиям. */
 
-function version(lang: string, over: { quizQuestions?: number; quizTitle?: string; practicalTitle?: string; miniTitle?: string; durationSec?: number | null } = {}) {
+function version(lang: string, over: { quizQuestions?: number; quizTitle?: string; practicalTitle?: string; miniTitle?: string; lectureMiniTitle?: string; durationSec?: number | null; videoId?: string | null } = {}) {
   const q = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `q${i}` }));
   return {
     id: `v-${lang}`,
@@ -16,7 +16,11 @@ function version(lang: string, over: { quizQuestions?: number; quizTitle?: strin
         quiz: { title: over.quizTitle ?? 'Module test', questions: q(over.quizQuestions ?? 8) },
         practicalTask: null,
         lectures: [
-          { title: 'Лекция 1', youtubeVideoId: 'abcdefghijk', transcriptText: 'текст', durationSec: over.durationSec === undefined ? 1200 : over.durationSec, miniQuiz: null },
+          {
+            title: 'Лекция 1', youtubeVideoId: over.videoId === undefined ? 'abcdefghijk' : over.videoId, transcriptText: 'текст',
+            durationSec: over.durationSec === undefined ? 1200 : over.durationSec,
+            miniQuiz: over.lectureMiniTitle ? { id: 'mq1', title: over.lectureMiniTitle, _count: { questions: 3 } } : null,
+          },
         ],
       },
       {
@@ -51,11 +55,46 @@ describe('publishWarnings', () => {
     expect(publishWarnings(version('ru', { quizTitle: 'Тест: Власть' }), [])).toEqual([]);
   });
 
+  it('«Мини-квиз» в kk — казахский термин, не предупреждение; в en — русский префикс', () => {
+    const kk = version('kk', { lectureMiniTitle: 'Мини-квиз: 1. Саясаттану ғылым ретінде', miniTitle: 'Қорытынды мини-квиз', quizTitle: 'Бөлім тесті: I бөлім' });
+    expect(publishWarnings(kk, [])).toEqual([]);
+    const en = version('en', { lectureMiniTitle: 'Мини-квиз: 1. Political Science' });
+    expect(publishWarningItems(en, [])).toEqual([
+      { code: 'RU_TITLE_PREFIX', params: { kind: 'MINI_QUIZ', title: 'Мини-квиз: 1. Political Science', prefix: 'Мини-квиз', language: 'en' } },
+    ]);
+    // «Итоговый мини-квиз» и «Тест:» в kk по-прежнему русские
+    expect(ruTitlePrefixesFor('kk')).toEqual(['Тест:', 'Итоговый мини-квиз', 'Практическое задание']);
+    expect(ruTitlePrefixesFor('ru')).toEqual([]);
+  });
+
+  it('пункты — код + параметры для перевода на клиенте; русский текст совпадает со строкой', () => {
+    const kk = version('kk', { quizQuestions: 7 });
+    const items = publishWarningItems(version('ru'), [kk], { openReviewIssues: 2 });
+    expect(items).toEqual([
+      { code: 'QUESTION_COUNT_MISMATCH', params: { module: 'Модуль 1', count: 8, otherLanguage: 'kk', otherCount: 7 } },
+      { code: 'REVIEW_PENDING', params: { count: 2 } },
+    ]);
+    expect(items.map(healthItemText)).toEqual(publishWarnings(version('ru'), [kk], { openReviewIssues: 2 }));
+    expect(items.map(healthItemText)[0]).toBe('Модуль «Модуль 1»: вопросов в тесте — 8, а в версии KK — 7');
+  });
+
+  it('без openReviewIssues экспертная проверка в предупреждения не попадает (у редактора свой счётчик)', () => {
+    expect(publishWarningItems(version('ru'), [])).toEqual([]);
+  });
+
   it('лекции без длительности и открытые системные отметки', () => {
     const w = publishWarnings(version('ru', { durationSec: null }), [], { openReviewIssues: 3 });
     expect(w).toContain('Не задана длительность видео у 1 из 2 лекций — оставшееся время не рассчитывается');
     expect(w).toContain('3 вопроса ждут экспертной проверки');
     expect(publishWarnings(version('ru'), [], { openReviewIssues: 21 })).toEqual(['21 вопрос ждёт экспертной проверки']);
+  });
+});
+
+describe('publishProblemItems', () => {
+  it('блокер — код + параметры, текст для CLI прежний', () => {
+    const v = version('ru', { videoId: null });
+    expect(publishProblemItems(v)).toEqual([{ code: 'LECTURE_NO_VIDEO', params: { lecture: 'Лекция 1' } }]);
+    expect(publishProblems(v)).toEqual(['Лекция «Лекция 1»: не задано видео']);
   });
 });
 

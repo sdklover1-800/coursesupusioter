@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, Role, type Language } from '@edu/shared';
-import { ApiError } from '../../../lib/api';
+import { apiErrorMessage } from '../../../lib/staff';
 import { useCreateUser, type AdminCohort } from '../../../lib/staffAdmin';
 import { Button, Field, Input, Select, Sheet, toast } from '../../ui';
 import type { Credential } from './CredentialDialog';
@@ -51,7 +51,7 @@ export function UserCreateSheet({
           onCreated({ email: r.user.email, password: r.startPassword });
         },
         // Ошибка сервера (email занят и т. п.) — у поля, а не только тостом
-        onError: (err) => setError(err instanceof ApiError ? err.message : t('errors.generic')),
+        onError: (err) => setError(apiErrorMessage(err, t)),
       },
     );
   };

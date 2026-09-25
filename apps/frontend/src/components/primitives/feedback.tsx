@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Tone } from '../../lib/tones';
 import { Icon } from '../icons';
@@ -39,6 +39,26 @@ export function toast(msg: string, tone: Tone = 'brand', opts?: ToastOptions) {
   toastFn?.(msg, tone, opts);
 }
 
+/*
+ * Открытые модальные слои (Dialog/Sheet сообщают через useModalBehavior). Пока слой открыт,
+ * тосты уходят к верхнему краю: иначе на мобильных они ложатся на подвал нижнего листа
+ * (кнопка подтверждения под тостом не нажимается 4–8 с), а на десктопе — на подвал правой панели.
+ */
+let modalLayers = 0;
+const modalListeners = new Set<() => void>();
+export function setModalLayers(count: number) {
+  if (count === modalLayers) return;
+  modalLayers = count;
+  modalListeners.forEach((l) => l());
+}
+const subscribeModal = (l: () => void) => {
+  modalListeners.add(l);
+  return () => {
+    modalListeners.delete(l);
+  };
+};
+const getModalOpen = () => modalLayers > 0;
+
 const toneIcon: Partial<Record<Tone, { name: 'check' | 'alert' | 'info'; cls: string }>> = {
   teal: { name: 'check', cls: 'text-teal-ink' },
   danger: { name: 'alert', cls: 'text-danger-ink' },
@@ -48,6 +68,7 @@ const toneIcon: Partial<Record<Tone, { name: 'check' | 'alert' | 'info'; cls: st
 export function ToastHost() {
   const { t } = useTranslation();
   const [items, setItems] = useState<ToastItem[]>([]);
+  const overModal = useSyncExternalStore(subscribeModal, getModalOpen, getModalOpen);
   useEffect(() => {
     toastFn = (msg, tone = 'brand', opts) => {
       const id = Date.now() + Math.random();
@@ -60,9 +81,15 @@ export function ToastHost() {
   }, []);
   const dismiss = (id: number) => setItems((s) => s.filter((x) => x.id !== id));
   return (
-    // Над нижней панелью вкладок на мобильных (h-16 + safe area)
+    // Обычно — над нижней панелью вкладок на мобильных (h-16 + safe area) и справа внизу на десктопе;
+    // при открытом Dialog/Sheet — сверху по центру, чтобы не закрывать его кнопки
     <div
-      className="pointer-events-none fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-[60] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-4 sm:items-end lg:bottom-4"
+      className={clsx(
+        'pointer-events-none fixed z-[60] flex flex-col items-center gap-2',
+        overModal
+          ? 'inset-x-4 top-[calc(0.75rem+env(safe-area-inset-top,0px))]'
+          : 'inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:inset-x-auto sm:right-4 sm:items-end lg:bottom-4',
+      )}
       role="status"
       aria-live="polite"
     >

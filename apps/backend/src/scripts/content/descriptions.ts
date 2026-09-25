@@ -26,7 +26,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     console.log(`\n══ ${lang} «${v.title}» ══\n${art[lang]}`);
   }
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path} (НЕ применяется до согласования; meta.approved = false)`);
   return 0;

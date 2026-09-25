@@ -138,6 +138,54 @@ export function tutorWindow<T extends { role: string }>(lines: readonly T[], stu
   return [...lines];
 }
 
+/* ── Потолок не раньше лимита реплик (FR-6.4, A3) ───────────────── */
+
+/**
+ * Символов на токен по языку сессии — с занижением (токенов выходит больше, граница надёжнее).
+ * Замер 25.09 (gpt-5.4-mini, реплики ~1400 символов): ru ≈ 3,7–3,9; kk ≈ 3,3; en ≈ 4,0–4,8.
+ */
+export const CHARS_PER_TOKEN: Readonly<Record<string, number>> = { ru: 3.5, kk: 3.0, en: 3.8 };
+/** Обвязка транскрипта судьи: заголовок и строка «Последняя реплика студента…» — и метки ролей хода. */
+const TRANSCRIPT_FRAME_CHARS = 110;
+const TRANSCRIPT_TURN_LABEL_CHARS = 32;
+
+/**
+ * Нижняя граница токен-потолка: сырые токены основного судьи и тьютора (как считает потолок),
+ * которых хватает, чтобы студент, пишущий КАЖДУЮ реплику максимальной длины, получил все
+ * maxAiMessages ответов тьютора. Лимит реплик — основная метрика (FR-6.4), потолок — лишь
+ * предохранитель: он не должен обрывать многословного студента раньше лимита. Замер 25.09:
+ * реплики ~1400 символов упирались в 120k/160k/190k на 17–18-м ходу (нужно ~220k/260k/300k).
+ *
+ * Ход k: судья видит системный промпт и весь транскрипт (k реплик студента, k−1 тьютора),
+ * тьютор — системный промпт и окно последних W реплик студента. Сумма по k = N·(база хода)
+ * + G·(N(N−1)/2 + Σ(min(k, W)−1)), где G — прирост транскрипта за ход. Все величины — верхние
+ * оценки (реплика тьютора — по лимиту символов, вывод судьи — по JUDGE_MAX_TOKENS).
+ */
+export function replyLimitTokenFloor(p: {
+  maxAiMessages: number;
+  language: string;
+  judgeSystemChars: number;
+  tutorSystemChars: number;
+  maxStudentChars: number;
+  tutorMaxTokens: number;
+  tutorMaxChars: number;
+  judgeMaxTokens: number;
+  tutorWindowTurns?: number;
+}): number {
+  const cpt = CHARS_PER_TOKEN[p.language] ?? Math.min(...Object.values(CHARS_PER_TOKEN));
+  const tok = (chars: number) => Math.ceil(chars / cpt);
+  const n = Math.max(0, Math.floor(p.maxAiMessages));
+  const w = p.tutorWindowTurns ?? TUTOR_WINDOW_STUDENT_TURNS;
+  const student = tok(p.maxStudentChars);
+  const tutor = Math.min(p.tutorMaxTokens, tok(p.tutorMaxChars));
+  const growth = student + tutor + tok(TRANSCRIPT_TURN_LABEL_CHARS);
+  const judgeTurn = tok(p.judgeSystemChars) + tok(TRANSCRIPT_FRAME_CHARS) + student + p.judgeMaxTokens;
+  const tutorTurn = tok(p.tutorSystemChars) + student + tutor;
+  let windowGrowth = 0;
+  for (let k = 1; k <= n; k++) windowGrowth += Math.min(k, w) - 1;
+  return n * (judgeTurn + tutorTurn) + growth * ((n * (n - 1)) / 2 + windowGrowth);
+}
+
 /* ── Стоимость (A3) ─────────────────────────────────────────────── */
 
 export interface UsageTotals {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { ApiError } from '../../lib/api';
+import { apiErrorMessage } from '../../lib/staff';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import {
   EXPORT_FILENAMES, EXPORT_TYPES, courseTitle, downloadExport, useAdminCohorts, useCourseOptions,
@@ -33,7 +33,7 @@ export function ExportPage() {
   const exportM = useMutation({
     mutationFn: (type: ExportType) => downloadExport(type, filter),
     onSuccess: (_d, type) => toast(t('admin.exportPage.downloaded', { file: EXPORT_FILENAMES[type] }), 'teal'),
-    onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+    onError: (err) => toast(apiErrorMessage(err, t), 'danger'),
   });
 
   return (
@@ -129,7 +129,23 @@ export function ExportPage() {
                 </summary>
                 <div className="px-5 pb-5 sm:px-6">
                   {spec.newFrom !== undefined && <p className="mb-3 max-w-[70ch] text-body text-fg-2">{t('admin.exportPage.appended')}</p>}
-                  <div className="overflow-x-auto rounded-xl border border-border">
+                  {/* Телефон: список определений (имя столбца моно, описание под ним) */}
+                  <ol className="divide-y divide-border rounded-xl border border-border sm:hidden">
+                    {spec.columns.map(([col, key], i) => {
+                      const isNew = spec.newFrom !== undefined && i >= spec.newFrom;
+                      return (
+                        <li key={col} className={clsx('px-4 py-2.5', isNew && 'bg-brand-soft/25')}>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className="num text-fg-2">{i + 1}</span>
+                            <code className="min-w-0 break-all font-mono text-sm font-medium text-fg">{col}</code>
+                            {isNew && <Badge tone="brand">{t('admin.exportPage.newCol')}</Badge>}
+                          </div>
+                          <p className="mt-0.5 text-body text-fg-2">{t(`admin.exportPage.cols.${key}`)}</p>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                  <div className="hidden overflow-x-auto rounded-xl border border-border sm:block">
                     <table className="w-full min-w-[560px] text-body">
                       <thead className="border-b border-border bg-surface-2/60">
                         <tr>

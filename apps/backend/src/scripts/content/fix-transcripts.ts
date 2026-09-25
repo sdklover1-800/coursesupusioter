@@ -13,7 +13,10 @@
  *     и приклеенные к названию метаданные удаляются, СТРОКА НАЗВАНИЯ остаётся;
  *  6) хвосты «End of Lecture N» + повтор названия;
  *  7) «предложение на строку» (en-04, kk-04, kk-03, en-06..09, kk-07..09) → абзацы: склейка
- *     соседних строк раздела; заголовки, пункты списков и приложение не трогаются.
+ *     соседних строк раздела; заголовки, пункты списков и приложение не трогаются;
+ *  8) отдельная единица `heading:<код>` (свой ключ журнала — применяется и там, где 1–7 уже
+ *     прошли): русский заголовок «6-ЛЕКЦИЯ» / «10-ЛЕКЦИЯ» в первой строке kk-06 / kk-10 →
+ *     «№6 ДӘРІС» / «№10 ДӘРІС», как в остальных kk-лекциях; нет такой строки — пропуск (иной стенд).
  * Инвариант: число непробельных символов не меняется, кроме удалённых строк (они в отчёте
  * и в журнале; удалённые метаданные шапки читает backfill-durations.ts).
  *
@@ -21,6 +24,7 @@
  */
 import type { Language } from '@edu/shared';
 import {
+  type LectureCtx,
   APPENDIX_START_RE,
   COURSE_NAME_LINE_RE,
   END_TRAILER_RE,
@@ -44,6 +48,7 @@ import {
   timecodeRanges,
   writePreview,
 } from './lib.js';
+import { replaceFirstLine } from './revisions.js';
 
 const SCRIPT = 'fix-transcripts';
 
@@ -73,6 +78,12 @@ const EXPECTED: Record<string, Record<string, number>> = {
   'kk-07': { 'duplicate-section': 1 },
   'ru-12': { 'duplicate-paragraph': 1 },
   'en-09': { 'insert-header': 1 },
+};
+
+/** Русский заголовок первой строки kk-расшифровки (виден в плеере) → «№N ДӘРІС», как в kk-03/kk-04/kk-07. */
+const HEADING_FIXES: Record<string, { from: string; to: string }> = {
+  'kk-06': { from: '6-ЛЕКЦИЯ', to: '№6 ДӘРІС' },
+  'kk-10': { from: '10-ЛЕКЦИЯ', to: '№10 ДӘРІС' },
 };
 
 /** Дополнительные строки-«вложения» чата, не пойманные общими шаблонами (имя файла документа). */
@@ -321,12 +332,45 @@ function repairTranscript(code: string, text: string): Result {
   return r;
 }
 
+async function headingUnit(l: LectureCtx, code: string, pending: string | undefined, apply: boolean, report: Report, preview: unknown[]): Promise<void> {
+  const fix = HEADING_FIXES[code]!;
+  const unit = `heading:${code}`;
+  const key = ledgerKey(SCRIPT, unit);
+  if (await ledgerGet(prisma, key)) {
+    report.line(unit, 'skip', 'уже применено (журнал)');
+    return;
+  }
+  const cur = pending ?? (await prisma.lecture.findUniqueOrThrow({ where: { id: l.id }, select: { transcriptText: true } })).transcriptText;
+  const r = replaceFirstLine(cur, fix);
+  if (r.status !== 'apply') {
+    report.line(unit, 'skip', r.status === 'already' ? 'уже исправлено' : `первая строка «${r.first.slice(0, 40)}» — русского заголовка нет (иной стенд)`);
+    return;
+  }
+  const summary = `«${fix.from}» → «${fix.to}»`;
+  preview.push({ code: unit, ops: [summary] });
+  if (!apply) {
+    report.line(unit, 'would-change', summary);
+    return;
+  }
+  const beforeSha = sha256(cur);
+  const done = await prisma.$transaction(async (tx) => {
+    const row = await tx.lecture.findUniqueOrThrow({ where: { id: l.id }, select: { transcriptText: true } });
+    if (sha256(row.transcriptText) !== beforeSha || (await ledgerGet(tx, key))) return false;
+    await tx.lecture.update({ where: { id: l.id }, data: { transcriptText: r.text } });
+    await ledgerPut(tx, key, { lecture: code, from: fix.from, to: fix.to, beforeSha256: beforeSha, afterSha256: sha256(r.text) });
+    return true;
+  });
+  report.line(unit, done ? 'changed' : 'skip', done ? summary : 'расшифровка изменилась во время работы — повторите');
+}
+
 async function main(): Promise<number> {
   const args = parseArgs(SCRIPT);
   const only = args.get('--only')?.split(',').map((s) => s.trim());
   const report = new Report(SCRIPT, args.apply);
   const course = await loadCourse();
   const preview: unknown[] = [];
+  /** Предпросмотр: текст после ремонта 1–7 (ещё не записан) — от него считается шаг 8. */
+  const pendingText = new Map<string, string>();
 
   for (const lang of args.langs) {
     const v = course.versions[lang as Language];
@@ -353,6 +397,7 @@ async function main(): Promise<number> {
       const summary = `${res.ops.join(' · ')} · таймкодов ${timecodeRanges(res.text).length} · ${l.transcriptText.length}→${res.text.length} симв`;
       preview.push({ code, ops: res.ops, removed: res.removed, inserted: res.inserted, removedMeta: res.removedMeta, after: res.text });
       if (!args.apply) {
+        pendingText.set(code, res.text);
         report.line(code, 'would-change', summary);
         for (const x of res.removed.filter((x) => x.what !== 'meta')) console.log(`      − [${x.what}] ${x.text.replace(/\n/g, ' ⏎ ').slice(0, 140)}`);
         continue;
@@ -374,6 +419,15 @@ async function main(): Promise<number> {
         return true;
       });
       report.line(code, done ? 'changed' : 'skip', done ? summary : 'расшифровка изменилась во время работы — повторите');
+    }
+  }
+
+  // Шаг 8: заголовок kk-06/kk-10 — отдельная единица (после 1–7 в этом же прогоне).
+  for (const lang of args.langs) {
+    for (const l of course.versions[lang as Language]?.lectures ?? []) {
+      const code = lectureCode(lang, l.number);
+      if (!HEADING_FIXES[code] || (only && !only.includes(code))) continue;
+      await headingUnit(l, code, pendingText.get(code), args.apply, report, preview);
     }
   }
   console.log(`\n${report.summary()}`);

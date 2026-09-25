@@ -57,7 +57,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     art[lang] = portable;
   }
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path}`);
   for (const lang of args.langs) {

@@ -7,7 +7,6 @@ import { issueStatusTone } from '../../lib/tones';
 import { optionLetter, type IssueGroup } from '../../lib/staff';
 import { Badge, Button, buttonClass } from '../ui';
 import { Icon, type IconName } from '../icons';
-import { LangBadge } from '../enrollment';
 import { Checkbox, MetaChip } from './primitives';
 
 const TARGET_ICON: Record<IssueGroup['targetType'], IconName> = {
@@ -64,7 +63,10 @@ export function IssueRow({
   const isOpen = g.openIssueIds.length > 0;
   const href = issueEditorHref(g);
   const [top, ...rest] = g.reasons;
-  const originLabel = g.origin === 'SYSTEM' ? t('issues.origin.SYSTEM') : g.origin === 'MIXED' ? t('issues.origin.MIXED') : t('issues.origin.STUDENT');
+  // Происхождение уже видно по чипу причины (экспертная проверка / причина студента) и «сообщили N»;
+  // словами — только для смешанных групп. Служебный контекст CONTENT_PIPELINE у системных не дублируем.
+  const contexts = g.origin === 'SYSTEM' ? g.contexts.filter((c) => c !== 'CONTENT_PIPELINE') : g.contexts;
+  const singleReason = g.reasons.length === 1;
 
   return (
     <li className={clsx('card !rounded-xl p-4 transition-colors sm:p-5', selected && 'border-brand/50 bg-brand-soft/30')}>
@@ -73,18 +75,21 @@ export function IssueRow({
           <Checkbox checked={selected} disabled={!isOpen} onChange={onToggleSelect} label={t('issues.selectRow')} />
         </div>
         <div className="min-w-0 flex-1">
-          {/* Шапка: тип объекта · язык · происхождение · статус · дата */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-            <span className="inline-flex items-center gap-1.5 text-label text-fg-2">
-              <Icon name={TARGET_ICON[g.targetType]} size={16} />
-              {t(`issues.target.${g.targetType}`)}
-            </span>
-            {g.language && <LangBadge lang={g.language} />}
-            <MetaChip icon={g.origin === 'STUDENT' ? 'users' : 'flag'} tone={g.origin === 'STUDENT' ? 'plain' : 'spark'}>
-              {originLabel}
-            </MetaChip>
+          {/* Шапка — одна мета-строка «тип объекта · язык · дата» (язык словом, не чипом) + статус закрытой группы */}
+          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+            <p className="inline-flex min-w-0 items-start gap-1.5 text-meta text-fg-2">
+              <Icon name={TARGET_ICON[g.targetType]} size={16} className="mt-[3px]" />
+              <span>
+                {[
+                  t(`issues.target.${g.targetType}`),
+                  g.language ? t(`languages.${g.language}`, { defaultValue: g.language }) : null,
+                  formatDate(g.latestAt, 'datetime'),
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            </p>
             {!isOpen && <Badge tone={issueStatusTone[g.status] ?? 'muted'}>{t(`issues.status.${g.status}`)}</Badge>}
-            <span className="ml-auto whitespace-nowrap text-small text-fg-2">{formatDate(g.latestAt, 'datetime')}</span>
           </div>
 
           <Preview group={g} />
@@ -98,8 +103,9 @@ export function IssueRow({
               </MetaChip>
             )}
             {rest.length > 0 && <span>{rest.map((r) => `${reasonLabel(r.reason)}${r.count > 1 ? ` ×${r.count}` : ''}`).join(' · ')}</span>}
+            {g.origin === 'MIXED' && <span>{t('issues.origin.MIXED')}</span>}
             {g.reporterCount > 0 && <span>{t('issues.reporters', { count: g.reporterCount })}</span>}
-            {g.contexts.length > 0 && <span>{g.contexts.map((c) => t(`issues.context.${c}`, { defaultValue: c })).join(', ')}</span>}
+            {contexts.length > 0 && <span>{contexts.map((c) => t(`issues.context.${c}`, { defaultValue: c })).join(', ')}</span>}
           </div>
 
           {g.comments.length > 0 && (
@@ -107,7 +113,7 @@ export function IssueRow({
               {g.comments.map((c, i) => (
                 <li key={i} className="rounded-lg border-l-2 border-border-strong bg-surface px-3 py-1.5 text-body text-fg">
                   {c.text}
-                  <span className="ml-2 text-small text-fg-2">— {reasonLabel(c.reason)}, {formatDate(c.createdAt)}</span>
+                  <span className="ml-2 text-small text-fg-2">— {singleReason ? formatDate(c.createdAt) : `${reasonLabel(c.reason)}, ${formatDate(c.createdAt)}`}</span>
                 </li>
               ))}
             </ul>

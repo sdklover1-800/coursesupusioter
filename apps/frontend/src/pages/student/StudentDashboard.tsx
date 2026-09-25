@@ -2,9 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { ApiError } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
-import { isApproved, useCancelRequest, useMyCourses, type MyEnrollment } from '../../lib/catalog';
+import { apiErrorText, isApproved, useCancelRequest, useMyCourses, type MyEnrollment } from '../../lib/catalog';
 import { routes, useLearnView } from '../../lib/learn';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -46,7 +45,7 @@ export function StudentDashboard() {
         <DashboardSkeleton />
       ) : isError ? (
         <div className="mt-6 space-y-3 text-center">
-          <ErrorState message={error instanceof ApiError ? error.message : t('errors.generic')} />
+          <ErrorState message={apiErrorText(t, error)} />
           <Button variant="secondary" onClick={() => void refetch()}>{t('common.retry')}</Button>
         </div>
       ) : !items.length ? (
@@ -177,7 +176,7 @@ function MyCourseCard({ e }: { e: MyEnrollment }) {
       : e.status === 'COMPLETED'
         ? { tone: 'teal', glyph: <Icon name="check" size={14} strokeWidth={2.5} />, text: t('student.status.COMPLETED') }
         : pct > 0
-          ? { tone: 'brand', glyph: <StatusIcon state="IN_PROGRESS" progress={pct / 100} size={14} label="" />, text: t('student.status.ACTIVE') }
+          ? { tone: 'brand', glyph: <StatusIcon state="IN_PROGRESS" progress={pct / 100} size={14} label="" />, text: `${t('student.status.ACTIVE')} · ${pct}%` }
           : { tone: 'muted', glyph: <StatusIcon state="NOT_STARTED" size={14} label="" />, text: t('student.status.NOT_STARTED') };
   const href = routes.course(e.courseId, e.id);
 
@@ -201,8 +200,9 @@ function MyCourseCard({ e }: { e: MyEnrollment }) {
       {unavailable ? (
         <p className="mt-4 text-meta text-fg-2">{t('student.unavailableHint')}</p>
       ) : (
-        <div className="mt-4">
-          <MeterBar value={pct / 100} tone={e.status === 'COMPLETED' ? 'teal' : 'brand'} label={t('student.progress')} />
+        // Полоса без подписи «Прогресс · 20%» (§8: ≤ 3 уровня текста) — процент в статусе, имя — для скринридера
+        <div className="mt-4" role="img" aria-label={t('student.courseProgress', { value: pct })}>
+          <MeterBar value={pct / 100} tone={e.status === 'COMPLETED' ? 'teal' : 'brand'} />
         </div>
       )}
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
@@ -232,7 +232,7 @@ function RequestCard({ e }: { e: MyEnrollment }) {
   function doCancel() {
     cancel.mutate(e.id, {
       onSuccess: () => toast(t('catalog.cancelled'), 'brand'),
-      onError: (err) => toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger'),
+      onError: (err) => toast(apiErrorText(t, err), 'danger'),
     });
   }
 
@@ -242,7 +242,7 @@ function RequestCard({ e }: { e: MyEnrollment }) {
       : t('requests.reviewedOn', { date: formatDate(e.reviewedAt) });
 
   return (
-    <Card className={clsx('flex flex-col !p-5', pending && 'border-spark/40')}>
+    <Card className={clsx('flex flex-col !p-5', pending && 'border-brand/30')}>
       {/* Телефон: статус над названием — узкая колонка рядом с плашкой рвала бы название на 3–4 строки */}
       <div className="flex flex-col-reverse items-start gap-2 sm:flex-row sm:justify-between sm:gap-3">
         <h3 className="min-w-0 text-title" lang={e.languageVersion.language}>

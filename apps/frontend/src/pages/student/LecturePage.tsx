@@ -30,7 +30,7 @@ import { EndOfLectureOverlay } from '../../components/lecture/EndOfLectureOverla
 import { ContentTabs, TermsList, type LectureTab } from '../../components/lecture/ContentTabs';
 import { KeyboardHelp } from '../../components/lecture/KeyboardHelp';
 import {
-  isTypingTarget, lectureDisplayTitle, moduleDisplayTitle, moduleRoman, prefersReducedMotion, readFlag, targetLabel, writeFlag,
+  isTypingTarget, lectureDisplayTitle, moduleRoman, prefersReducedMotion, readFlag, targetLabel, writeFlag,
 } from '../../components/lecture/lectureUtils';
 
 /**
@@ -334,7 +334,8 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
   const crumbs = [
     { label: t('nav.myCourses'), to: routes.home() },
     ...(view?.version?.title ? [{ label: view.version.title, to: routes.course(courseId, enrollmentId) }] : []),
-    { label: `${roman}. ${moduleDisplayTitle(lecture.module.title)}`, to: routes.course(courseId, enrollmentId) },
+    // Короткая метка модуля: полное название (особенно kk) обрезалось бы многоточием посреди слова (§8)
+    { label: t('lecture.moduleN', { roman }), to: routes.course(courseId, enrollmentId) },
     { label: t('lecture.lectureN', { n: lecture.lectureNumber }) },
   ];
 
@@ -410,7 +411,6 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
               onSeekSection={seekSection}
               next={nextTarget}
               outline={{ onClick: onOutlineButton, expanded: sheetOpen, className: railOpen ? 'xl:hidden' : undefined }}
-              wide={!railOpen}
             />
           </div>
           {railOpen && (
@@ -501,7 +501,11 @@ function LectureScreen({ lecture, courseId, enrollmentId }: { lecture: LectureVi
                 </div>
               ) : null,
               mini: (
-                <div id="mini-quiz" className="scroll-mt-24">
+                <div
+                  id="mini-quiz"
+                  // Телефон: плеер 16:9 с полосой разделов липнет сверху — якорь ниже его высоты
+                  className={clsx('scroll-mt-24', !readingMode && 'max-sm:scroll-mt-[calc(56.25vw+1.5rem+env(safe-area-inset-top,0px))]')}
+                >
                   {hasMini ? (
                     <MiniQuiz url={`/lectures/${lecture.id}/mini-quiz`} enrollmentId={enrollmentId} />
                   ) : (

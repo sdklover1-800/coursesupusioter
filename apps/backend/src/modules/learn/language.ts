@@ -45,6 +45,22 @@ export async function languageLockState(db: LanguageLockDb, enrollmentId: string
   return lockFromActivity({ gradedAttempt: false, practicalReply: !!reply }, mode);
 }
 
+/** Клиент транзакции — нужен только сырой запрос блокировки строки. */
+export type EnrollmentLockDb = Pick<Prisma.TransactionClient, '$queryRaw'>;
+
+/**
+ * Блокирует строку записи до конца транзакции (SELECT … FOR UPDATE) и возвращает её
+ * ТЕКУЩУЮ языковую версию (null — записи нет). Старт оцениваемой попытки и смена языка
+ * берут эту блокировку первой же командой своих транзакций и потому сериализуются:
+ * смена языка видит только что созданную попытку (→ LANGUAGE_LOCKED), а старт —
+ * уже сменённую версию (→ отказ), без «узкого окна» между проверкой и записью.
+ */
+export async function lockEnrollmentLanguage(db: EnrollmentLockDb, enrollmentId: string): Promise<string | null> {
+  const rows = await db.$queryRaw<{ languageVersionId: string }[]>`
+    SELECT "languageVersionId" FROM "Enrollment" WHERE "id" = ${enrollmentId} FOR UPDATE`;
+  return rows[0]?.languageVersionId ?? null;
+}
+
 /** Модуль с лекциями — вход сопоставления параллельных версий. */
 export interface ParallelModule {
   orderIndex: number;

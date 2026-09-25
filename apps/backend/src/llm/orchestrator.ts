@@ -39,6 +39,7 @@ import {
   isNearCeiling,
   mapVerdict,
   passGate,
+  replyLimitTokenFloor,
   tutorReplyCounts,
   tutorWindow,
   type FallbackCause,
@@ -94,6 +95,24 @@ export const FALLBACK_QUESTION: Record<Language, string> = {
 export function fallbackQuestion(language: Language): string {
   return FALLBACK_QUESTION[language] ?? FALLBACK_QUESTION.ru;
 }
+
+/**
+ * Первая реплика тьютора, если у задания нет своего вступления (introMessage): приветствие и
+ * один открывающий вопрос без подсказки по содержанию. Сценарий целиком не дублируется — он в
+ * «Задании» (панель на десктопе, лист на мобильном). Служебная строка: судье и тьютору не
+ * пересылается (transcriptFor), их вход тот же, что при калибровке.
+ */
+export const OPENING_MESSAGE: Record<Language, string> = {
+  kk: 'Сәлеметсіз бе! Тапсырманың шарты «Тапсырма» бөлімінде әрдайым ашық. Осы жағдайды талдауды неден бастайсыз?',
+  ru: 'Здравствуйте! Условие всегда открыто в разделе «Задание». С чего вы начнёте разбор этой ситуации?',
+  en: 'Hello! The task is always available under “Task”. Where would you start your analysis of this situation?',
+};
+
+export function openingMessage(language: Language): string {
+  return OPENING_MESSAGE[language] ?? OPENING_MESSAGE.ru;
+}
+
+const OPENING_TEXTS = new Set(Object.values(OPENING_MESSAGE));
 
 export type Rubric = { key_points: string[]; answer_reached_criteria: string };
 
@@ -241,6 +260,32 @@ export function taskSnapshotOf(task: PracticalTask): PracticalTaskSnapshot {
   };
 }
 
+/**
+ * Нижняя граница токен-потолка сессии (rules.replyLimitTokenFloor) по фактическим системным
+ * промптам судьи и тьютора этого задания: многословный студент получает все maxAiMessages
+ * ответов тьютора раньше, чем сработает предохранитель.
+ */
+export function sessionTokenFloor(ctx: DialogContext, maxAiMessages: number): number {
+  const judgeSystem = judgeSystemPrompt({
+    language: ctx.language,
+    scenario: ctx.scenario,
+    referenceSolution: ctx.referenceSolution,
+    rubricKeyPoints: ctx.rubric.key_points,
+    answerReachedCriteria: ctx.rubric.answer_reached_criteria,
+  });
+  const tutorSystem = tutorSystemPrompt({ language: ctx.language, difficulty: ctx.difficulty, scenario: ctx.scenario, sections: ctx.sections });
+  return replyLimitTokenFloor({
+    maxAiMessages,
+    language: ctx.language,
+    judgeSystemChars: judgeSystem.length,
+    tutorSystemChars: tutorSystem.length,
+    maxStudentChars: env.MAX_STUDENT_MESSAGE_CHARS,
+    tutorMaxTokens: ctx.language === 'kk' ? env.TUTOR_MAX_TOKENS_KK : env.TUTOR_MAX_TOKENS,
+    tutorMaxChars: ctx.maxChars,
+    judgeMaxTokens: env.JUDGE_MAX_TOKENS,
+  });
+}
+
 /** Техническая ошибка хода: статус не меняется, лимит не расходуется, вердикта нет (§5.7, A4). */
 const technical = (msg: string) => Errors.upstream(msg);
 
@@ -255,12 +300,16 @@ export interface DialogMessage {
   content: string;
 }
 
-/** Транскрипт для судьи: без SYSTEM; вводная реплика = сценарию не дублируется (он в system). */
+/**
+ * Транскрипт для судьи и тьютора: без SYSTEM; вводная реплика, равная сценарию (он в system) или
+ * стандартному приветствию OPENING_MESSAGE, не пересылается.
+ */
 export function transcriptFor(history: readonly DialogMessage[], scenario: string): TranscriptLine[] {
   const lines = history
     .filter((m) => m.role === 'AI' || m.role === 'STUDENT')
     .map((m) => ({ role: m.role as 'AI' | 'STUDENT', content: m.content }));
-  if (lines[0]?.role === 'AI' && lines[0].content.trim() === scenario.trim()) lines.shift();
+  const first = lines[0];
+  if (first?.role === 'AI' && (first.content.trim() === scenario.trim() || OPENING_TEXTS.has(first.content.trim()))) lines.shift();
   return lines;
 }
 
@@ -576,9 +625,14 @@ export class SocraticOrchestrator {
       },
     });
 
-    // Первая реплика тьютора: вступление задания, иначе — сам сценарий (виден студенту).
+    // Первая реплика тьютора: вступление задания, иначе — стандартное приветствие с открывающим
+    // вопросом на языке версии (сценарий не дублируется: он в «Задании»).
+    const language = (await prisma.module.findUnique({
+      where: { id: params.task.moduleId },
+      select: { languageVersion: { select: { language: true } } },
+    }))?.languageVersion.language as Language | undefined;
     await prisma.chatMessage.create({
-      data: { sessionId: session.id, role: 'AI', content: params.task.introMessage?.trim() || params.task.scenarioPrompt },
+      data: { sessionId: session.id, role: 'AI', content: params.task.introMessage?.trim() || openingMessage(language ?? 'ru') },
     });
 
     await logEvent({
@@ -905,7 +959,7 @@ export class SocraticOrchestrator {
       orderBy: { orderIndex: 'asc' },
       select: { title: true },
     });
-    return {
+    const ctx: DialogContext = {
       language,
       difficulty: task.difficulty as Difficulty,
       scenario: snapshot?.scenarioPrompt ?? task.scenarioPrompt,
@@ -916,6 +970,9 @@ export class SocraticOrchestrator {
       tokenCeiling: task.tokenBudget > 0 ? task.tokenBudget : tokenCeilingFor(language),
       maxChars: language === 'kk' ? env.TUTOR_MESSAGE_MAX_CHARS_KK : TUTOR_MESSAGE_MAX_CHARS,
     };
+    // …но не ниже того, что нужно на все ответы тьютора при репликах максимальной длины (FR-6.4).
+    ctx.tokenCeiling = Math.max(ctx.tokenCeiling, sessionTokenFloor(ctx, session.maxAiMessages));
+    return ctx;
   }
 
   /** Завершение сессии: вердикт, код, причина, агрегат рубрики, фоновая итоговая оценка. */

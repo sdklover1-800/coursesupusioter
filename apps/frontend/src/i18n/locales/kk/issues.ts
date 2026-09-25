@@ -10,13 +10,15 @@ export const issues: Loc<typeof ruIssues> = {
   statusTab: { OPEN: 'Ашық', RESOLVED: 'Шешілген', DISMISSED: 'Қабылданбаған', ALL: 'Барлығы' },
   status: { OPEN: 'Ашық', RESOLVED: 'Шешілді', DISMISSED: 'Қабылданбады' },
   originAll: 'Барлығы',
+  // Пункт «все» в списке-фильтре на телефоне (в сегментах хватает короткого «Все»)
+  originAllSelect: 'Барлық дереккөз',
   origin: { STUDENT: 'Студенттерден', SYSTEM: 'Сараптамалық тексеру', MIXED: 'Студенттер және сараптамалық тексеру' },
   allCourses: 'Барлық курс', allLanguages: 'Барлық тіл', allTargets: 'Барлық нысан',
   target: { QUIZ_QUESTION: 'Тест сұрағы', LECTURE: 'Дәріс', PRACTICAL_TASK: 'Практикалық тапсырма', CHAT_MESSAGE: 'Практикумдағы сөз' },
   reason: { EXPERT_REVIEW: 'Сараптамалық тексеру', NATIVE_PROOFREAD: 'Тіл иесінің оқып шығуы', FACT_CHECK: 'Фактілерді тексеру' },
   context: {
     PRACTICE: 'жаттығу', REVIEW: 'талдау', OFFICIAL: 'ресми әрекет', PRACTICAL: 'практикум',
-    LECTURE: 'дәріс', CONTENT_PIPELINE: 'контент-скрипт',
+    LECTURE: 'дәріс', CONTENT_PIPELINE: 'жүйе',
   },
   reporters_one: '{{count}} студент хабарлады', reporters_other: '{{count}} студент хабарлады',
   key: 'кілт', roleTutor: 'Тьютордың сөзі', roleStudent: 'Студенттің сөзі',
@@ -28,7 +30,12 @@ export const issues: Loc<typeof ruIssues> = {
   selected_one: '{{count}} топ таңдалды ({{issues}} хабарлама)', selected_other: '{{count}} топ таңдалды ({{issues}} хабарлама)',
   loadMore: 'Тағы көрсету',
   emptyOpen: 'Ашық хабарламалар жоқ', emptyOpenSystem: 'Барлығын сарапшы тексерді', empty: 'Хабарламалар жоқ',
-  emptyHint: 'Студенттер қате туралы хабарлағанда немесе контент-скрипт материалдарды тексеруге белгілегенде, олар осында пайда болады.',
+  emptyHintByStatus: {
+    OPEN: 'Студенттер қате туралы хабарлағанда немесе материалдар сараптамалық тексеруге белгіленгенде, хабарламалар осында пайда болады.',
+    RESOLVED: 'Шешілді деп белгіленген хабарламалар осында көрсетіледі.',
+    DISMISSED: 'Қабылданбаған хабарламалар осында көрсетіледі — кез келгенін қайта жұмысқа алуға болады.',
+    ALL: 'Әзірге хабарлама жоқ. Сүзгілер таңдалса, курсты, тілді немесе нысанды өзгертіп көріңіз.',
+  },
   noteLabel: 'Ескертпе (міндетті емес)', noteHint: 'Қызметкерлерге және аудит журналында көрінеді; студентке жіберілмейді.',
   confirm: {
     RESOLVED: {

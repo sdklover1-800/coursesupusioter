@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PublicUser } from '@edu/shared';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { safeNext } from '../lib/catalog';
+import { apiErrorText, safeNext } from '../lib/catalog';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { Button, Card, Icon, type IconName } from '../components/ui';
 import { LanguageSwitcher, LogoMark, ThemeToggle } from '../components/AppShell';
@@ -53,7 +53,7 @@ export function ConsentPage() {
       setUser(updated);
       navigate(next, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError && err.status !== 409 ? err.message : t('consent.acceptError'));
+      setError(err instanceof ApiError && err.status === 409 ? t('consent.acceptError') : apiErrorText(t, err, 'consent.acceptError'));
     } finally {
       setLoading(false);
     }

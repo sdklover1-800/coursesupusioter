@@ -105,8 +105,10 @@ async function tryRefresh(): Promise<boolean> {
     refreshPromise = (async () => {
       try {
         const res = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-        if (!res.ok) return false;
-        const data = (await res.json()) as { accessToken: string };
+        // «Сессии нет» может прийти и без ошибки (204 или 200 без accessToken) — это тоже не вход
+        if (!res.ok || res.status === 204) return false;
+        const data = (await res.json()) as { accessToken?: unknown };
+        if (typeof data.accessToken !== 'string' || !data.accessToken) return false;
         setAccessToken(data.accessToken);
         return true;
       } catch {

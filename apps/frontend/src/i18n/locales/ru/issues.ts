@@ -7,13 +7,15 @@ export const issues = {
   statusTab: { OPEN: 'Открытые', RESOLVED: 'Решённые', DISMISSED: 'Отклонённые', ALL: 'Все' },
   status: { OPEN: 'Открыто', RESOLVED: 'Решено', DISMISSED: 'Отклонено' },
   originAll: 'Все',
+  // Пункт «все» в списке-фильтре на телефоне (в сегментах хватает короткого «Все»)
+  originAllSelect: 'Все источники',
   origin: { STUDENT: 'От студентов', SYSTEM: 'Экспертная проверка', MIXED: 'Студенты и экспертная проверка' },
   allCourses: 'Все курсы', allLanguages: 'Все языки', allTargets: 'Все объекты',
   target: { QUIZ_QUESTION: 'Вопрос теста', LECTURE: 'Лекция', PRACTICAL_TASK: 'Практическое задание', CHAT_MESSAGE: 'Реплика в практикуме' },
   reason: { EXPERT_REVIEW: 'Экспертная проверка', NATIVE_PROOFREAD: 'Вычитка носителем языка', FACT_CHECK: 'Проверка фактов' },
   context: {
     PRACTICE: 'тренировка', REVIEW: 'разбор', OFFICIAL: 'официальная попытка', PRACTICAL: 'практикум',
-    LECTURE: 'лекция', CONTENT_PIPELINE: 'контент-скрипт',
+    LECTURE: 'лекция', CONTENT_PIPELINE: 'система',
   },
   reporters_one: 'сообщил {{count}} студент', reporters_few: 'сообщили {{count}} студента',
   reporters_many: 'сообщили {{count}} студентов', reporters_other: 'сообщили {{count}} студента',
@@ -27,7 +29,12 @@ export const issues = {
   selected_many: 'Выбрано {{count}} групп ({{issues}} сообщ.)', selected_other: 'Выбрано {{count}} группы ({{issues}} сообщ.)',
   loadMore: 'Показать ещё',
   emptyOpen: 'Открытых сообщений нет', emptyOpenSystem: 'Всё проверено экспертом', empty: 'Сообщений нет',
-  emptyHint: 'Когда студенты сообщат об ошибке или контент-скрипт отметит материалы на проверку, они появятся здесь.',
+  emptyHintByStatus: {
+    OPEN: 'Когда студенты сообщат об ошибке или материалы отметят на экспертную проверку, сообщения появятся здесь.',
+    RESOLVED: 'Сообщения, отмеченные решёнными, появятся здесь.',
+    DISMISSED: 'Отклонённые сообщения появятся здесь — любое из них можно вернуть в работу.',
+    ALL: 'Сообщений пока нет. Если выбраны фильтры, попробуйте изменить курс, язык или объект.',
+  },
   noteLabel: 'Заметка (необязательно)', noteHint: 'Видна сотрудникам и в журнале аудита; студенту не отправляется.',
   confirm: {
     RESOLVED: {

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CohortCondition } from '@edu/shared';
-import { ApiError } from '../../../lib/api';
+import { apiErrorMessage } from '../../../lib/staff';
 import { useCreateCohort, useUpdateCohort, type AdminCohort } from '../../../lib/staffAdmin';
 import { Button, ConfirmDialog, Field, Input, Select, Sheet, Textarea, toast } from '../../ui';
 import { conditionLabel } from './bits';
@@ -38,7 +38,7 @@ export function CohortFormSheet({
 
   const fail = (err: unknown) => {
     setConfirmOpen(false);
-    setError(err instanceof ApiError ? err.message : t('errors.generic'));
+    setError(apiErrorMessage(err, t));
   };
 
   const save = () => {

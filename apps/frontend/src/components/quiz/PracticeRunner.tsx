@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { PracticeCheck } from '@edu/shared';
 import { checkPractice, errorCode, QuizErrorCode, type PracticeItem } from '../../lib/quiz';
 import { ApiError } from '../../lib/api';
+import { apiErrorText } from '../../lib/catalog';
 import { Button, buttonClass, ModeBadge, toast } from '../ui';
 import { Icon } from '../icons';
 import { ReportIssueButton } from '../ReportIssue';
@@ -100,7 +101,7 @@ export function PracticeRunner(props: PracticeRunnerProps) {
       return await checkPractice(item.quizId, { enrollmentId, questionId: item.question.id, selectedOptionIds: ids });
     } catch (err) {
       if (errorCode(err) === QuizErrorCode.PRACTICE_LOCKED) setStage('locked');
-      else toast(err instanceof ApiError && err.status === 429 ? err.message : t('quiz.practice.checkFailed'), 'danger');
+      else toast(err instanceof ApiError && err.status === 429 ? apiErrorText(t, err) : t('quiz.practice.checkFailed'), 'danger');
       return null;
     } finally {
       setBusy(false);

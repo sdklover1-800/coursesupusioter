@@ -27,16 +27,16 @@ import {
   attemptResult,
   attemptState,
   buildLobby,
-  legacySubmit,
   loadQuiz,
   practiceCheck,
   practiceSet,
+  rulesOf,
   saveAnswers,
   startAttempt,
   submitAttempt,
   versionLectures,
 } from './attempts.service.js';
-import { effectiveCooldownMinutes, frozenQuestionIds, sameIdSet, sameStrings } from './policy.js';
+import { effectiveCooldownMinutes, exhaustedEnrollmentCount, frozenQuestionIds, sameIdSet, sameStrings } from './policy.js';
 
 const managerGuard = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.COURSE_MANAGER, Role.ADMIN)] });
 const studentGuard = (app: FastifyInstance) => ({ preHandler: [app.authenticate, app.requireRole(Role.STUDENT), requireConsent] });
@@ -65,6 +65,9 @@ const TRUE_FALSE_LABELS: Record<Language, string[]> = {
 
 const quizFrozen = (message: string) => Errors.coded(409, ApiErrorCode.QUIZ_FROZEN, message);
 
+/** Поля попытки для подсчёта записей, исчерпавших попытки (exhaustedEnrollmentCount). */
+const exhaustionSelect = { id: true, enrollmentId: true, startedAt: true, submittedAt: true, score: true, passed: true } as const;
+
 /** Число попыток по тесту (любых, включая идущие) — тест с попытками заморожен. */
 const attemptCountOf = (quizId: string) => prisma.quizAttempt.count({ where: { quizId } });
 
@@ -82,7 +85,10 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
     const withArchived = includeArchived === '1' || includeArchived === 'true';
     const loaded = await loadQuiz(id);
     const { row } = loaded;
-    const attempts = await prisma.quizAttempt.findMany({ where: { quizId: id }, select: { presentation: true, answers: true } });
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { quizId: id },
+      select: { presentation: true, answers: true, ...exhaustionSelect },
+    });
     const frozenIds = frozenQuestionIds(attempts);
     const questions = row.questions
       .filter((q) => withArchived || q.archivedAt === null)
@@ -107,6 +113,8 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
         ...quizFields,
         frozen: attempts.length > 0,
         attemptCount: attempts.length,
+        // Записи, исчерпавшие попытки без сдачи (ключ им уже открыт): при > 0 maxAttempts не увеличивается
+        exhaustedCount: exhaustedEnrollmentCount(attempts, loaded.rules),
         effectiveCooldownMinutes: effectiveCooldownMinutes(row.cooldownMinutes, env.QUIZ_COOLDOWN_MINUTES),
         lectures: lectures.map((l) => ({ id: l.id, title: l.title, lectureNumber: l.lectureNumber })),
         questions: questions.map((q) => ({
@@ -121,7 +129,8 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
 
   // PATCH /quizzes/:id — порог, попытки (FR-5.4, FR-5.6), политика разбора, правило
   // зачёта и пауза (USER_DECISIONS §1). При наличии попыток порог и правило зачёта
-  // заморожены, попытки можно только увеличить. Изменения — в аудит.
+  // заморожены, попытки можно только увеличить — и то пока никто не исчерпал попытки
+  // без сдачи (им уже открыт ключ и тренировка по оцениваемым вопросам). Изменения — в аудит.
   app.patch('/quizzes/:id', mgr, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const data = parse(
@@ -149,6 +158,13 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
       if (changes.scoringRule) throw quizFrozen('По тесту уже есть попытки — правило зачёта изменить нельзя');
       if (changes.maxAttempts && (data.maxAttempts ?? 0) < existing.maxAttempts) {
         throw quizFrozen('По тесту уже есть попытки — число попыток можно только увеличить');
+      }
+      if (changes.maxAttempts && (data.maxAttempts ?? 0) > existing.maxAttempts) {
+        const attempts = await prisma.quizAttempt.findMany({ where: { quizId: id }, select: exhaustionSelect });
+        const exhausted = exhaustedEnrollmentCount(attempts, rulesOf(existing));
+        if (exhausted > 0) {
+          throw quizFrozen(`Студенты (${exhausted}) уже исчерпали попытки и видели полный разбор с ключом — увеличить число попыток нельзя`);
+        }
       }
     }
     const patch = Object.fromEntries(Object.keys(changes).map((k) => [k, data[k as keyof typeof data]]));
@@ -322,22 +338,7 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     const { enrollmentId } = parse(z.object({ enrollmentId: z.string() }), req.query);
     const enr = await loadOwnedEnrollment(req.user!.id, enrollmentId);
-    const lobby = await buildLobby(req.user!.id, enr, id);
-    return {
-      ...lobby,
-      /**
-       * @deprecated — удалить после FE3: вид для старого QuizPage (без вопросов
-       * оцениваемого теста), чтобы страница не падала до замены лобби.
-       */
-      quiz: {
-        id: lobby.id,
-        title: lobby.title,
-        passThreshold: lobby.passThreshold,
-        maxAttempts: lobby.maxAttempts,
-        attemptsUsed: lobby.attemptsUsed,
-        questions: (lobby.questions ?? []).map((q) => ({ ...q, difficulty: 'MEDIUM' })),
-      },
-    };
+    return buildLobby(req.user!.id, enr, id);
   });
 
   // POST /quizzes/:id/attempts/start {enrollmentId, integrityAck: true} → AttemptStart.
@@ -385,15 +386,6 @@ export async function quizRoutes(app: FastifyInstance): Promise<void> {
   app.get('/quiz-attempts/:id', stu, async (req) => {
     const { id } = parse(z.object({ id: z.string() }), req.params);
     return attemptResult(req.user!.id, id);
-  });
-
-  // @deprecated — удалить после FE3. POST /quizzes/:id/attempts — одношаговая попытка
-  // старого QuizPage: старт + отправка тем же сервисом (те же пауза, лимит, политика разбора).
-  app.post('/quizzes/:id/attempts', stu, async (req) => {
-    const { id } = parse(z.object({ id: z.string() }), req.params);
-    const body = parse(z.object({ enrollmentId: z.string(), answers: z.record(z.string(), z.unknown()) }), req.body);
-    const enr = await loadOwnedEnrollment(req.user!.id, body.enrollmentId);
-    return legacySubmit(req.user!.id, enr, id, body.answers);
   });
 
   /* ── Студент: тренировка (USER_DECISIONS §2) ── */

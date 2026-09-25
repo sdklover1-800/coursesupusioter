@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from '../icons';
 import { Button, type ButtonVariant } from './Button';
+import { setModalLayers } from './feedback';
 
 /* ── Общее поведение модальных слоёв: фокус-ловушка, Esc, блок прокрутки, стек ── */
 const FOCUSABLE =
@@ -33,6 +34,7 @@ export function useModalBehavior(open: boolean, panelRef: RefObject<HTMLElement>
       document.body.style.overflow = 'hidden';
     }
     stack.push(token);
+    setModalLayers(stack.length);
     const prevFocus = document.activeElement as HTMLElement | null;
     // Фокус — на [data-autofocus], иначе на первый элемент (или на саму панель)
     const panel = panelRef.current;
@@ -72,6 +74,7 @@ export function useModalBehavior(open: boolean, panelRef: RefObject<HTMLElement>
       document.removeEventListener('keydown', onKey);
       const i = stack.indexOf(token);
       if (i >= 0) stack.splice(i, 1);
+      setModalLayers(stack.length);
       if (stack.length === 0) document.body.style.overflow = savedOverflow;
       prevFocus?.focus?.();
     };
@@ -89,7 +92,8 @@ function CloseButton({ onClick, disabled, className }: { onClick: () => void; di
       disabled={disabled}
       aria-label={t('ui.dialog.close')}
       className={clsx(
-        'grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-brand-soft hover:text-fg disabled:opacity-40',
+        // ≥ 44px на мобильных (§4), компактная от sm
+        'grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-brand-soft hover:text-fg disabled:opacity-40 sm:h-9 sm:w-9',
         className,
       )}
     >

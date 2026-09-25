@@ -105,13 +105,63 @@ export interface EnrollmentRequestItem {
    */
   user: { id: string; name: string; email: string; cohortId: string | null; selfRegisteredAt: string | null };
   courseId: string;
-  languageVersion: { id: string; language: string; title: string };
+  /** status — статус публикации версии: заявку на ARCHIVED-версию можно только отклонить */
+  languageVersion: { id: string; language: string; title: string; status?: PublishStatus };
 }
 
 /** Ответ пакетного одобрения: skipped — заявки, которые не одобрены из-за когорты/деактивации. */
 export interface BulkApproveResult {
   approved: number;
   skipped: Array<{ id: string; reason: string }>;
+}
+
+/**
+ * «Здоровье» языковой версии в редакторе курса: блокеры публикации и предупреждения
+ * в виде код + параметры — клиент переводит их сам (ru/kk/en). Приходят рядом с
+ * русскими строками: GET /courses/:id → languageVersions[].problemItems/warningItems,
+ * POST /language-versions/:id/publish → warningItems (422 — details.problemItems/warningItems),
+ * GET /language-versions/:id/preview → warningItems.
+ */
+export const CourseHealthCode = {
+  /* ── Блокеры публикации ── */
+  /** В версии нет модулей */
+  NO_MODULES: 'NO_MODULES',
+  /** params: module */
+  MODULE_NO_LECTURES: 'MODULE_NO_LECTURES',
+  /** params: lecture */
+  LECTURE_NO_VIDEO: 'LECTURE_NO_VIDEO',
+  /** params: lecture */
+  LECTURE_NO_TRANSCRIPT: 'LECTURE_NO_TRANSCRIPT',
+  /** В названии лекции склеенные служебные метаданные («Course:», «Format:»…); params: lecture */
+  LECTURE_TITLE_METADATA: 'LECTURE_TITLE_METADATA',
+  /** params: lecture, max */
+  LECTURE_TITLE_TOO_LONG: 'LECTURE_TITLE_TOO_LONG',
+  /** Модуль с оцениванием-тестом без вопросов; params: module */
+  MODULE_NO_QUIZ: 'MODULE_NO_QUIZ',
+  /** params: module */
+  MODULE_NO_PRACTICAL: 'MODULE_NO_PRACTICAL',
+  /* ── Предупреждения (не блокируют публикацию) ── */
+  /** Разное число вопросов теста модуля в параллельных версиях; params: module, count, otherLanguage, otherCount */
+  QUESTION_COUNT_MISMATCH: 'QUESTION_COUNT_MISMATCH',
+  /** Русский служебный префикс в названии kk/en-версии; params: kind (CourseHealthTitleKind), title, prefix, language */
+  RU_TITLE_PREFIX: 'RU_TITLE_PREFIX',
+  /** У лекций не задана длительность видео; params: count, total */
+  NO_VIDEO_DURATION: 'NO_VIDEO_DURATION',
+  /** Вопросы ждут экспертной проверки; params: count. В редакторе — отдельным счётчиком openReviewIssues */
+  REVIEW_PENDING: 'REVIEW_PENDING',
+} as const;
+export type CourseHealthCode = (typeof CourseHealthCode)[keyof typeof CourseHealthCode];
+
+/** Что названо с русским префиксом (RU_TITLE_PREFIX.params.kind). */
+export type CourseHealthTitleKind = 'MODULE_QUIZ' | 'PRACTICAL' | 'MINI_QUIZ' | 'FINAL_MINI_QUIZ';
+
+/**
+ * Пункт «здоровья» версии. Названия в params (module, lecture, title) — укороченные
+ * (≤ 70 символов + «…»); language/otherLanguage — код языка в нижнем регистре.
+ */
+export interface CourseHealthItem {
+  code: CourseHealthCode;
+  params: Record<string, string | number>;
 }
 
 /** Коды ошибок API, на которые клиент реагирует особым экраном. */
@@ -148,6 +198,8 @@ export const ApiErrorCode = {
   CANONICAL_LOCKED: 'CANONICAL_LOCKED',
   /** Версия опубликована — операция требует снятия с публикации */
   VERSION_PUBLISHED: 'VERSION_PUBLISHED',
+  /** Языковая версия в архиве — заявку на неё можно только отклонить */
+  VERSION_ARCHIVED: 'VERSION_ARCHIVED',
   /** Смена группы у пользователя с данными требует явного подтверждения */
   COHORT_CONFIRM_REQUIRED: 'COHORT_CONFIRM_REQUIRED',
   /** Состав исследовательских групп зафиксирован (STUDY_COHORTS_LOCKED) */

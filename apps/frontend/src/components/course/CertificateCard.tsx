@@ -4,7 +4,8 @@ import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import type { CertificateMissing, CertificateStatus } from '../../lib/learn';
 import { routes } from '../../lib/learn';
-import { api, ApiError } from '../../lib/api';
+import { api } from '../../lib/api';
+import { apiErrorText } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
 import { Button, Card, Icon, StatusIcon, buttonClass, toast } from '../ui';
 import { CertificatePreview } from './CertificatePreview';
@@ -19,7 +20,7 @@ export function useCertificateDownload() {
     try {
       await api.download(`/me/certificates/${enrollmentId}`, `certificate-${serial ?? enrollmentId}.pdf`);
     } catch (err) {
-      toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger');
+      toast(apiErrorText(t, err), 'danger');
     } finally {
       setBusy(false);
     }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiErrorCode, LANGUAGES, Role, type Language } from '@edu/shared';
 import { ApiError } from '../../../lib/api';
+import { apiErrorMessage } from '../../../lib/staff';
 import { useFormat } from '../../../lib/format';
 import { consentState, relativeTime, useUpdateUser, type AdminCohort, type AdminUser, type UserPatch } from '../../../lib/staffAdmin';
 import { Button, ConfirmDialog, Field, Select, Sheet, toast } from '../../ui';
@@ -79,7 +80,7 @@ export function UserEditSheet({
             setLocked(true);
             return;
           }
-          toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger');
+          toast(apiErrorMessage(err, t), 'danger');
         },
       },
     );

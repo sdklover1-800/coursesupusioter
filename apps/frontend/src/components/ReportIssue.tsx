@@ -83,8 +83,10 @@ export function ReportIssueButton({
         aria-label={compact ? t('ui.issue.report') : undefined}
         aria-haspopup="dialog"
         className={clsx(
-          'inline-flex items-center gap-1.5 rounded-lg text-fg-2 transition-colors hover:bg-brand-soft hover:text-fg',
-          compact ? 'h-8 w-8 justify-center' : 'h-9 px-2.5 text-sm font-medium',
+          // Телефон: зона нажатия расширена псевдоэлементом до 44px (§4), вид прежний
+          'relative inline-flex items-center gap-1.5 rounded-lg text-fg-2 transition-colors hover:bg-brand-soft hover:text-fg',
+          "max-sm:before:absolute max-sm:before:content-['']",
+          compact ? 'h-8 w-8 justify-center max-sm:before:-inset-1.5' : 'h-9 px-2.5 text-sm font-medium max-sm:before:-inset-y-1',
           className,
         )}
       >

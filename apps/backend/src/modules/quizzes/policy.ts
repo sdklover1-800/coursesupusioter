@@ -2,10 +2,13 @@ import { createHash } from 'node:crypto';
 import {
   ApiErrorCode,
   QuestionType,
+  quizAttemptState,
   timecodeToSeconds,
   type AttemptPresentation,
   type AttemptQuestion,
   type AttemptSummary,
+  type QuizAttemptInput,
+  type QuizRulesInput,
   type ReviewItem,
   type ReviewLevel,
   type ReviewPolicy,
@@ -96,6 +99,28 @@ export function activeQuestions<T extends { orderIndex: number; archivedAt: Date
 export function canPractice(quiz: { isGraded: boolean }, state: { finalReached: boolean } | null): boolean {
   if (!quiz.isGraded) return true;
   return state?.finalReached === true;
+}
+
+/**
+ * Сколько записей исчерпали попытки теста без сдачи (финал по исчерпанию) при текущих
+ * правилах. Им уже открыты полный ключ с пояснениями и тренировка по оцениваемым
+ * вопросам (USER_DECISIONS §1–2), поэтому увеличение maxAttempts дало бы им новую
+ * зачётную попытку по знакомому ключу — при count > 0 его запрещаем. Сдавшим новая
+ * попытка не положена при любом maxAttempts, их не считаем.
+ */
+export function exhaustedEnrollmentCount(
+  attempts: readonly (QuizAttemptInput & { enrollmentId: string })[],
+  rules: QuizRulesInput,
+  now: Date = new Date(),
+): number {
+  const byEnrollment = new Map<string, QuizAttemptInput[]>();
+  for (const a of attempts) (byEnrollment.get(a.enrollmentId) ?? byEnrollment.set(a.enrollmentId, []).get(a.enrollmentId)!).push(a);
+  let count = 0;
+  for (const list of byEnrollment.values()) {
+    const state = quizAttemptState(list, rules, now);
+    if (state.finalReached && !state.passed) count++;
+  }
+  return count;
 }
 
 /* ── Порядок показа попытки (USER_DECISIONS §1) ──────────────────────── */

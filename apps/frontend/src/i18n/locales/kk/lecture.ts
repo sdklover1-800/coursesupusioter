@@ -9,7 +9,7 @@ export const lecture: Loc<typeof ruLecture> = {
   lectureOf: 'Дәріс {{n}} / {{total}}',
   moduleN: '{{roman}} модуль',
   crumbShort: '{{roman}} модуль · {{n}}-дәріс',
-  sectionN: '{{n}}-бөлім',
+  sectionN: '{{n}}-бөлік',
 
   target: {
     lecture: '{{n}}-дәріс', miniQuiz: 'мини-квиз', moduleQuiz: '{{roman}} модуль тесті', practical: 'қорытынды практикум',
@@ -23,10 +23,11 @@ export const lecture: Loc<typeof ruLecture> = {
   doneToast: 'Дәріс өтілді деп белгіленді',
   doneFailed: 'Дәрісті белгілеу мүмкін болмады. Қайталап көріңіз.',
 
-  chapterWord: 'Бөлім',
-  chapter: 'Бөлім {{k}}/{{n}}',
-  sections: 'Дәріс бөлімдері',
-  chapterStrip: 'Бейне бөлімдері',
+  // «Бөлік», а не «Бөлім»: «I бөлім» уже называет модуль в контенте
+  chapterWord: 'Бөлік',
+  chapter: 'Бөлік {{k}}/{{n}}',
+  sections: 'Дәріс бөліктері',
+  chapterStrip: 'Бейне бөліктері',
 
   resume: '{{time}} сәтінен жалғастырамыз', fromStart: 'Басынан',
   meta: { video: 'Бейне {{duration}}', reading: 'конспектіні оқу ≈ {{min}} мин' },

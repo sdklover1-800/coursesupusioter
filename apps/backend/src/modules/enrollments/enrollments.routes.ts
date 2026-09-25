@@ -18,6 +18,7 @@ import {
   isAdmitted,
   requestListOrder,
   requestListWhere,
+  versionAllowsApproval,
 } from './policy.js';
 import { requestItemSelect, studentEnrollmentSelect } from './views.js';
 
@@ -168,7 +169,7 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
 
     const pending = await prisma.enrollment.findMany({
       where: { id: { in: unique }, status: 'PENDING' },
-      select: { id: true, userId: true, user: { select: { cohortId: true, isActive: true } } },
+      select: { id: true, userId: true, user: { select: { cohortId: true, isActive: true } }, languageVersion: { select: { status: true } } },
     });
     const history = cohortId ? await studyHistory(prisma, pending.map((r) => r.userId)) : new Map<string, StudyHistory>();
     const skipped: BulkApproveResult['skipped'] = [];
@@ -177,6 +178,7 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
     const assignByCurrent = new Map<string | null, Set<string>>();
     for (const r of pending) {
       if (!r.user.isActive) { skipped.push({ id: r.id, reason: INACTIVE_MESSAGE }); continue; }
+      if (!versionAllowsApproval(r.languageVersion.status)) { skipped.push({ id: r.id, reason: ARCHIVED_MESSAGE }); continue; }
       const h = history.get(r.userId) ?? NO_HISTORY;
       const decision = decideCohortOnApprove({
         requested: cohortId, current: r.user.cohortId, actorRole,
@@ -195,7 +197,7 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
     const { approved, cohortChanges } = await prisma.$transaction(async (tx) => {
       if (!toApprove.length) return { approved: [], cohortChanges: [] };
       const { count } = await tx.enrollment.updateMany({
-        where: { id: { in: toApprove }, status: 'PENDING', user: { isActive: true } },
+        where: { id: { in: toApprove }, status: 'PENDING', user: { isActive: true }, languageVersion: { status: { not: 'ARCHIVED' } } },
         data: { status: 'ACTIVE', startedAt: now, reviewedAt: now, reviewedById: actorId, reviewNote: null },
       });
       if (count === 0) return { approved: [], cohortChanges: [] };
@@ -235,15 +237,22 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
   // одобрением; правила — decideCohortOnApprove (сменить назначенную может только админ).
   // Студенту без группы, но с учебными данными — 409 COHORT_CONFIRM_REQUIRED, повтор с
   // confirmCohortAssign: true; при STUDY_COHORTS_LOCKED — 409 COHORTS_LOCKED без force.
+  // Заявка на архивную версию — 409 VERSION_ARCHIVED (её можно только отклонить: студент
+  // получил бы курс, который ему недоступен). Снятую с публикации (DRAFT) одобрить можно —
+  // доступ откроется при повторной публикации.
   app.post('/enrollment-requests/:id/approve', managerGuard(app), async (req) => {
     const { id } = parse(idParams, req.params);
     const { cohortId, confirmCohortAssign, force } = parse(
       z.object({ cohortId: z.string().min(1).optional(), confirmCohortAssign: z.boolean().optional(), force: z.boolean().optional() }),
       req.body ?? {},
     );
-    const e = await prisma.enrollment.findUnique({ where: { id }, select: { id: true, status: true, userId: true, courseId: true } });
+    const e = await prisma.enrollment.findUnique({
+      where: { id },
+      select: { id: true, status: true, userId: true, courseId: true, languageVersion: { select: { status: true } } },
+    });
     if (!e) throw Errors.notFound('Заявка не найдена');
     if (!canApprove(e.status)) throw Errors.conflict('Заявка уже рассмотрена или не требует одобрения');
+    if (!versionAllowsApproval(e.languageVersion.status)) throw Errors.coded(409, ApiErrorCode.VERSION_ARCHIVED, ARCHIVED_MESSAGE);
     await assertCohortExists(cohortId);
 
     const actorId = req.user!.id;
@@ -272,7 +281,7 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const { count } = await tx.enrollment.updateMany({
-        where: { id, status: { in: [...APPROVABLE_STATUSES] } },
+        where: { id, status: { in: [...APPROVABLE_STATUSES] }, languageVersion: { status: { not: 'ARCHIVED' } } },
         data: { status: 'ACTIVE', startedAt: now, reviewedAt: now, reviewedById: actorId, reviewNote: null },
       });
       if (count === 0) throw Errors.conflict('Заявка уже рассмотрена или не требует одобрения');
@@ -311,6 +320,7 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
 }
 
 const INACTIVE_MESSAGE = 'Учётная запись студента деактивирована';
+const ARCHIVED_MESSAGE = 'Языковая версия курса в архиве — заявку можно только отклонить';
 
 /**
  * Деактивированный аккаунт не подаёт заявок: access-токен живёт до JWT_ACCESS_TTL

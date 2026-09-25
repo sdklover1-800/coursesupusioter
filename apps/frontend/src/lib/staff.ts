@@ -66,6 +66,16 @@ export function apiErrorMessage(err: unknown, t: TFunction): string {
   return t('errors.generic');
 }
 
+/**
+ * Подпись когорты в списке выбора: «Название · условие», но без суффикса, если название
+ * и так совпадает с условием («С преподавателем · С преподавателем», «AI без… · ИИ без…»).
+ */
+export function cohortOptionLabel(name: string, conditionLabel: string | null | undefined): string {
+  if (!conditionLabel) return name;
+  const norm = (s: string) => s.toLocaleLowerCase('ru').replace(/\bai\b/g, 'ии').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  return norm(name) === norm(conditionLabel) ? name : `${name} · ${conditionLabel}`;
+}
+
 /** Скачивание CSV, собранного в браузере (Blob URL; BOM — чтобы Excel открыл UTF-8). */
 export function downloadCsv(filename: string, rows: (string | number | null | undefined)[][]): void {
   const esc = (v: string | number | null | undefined) => {

@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { ApiError } from '../../lib/api';
 import { formatPercent, useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { LOW_N, useAdminOverview, useCohortCompare, type CohortCompareRow } from '../../lib/staffAdmin';
 import { Card, RubricBars } from '../../components/ui';
-import { EmptyState, ErrorState, LoadingRows, PageHeader } from '../../components/page';
+import { EmptyState, LoadingRows, PageHeader } from '../../components/page';
+import { LoadError } from '../../components/staff/primitives';
 import { ConditionBadge, LowNBadge } from '../../components/staff/admin/bits';
 
 /**
@@ -30,7 +30,7 @@ export function OverviewPage() {
       {overviewQ.isLoading ? (
         <LoadingRows rows={2} />
       ) : overviewQ.isError ? (
-        <ErrorState message={(overviewQ.error as ApiError)?.message ?? t('errors.generic')} />
+        <LoadError error={overviewQ.error} onRetry={() => void overviewQ.refetch()} retrying={overviewQ.isFetching} />
       ) : o ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <Kpi
@@ -67,7 +67,7 @@ export function OverviewPage() {
         {cohortsQ.isLoading ? (
           <LoadingRows rows={3} />
         ) : cohortsQ.isError ? (
-          <ErrorState message={(cohortsQ.error as ApiError)?.message ?? t('errors.generic')} />
+          <LoadError error={cohortsQ.error} onRetry={() => void cohortsQ.refetch()} retrying={cohortsQ.isFetching} />
         ) : !cohortsQ.data?.cohorts.length ? (
           <EmptyState title={t('admin.overviewPage.noCohorts')} hint={t('admin.overviewPage.noCohortsHint')} />
         ) : (

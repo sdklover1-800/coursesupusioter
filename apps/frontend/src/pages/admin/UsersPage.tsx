@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { Role } from '@edu/shared';
-import { ApiError } from '../../lib/api';
+import { apiErrorMessage } from '../../lib/staff';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import {
@@ -11,7 +11,8 @@ import {
   type AdminCohort, type AdminUser, type ConsentState, type UsersFilter,
 } from '../../lib/staffAdmin';
 import { Badge, Button, ConfirmDialog, Field, Icon, Input, Select, TabPanel, Tabs, toast } from '../../components/ui';
-import { EmptyState, ErrorState, LoadingRows, PageHeader } from '../../components/page';
+import { EmptyState, LoadingRows, PageHeader } from '../../components/page';
+import { LoadError } from '../../components/staff/primitives';
 import { SelfRegisteredChip } from '../../components/enrollment';
 import { ConsentMark, EmailText, RoleBadge, Th, conditionLabel } from '../../components/staff/admin/bits';
 import { FilterPopover } from '../../components/staff/admin/FilterPopover';
@@ -87,7 +88,7 @@ export function UsersPage() {
       },
       onError: (err) => {
         setResetUser(null);
-        toast(err instanceof ApiError ? err.message : t('errors.generic'), 'danger');
+        toast(apiErrorMessage(err, t), 'danger');
       },
     });
   };
@@ -199,7 +200,7 @@ export function UsersPage() {
           {users.isLoading ? (
             <LoadingRows rows={6} />
           ) : users.isError ? (
-            <ErrorState message={(users.error as ApiError)?.message ?? t('errors.generic')} />
+            <LoadError error={users.error} onRetry={() => void users.refetch()} retrying={users.isFetching} />
           ) : !items.length ? (
             <EmptyState
               title={t('admin.usersPage.empty')}

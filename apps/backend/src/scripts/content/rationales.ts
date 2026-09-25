@@ -4,6 +4,8 @@
  * draftRationales(quizId, {onlyMissing}) — формулировка, варианты и ключ НЕ меняются; заодно
  * уточняется источник (лекция и таймкод). Применение — writeRationales: он сам проверяет, что
  * вопрос не изменился со времени черновика; скрипт печатает сверку по каждому вопросу.
+ * Правки рецензента после применения (meta.textFixes, напр. переписанные обоснования TRUE_FALSE)
+ * переносятся на стенд, где обоснования уже записаны, по точному «было → стало» (lib.applyTextFixes).
  *
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts --draft
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts --from rationales.v1.json [--apply --i-have-a-backup] [--force]
@@ -15,6 +17,7 @@ import {
   type QuizLocator,
   Report,
   activeQuestions,
+  applyTextFixes,
   courseQuestions,
   lectureIdOf,
   lectureRefOf,
@@ -32,6 +35,7 @@ import {
   version,
   writeArtifact,
 } from './lib.js';
+import type { TextFix } from './revisions.js';
 
 const SCRIPT = 'rationales';
 const ARTIFACT = 'rationales.v1.json';
@@ -54,7 +58,16 @@ interface QuizRows {
 }
 
 interface Artifact {
-  meta: { version: 1; createdAt: string; llm: ReturnType<typeof getDraftUsage>; warnings: string[] };
+  meta: {
+    version: 1;
+    createdAt: string;
+    llm: ReturnType<typeof getDraftUsage>;
+    warnings: string[];
+    /** Правки рецензента (человекочитаемо). */
+    reviewEdits?: string[];
+    /** Те же правки для стендов, где обоснования уже записаны (lib.applyTextFixes). */
+    textFixes?: TextFix[];
+  };
   quizzes: QuizRows[];
 }
 
@@ -91,7 +104,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     console.log(`→ ${label}: ${out.length}/${e.ids.length}`);
   }
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path}`);
   for (const z of art.quizzes.slice(0, 3)) {
@@ -169,6 +182,8 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     if (!(await ledgerGet(prisma, key))) await ledgerPut(prisma, key, { written: n, skipped });
     report.line(z.label, 'changed', `обоснований ${n} · формулировка/варианты/ключ без изменений ✓${skipped.length ? ` · пропуск: ${skipped.join('; ')}` : ''}`);
   }
+  // Правки рецензента после применения (meta.textFixes): уже записанные обоснования → исправленные.
+  await applyTextFixes({ script: SCRIPT, fixes: art.meta.textFixes ?? [], course, langs: args.langs, apply: args.apply, force: args.force, report });
   if (args.apply) console.log(`\nСверка после записи: ${verified} вопросов — формулировка, варианты и ключ без изменений, обоснований по числу вариантов.`);
   console.log(`\n${report.summary()}`);
   return report.errors ? 1 : 0;

@@ -6,7 +6,7 @@ import type { PracticalSessionsView, SessionDetail, VerdictCode } from '../../li
 import { attemptNumber, verdictPassed } from '../../lib/practical';
 import { routes } from '../../lib/learn';
 import { useFormat } from '../../lib/format';
-import { Button, buttonClass, RubricBars, SegmentedControl, Skeleton, Spinner } from '../ui';
+import { Button, buttonClass, ModeBadge, RubricBars, SegmentedControl, Skeleton, Spinner } from '../ui';
 import { Icon, type IconName } from '../icons';
 import { PhaseStepper } from './PhaseStepper';
 import { DialogueReview } from './DialogueReview';
@@ -43,6 +43,9 @@ const OUTCOME_GLYPH: Record<VerdictCode, { icon: IconName; cls: string }> = {
   FAILED_CEILING: { icon: 'alert', cls: 'bg-surface-2 text-fg-2 ring-1 ring-inset ring-border-strong' },
   ABANDONED: { icon: 'clock', cls: 'bg-surface-2 text-fg-2 ring-1 ring-inset ring-border-strong' },
 };
+
+/** Исходы «задание не выполнено» (✗ danger); FAILED_CEILING и ABANDONED — технические, со своим заголовком. */
+const FAILED_CODES: ReadonlySet<VerdictCode> = new Set<VerdictCode>(['FAILED_LIMIT', 'ENDED_BY_STUDENT']);
 
 function ListCard({ title, icon, iconCls, children }: { title: string; icon: IconName; iconCls: string; children: ReactNode }) {
   return (
@@ -162,12 +165,16 @@ export function VerdictView({
             </span>
           </div>
           <div className="min-w-0">
-            <div className="text-label text-fg-2">
-              {t('practical.attempt', { k, max: view.maxSessions })}
-              {session.endedAt && <> · {formatDate(session.endedAt)}</>}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+              <ModeBadge mode="graded" />
+              <span className="text-label text-fg-2">
+                {t('practical.attempt', { k, max: view.maxSessions })}
+                {session.endedAt && <> · {formatDate(session.endedAt)}</>}
+              </span>
             </div>
-            <h1 id="verdict-headline" className={clsx('mt-1 text-display-lg', passed ? 'text-teal-ink' : 'text-fg')}>
-              {t(`practical.verdict.headline.${code}`)}
+            {/* Неудача — «Задание не выполнено» (spec), причина — строкой ниже; технические исходы — свой заголовок */}
+            <h1 id="verdict-headline" className={clsx('mt-2 text-display-lg', passed ? 'text-teal-ink' : 'text-fg')}>
+              {FAILED_CODES.has(code) ? t('practical.verdict.headlineFailed') : t(`practical.verdict.headline.${code}`)}
             </h1>
             <p className="mt-2 max-w-[62ch] text-body-lg text-fg-2">{t(`practical.verdict.reason.${code}`)}</p>
           </div>

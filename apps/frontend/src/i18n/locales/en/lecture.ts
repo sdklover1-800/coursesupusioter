@@ -9,10 +9,10 @@ export const lecture: Loc<typeof ruLecture> = {
   lectureOf: 'Lecture {{n}} of {{total}}',
   moduleN: 'Module {{roman}}',
   crumbShort: 'Module {{roman}} · Lecture {{n}}',
-  sectionN: 'Section {{n}}',
+  sectionN: 'Chapter {{n}}',
 
   target: {
-    lecture: 'Lecture {{n}}', miniQuiz: 'Mini-quiz', moduleQuiz: 'Module test {{roman}}', practical: 'Final practical',
+    lecture: 'Lecture {{n}}', miniQuiz: 'Mini-quiz', moduleQuiz: 'Module {{roman}} test', practical: 'Final practical',
     finalMiniQuiz: 'Final mini-quiz', certificate: 'Certificate', course: 'Course contents',
   },
   nextLabel: 'Next: {{target}}',
@@ -23,10 +23,11 @@ export const lecture: Loc<typeof ruLecture> = {
   doneToast: 'Lecture marked as complete',
   doneFailed: 'Could not mark the lecture. Please try again.',
 
-  chapterWord: 'Section',
-  chapter: 'Section {{k}}/{{n}}',
-  sections: 'Lecture sections',
-  chapterStrip: 'Video sections',
+  // “Chapter”, not “Section”: “Section I” already names a module in the content
+  chapterWord: 'Chapter',
+  chapter: 'Chapter {{k}}/{{n}}',
+  sections: 'Lecture chapters',
+  chapterStrip: 'Video chapters',
 
   resume: 'Resuming from {{time}}', fromStart: 'From the start',
   meta: { video: 'Video {{duration}}', reading: 'notes ≈ {{min}} min read' },
@@ -44,7 +45,7 @@ export const lecture: Loc<typeof ruLecture> = {
     title: 'Course contents', open: 'Contents', collapse: 'Hide contents', expand: 'Show contents',
     prevModule: 'Previous module', nextModule: 'Next module', modules: 'Course modules', allModules: 'All modules',
     lecturesDone: 'Lectures: {{done}} of {{total}}',
-    moduleQuizN: 'Module test {{roman}}',
+    moduleQuizN: 'Module {{roman}} test',
     moduleQuiz: 'Module test', practical: 'Final practical', miniQuiz: 'Mini-quiz',
   },
   questions_one: '{{count}} question', questions_other: '{{count}} questions',

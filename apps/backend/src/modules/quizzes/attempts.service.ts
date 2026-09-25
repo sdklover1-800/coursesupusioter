@@ -4,7 +4,6 @@ import {
   EventType,
   passCountFor,
   quizAttemptState,
-  type AttemptPresentation,
   type AttemptResult,
   type AttemptStart,
   type AttemptSummary,
@@ -26,6 +25,7 @@ import { logger } from '../../lib/logger.js';
 import { logEvent } from '../../telemetry/events.js';
 import { recomputeProgress } from '../learn/progress.service.js';
 import { assertQuizInEnrollment, loadOwnedEnrollment, type OwnedEnrollment } from '../learn/access.js';
+import { lockEnrollmentLanguage } from '../learn/language.js';
 import { scoreQuiz } from './scoring.js';
 import {
   activeDurationSec,
@@ -171,7 +171,7 @@ async function sourcesFor(quiz: LoadedQuiz, presented: readonly PresentedQuestio
   return map;
 }
 
-/* ── Отправка (общая для студента, устаревшего эндпоинта и автоотправки) ── */
+/* ── Отправка (общая для студента и автоотправки) ── */
 
 interface FinalizeInput {
   quiz: LoadedQuiz;
@@ -292,13 +292,25 @@ export async function autoSubmitStaleAttempts(now = new Date()): Promise<number>
 
 /* ── Доступ к попытке ────────────────────────────────────────────────── */
 
-/** Попытка студента + гейт доступа к курсу (владение, согласие, одобрение, публикация). */
-async function loadOwnedAttempt(userId: string, attemptId: string): Promise<{ attempt: AttemptRow; enr: OwnedEnrollment; quiz: LoadedQuiz }> {
+/** Тест не из текущей языковой версии записи: язык сменили до/во время старта попытки. */
+const languageChangedError = () => Errors.conflict('Язык курса изменён — эта попытка относится к прежней языковой версии, обновите страницу');
+
+/**
+ * Попытка студента + гейт доступа к курсу (владение, согласие, одобрение, публикация).
+ * currentVersionOnly — для работы с идущей попыткой (состояние, автосохранение,
+ * отправка): её тест обязан относиться к ТЕКУЩЕЙ языковой версии записи.
+ */
+async function loadOwnedAttempt(
+  userId: string,
+  attemptId: string,
+  opts: { currentVersionOnly?: boolean } = {},
+): Promise<{ attempt: AttemptRow; enr: OwnedEnrollment; quiz: LoadedQuiz }> {
   const attempt = await prisma.quizAttempt.findUnique({ where: { id: attemptId }, select: { ...attemptSelect, enrollment: { select: { userId: true } } } });
   if (!attempt) throw Errors.notFound('Попытка не найдена');
   if (attempt.enrollment.userId !== userId) throw Errors.forbidden('Попытка не принадлежит пользователю');
   const enr = await loadOwnedEnrollment(userId, attempt.enrollmentId);
   const quiz = await loadQuiz(attempt.quizId);
+  if (opts.currentVersionOnly && quiz.versionId !== enr.languageVersionId) throw languageChangedError();
   return { attempt, enr, quiz };
 }
 
@@ -436,6 +448,9 @@ export async function startAttempt(userId: string, enr: OwnedEnrollment, quizId:
     assertCanStartNew(state);
     const attemptNumber = rows.length + 1;
     const attempt = await prisma.$transaction(async (tx) => {
+      // Строка записи блокируется первой командой — как и при смене языка
+      // (POST /enrollments/:id/language): тест обязан быть из ТЕКУЩЕЙ версии записи.
+      if ((await lockEnrollmentLanguage(tx, enr.id)) !== quiz.versionId) throw languageChangedError();
       const created = await tx.quizAttempt.create({
         data: { enrollmentId: enr.id, quizId, answers: {}, flagged: [], integrityAck: true, score: 0, passed: false, submittedAt: null },
         select: { id: true },
@@ -463,7 +478,7 @@ export async function startAttempt(userId: string, enr: OwnedEnrollment, quizId:
 
 /** GET /quiz-attempts/:id/state — идущая попытка для продолжения после обновления страницы. */
 export async function attemptState(userId: string, attemptId: string): Promise<AttemptStart> {
-  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId);
+  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId, { currentVersionOnly: true });
   await requireInProgress(userId, attempt, quiz);
   const rows = await attemptsOf(attempt.enrollmentId, attempt.quizId);
   return toAttemptStart(quiz, attempt, attemptNumberOf(rows, attempt.id, quiz.rules), true);
@@ -471,7 +486,7 @@ export async function attemptState(userId: string, attemptId: string): Promise<A
 
 /** PATCH /quiz-attempts/:id/answers — автосохранение (без телеметрии). */
 export async function saveAnswers(userId: string, attemptId: string, answers: unknown, flagged: readonly string[]): Promise<{ savedAt: string }> {
-  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId);
+  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId, { currentVersionOnly: true });
   await requireInProgress(userId, attempt, quiz);
   const presented = presentedQuestions(attempt, quiz.questions);
   const { normalized } = validateAnswers(presented, answers, { partial: true });
@@ -514,7 +529,7 @@ async function buildResult(quiz: LoadedQuiz, attemptId: string, enrollmentId: st
  * отправляются сохранённые.
  */
 export async function submitAttempt(userId: string, attemptId: string, answers: unknown | undefined): Promise<AttemptResult> {
-  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId);
+  const { attempt, quiz } = await loadOwnedAttempt(userId, attemptId, { currentVersionOnly: true });
   await requireInProgress(userId, attempt, quiz);
   const presented = presentedQuestions(attempt, quiz.questions);
   const { normalized, unansweredCount } = validateAnswers(presented, answers ?? parseStoredAnswers(attempt.answers), { partial: true });
@@ -536,59 +551,6 @@ export async function attemptHistory(enr: OwnedEnrollment, quizId: string): Prom
   const quiz = await loadQuiz(quizId);
   const rows = await attemptsOf(enr.id, quizId);
   return summariesOf(quiz, rows, stateOf(rows, quiz.rules));
-}
-
-/**
- * @deprecated — удалить после FE3. Одношаговая попытка старого QuizPage: старт +
- * отправка атомарно через тот же сервис (legacy = true, integrityAck = false).
- * Действуют те же правила паузы и сдачи; разбор — по той же политике (ключа до
- * финала нет). Порядок показа — канонический: так его видел старый интерфейс.
- */
-export async function legacySubmit(userId: string, enr: OwnedEnrollment, quizId: string, answers: unknown): Promise<AttemptResult> {
-  await assertQuizInEnrollment(quizId, enr);
-  const quiz = await loadQuiz(quizId);
-  assertGraded(quiz);
-  const presentation: AttemptPresentation = buildPresentation(
-    quiz.active.map((q) => ({ id: q.id, type: q.type, optionCount: q.options.length })),
-    1,
-    'legacy',
-  );
-  // Невалидные ответы → 422 ДО создания попытки: слот не тратится.
-  const presented = presentedQuestions({ presentation }, quiz.questions);
-  const { normalized, unansweredCount } = validateAnswers(presented, answers, { partial: true });
-
-  const attempt = await withLock(lockKey(enr.id, quizId), 15_000, async () => {
-    await autoSubmitStaleFor(enr.id, userId, quiz);
-    const rows = await attemptsOf(enr.id, quizId);
-    const state = stateOf(rows, quiz.rules);
-    if (state.inProgressId) throw Errors.conflict('Есть незавершённая попытка — продолжите её');
-    assertCanStartNew(state);
-    const created = await prisma.quizAttempt.create({
-      data: {
-        enrollmentId: enr.id,
-        quizId,
-        answers: {},
-        flagged: [],
-        integrityAck: false,
-        legacy: true,
-        score: 0,
-        passed: false,
-        submittedAt: null,
-        presentation: presentation as unknown as Prisma.InputJsonValue,
-      },
-      select: attemptSelect,
-    });
-    await logEvent({
-      eventType: EventType.QUIZ_STARTED,
-      userId,
-      enrollmentId: enr.id,
-      payload: { quizId, attemptId: created.id, attemptNumber: rows.length + 1, legacy: true },
-    });
-    const ok = await finalizeAttempt({ quiz, attempt: created, userId, answers: normalized, unansweredCount, now: new Date(), auto: false });
-    if (!ok) throw submittedError();
-    return created;
-  });
-  return buildResult(quiz, attempt.id, enr.id);
 }
 
 /* ── Тренировка (USER_DECISIONS §2) ──────────────────────────────────── */

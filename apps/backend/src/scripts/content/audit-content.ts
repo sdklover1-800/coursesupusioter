@@ -10,6 +10,8 @@
  *  - оцениваемые тесты по языкам: гистограмма позиций ключа, доля «ключ — самый длинный»,
  *    доля «верно» у TRUE_FALSE, testwiseScore (A12), подсказка длиной, число неархивных
  *    вопросов, паритет canonicalKey между языками;
+ *  - язык текстов вопросов (все тесты): кириллица в en, русские «верно/неверно» в kk;
+ *    вырожденные обоснования (короче 25 символов); доля «верно» у TRUE_FALSE тренировки;
  *  - пересечения оцениваемых и тренировочных вопросов (Жаккар > 0.35, для kk ещё
  *    триграммы > 0.5, A11), покрытие лекций итоговым мини-квизом;
  *  - русские префиксы в kk/en-названиях, lectureTitleProblem;
@@ -61,6 +63,7 @@ import {
   timecodeRanges,
   writePreview,
 } from './lib.js';
+import { MIN_RATIONALE_CHARS, questionLanguageProblems, shortRationales } from './revisions.js';
 
 const DEMO_COURSE_TITLE = 'Основы критического мышления';
 /** Документированное расхождение: видео kk-15 смонтировано с другими таймкодами (проверка по видео — за носителем). */
@@ -149,6 +152,11 @@ interface QuizAudit {
   canonicalKeys: string[];
   rationalesMissing: number;
   rationalesBadLength: number;
+  /** Вопросы с вырожденными обоснованиями (< MIN_RATIONALE_CHARS). */
+  rationalesShort: string[];
+  /** Чужой алфавит/метка: «#N поле: кириллица» (en), «…: русская метка» (kk). */
+  languageProblems: string[];
+  tf: { total: number; trueKey: number };
   bintrou: number;
   kkLexicon: Record<string, number>;
   maxAttempts: number;
@@ -193,6 +201,12 @@ async function auditQuiz(lang: Language, locator: QuizLocator, quizId: string): 
       canonicalKeys: questions.map((q) => q.canonicalKey ?? '∅'),
       rationalesMissing: questions.filter((q) => !q.optionRationales).length,
       rationalesBadLength: questions.filter((q) => q.optionRationales && (q.optionRationales.length !== q.options.length || q.optionRationales.some((r) => !r.trim()))).length,
+      rationalesShort: questions.flatMap((q) => {
+        const idx = shortRationales(q);
+        return idx.length ? [`#${q.orderIndex + 1}${q.canonicalKey ? ` ${q.canonicalKey}` : ''}: ${idx.map((i) => `«${q.optionRationales![i]}»`).join(', ')}`] : [];
+      }),
+      languageProblems: questions.flatMap((q) => questionLanguageProblems(lang, q).map((p) => `#${q.orderIndex + 1}${q.canonicalKey ? ` ${q.canonicalKey}` : ''} ${p}`)),
+      tf: { total: tf.length, trueKey: tf.filter((q) => q.correctOptionIds[0] === 0).length },
       bintrou: (all.match(BINTROU) ?? []).length + (quiz.title.match(BINTROU) ?? []).length,
       kkLexicon: lang === 'kk' ? kkLexiconHits(all) : {},
       maxAttempts: quiz.maxAttempts,
@@ -418,6 +432,14 @@ async function main(): Promise<number> {
     courseFinalCoverage: Object.entries(courseFinalCoverage).map(([l, c]) => `${l}:${c.covered}/${c.of}`).join(' '),
     rationalesCoverage: `${politQuestions - quizzes.reduce((a, q) => a + q.rationalesMissing, 0)}/${politQuestions}`,
     rationalesBadLength: quizzes.reduce((a, q) => a + q.rationalesBadLength, 0),
+    rationalesShort: quizzes.reduce((a, q) => a + q.rationalesShort.length, 0),
+    questionLanguageProblems: quizzes.reduce((a, q) => a + q.languageProblems.length, 0),
+    practiceTfTrue: versions
+      .map((v) => {
+        const p = quizzes.filter((q) => q.lang === v.language && !q.graded);
+        return `${v.language}:${p.reduce((a, q) => a + q.tf.trueKey, 0)}/${p.reduce((a, q) => a + q.tf.total, 0)}`;
+      })
+      .join(' '),
     practicals: practicals.map((p) => `${p.lang}:${p.tokenBudget}/${p.maxAiMessages}/${p.maxSessions}/${p.estimatedMinutes ?? '∅'}/${p.canonicalRef ?? '∅'}/kp${p.keyPoints}`).join(' '),
     lecturesWithoutDuration: lectures.filter((l) => l.durationSec === null).length,
     lecturesWithoutSummary: lectures.filter((l) => !l.hasSummary).length,
@@ -444,7 +466,8 @@ async function main(): Promise<number> {
       summary.gradedMaxTestwise < 0.7,
     practiceOverlap: summary.gradedPracticeOverlaps === 0,
     courseFinal: Object.values(courseFinalCoverage).every((c) => c.covered === c.of && c.guessed === 0),
-    rationales: quizzes.every((q) => q.rationalesMissing === 0) && summary.rationalesBadLength === 0,
+    rationales: quizzes.every((q) => q.rationalesMissing === 0) && summary.rationalesBadLength === 0 && summary.rationalesShort === 0,
+    questionLanguage: summary.questionLanguageProblems === 0,
     practicals: practicals.length === 3 && practicals.every((p) => p.canonicalRef === 'polisia-v1' && p.keyPoints === 9 && p.maxAiMessages === 24 && p.maxSessions === 2 && p.estimatedMinutes === 25) && practicals.every((p) => p.tokenBudget === ({ ru: 160000, kk: 190000, en: 120000 } as Record<string, number>)[p.lang]),
     lectures: summary.lecturesWithoutDuration === 0 && summary.lecturesWithoutSummary === 0,
     demoArchived: summary.demoCourse === 'ARCHIVED/ARCHIVED',
@@ -483,6 +506,10 @@ async function main(): Promise<number> {
     );
   }
   for (const [k, p] of Object.entries(gradedParity)) log(`  ${k} canonicalKey: ${p.identical ? 'совпадают' : 'РАСХОДЯТСЯ'} ${JSON.stringify(p.counts)}`);
+  const langIssues = quizzes.filter((q) => q.languageProblems.length || q.rationalesShort.length);
+  log(`\n══ Язык текстов и обоснования: чужой алфавит/метка ${summary.questionLanguageProblems}, обоснований короче ${MIN_RATIONALE_CHARS} симв. ${summary.rationalesShort} ══`);
+  for (const q of langIssues) for (const x of [...q.languageProblems, ...q.rationalesShort.map((r) => `коротко ${r}`)]) log(`  ${q.label} ${x}`);
+  log(`  TRUE_FALSE тренировки, ключ «верно»: ${summary.practiceTfTrue}`);
   log(`\n══ Пересечения оцениваемых и тренировочных: ${overlaps.length} ══`);
   for (const o of overlaps) log(`  ${o.practice} J=${o.jaccard}${o.lang === 'kk' ? ` T=${o.trigram}` : ''}\n      практика: ${o.practicePrompt}\n      тест:     ${o.gradedPrompt}`);
   log('\n══ Итоговый мини-квиз: покрытие лекций ══');

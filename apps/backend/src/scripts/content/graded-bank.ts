@@ -13,19 +13,24 @@
  *  - артефакт content-data/politology/graded-bank.v1.json {ru:{M1:[…]}, kk:{…}, en:{…}}; источник
  *    вопроса — по позиции лекции (переносимо на прод).
  * Применение (--from graded-bank.v1.json [--apply --i-have-a-backup]):
- *  - отказ, если фаза A не выполнена или у какого-либо целевого теста есть незавершённая попытка;
+ *  - отказ, если фаза A не выполнена или у заменяемого теста есть незавершённая попытка;
+ *  - отказ без --force, если у студента незавершённая СЕРИЯ попыток на старом банке (попытка
+ *    отправлена, финал не наступил): 2-я попытка шла бы по другому инструменту (правило BEST);
  *  - writeQuizQuestions(quizId, items, {mode: 'ARCHIVE_REPLACE', ledgerKey 'content:v1:graded-bank:<lang>:M<i>'}):
  *    старые вопросы АРХИВИРУЮТСЯ (не удаляются) — прошлые попытки сохраняют смысл;
  *  - отметки: ru — EXPERT_REVIEW (политолог), kk/en — NATIVE_PROOFREAD (перевод); системные
  *    отметки с архивированных вопросов снимаются (DISMISSED);
+ *  - правки рецензента после применения (meta.textFixes) переносятся на уже применённый банк по
+ *    точным якорям (lib.applyTextFixes): текст, без порядка вариантов и ключа; правка по смыслу
+ *    (substantive) откладывается, пока у студентов идёт попытка или серия попыток (без --force);
  *  - проверка: каждая прошлая попытка пересчитывается по своей presentation в сохранённый балл.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --draft
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --from graded-bank.v1.json [--apply --i-have-a-backup]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --draft [--overwrite-reviewed]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --from graded-bank.v1.json [--apply --i-have-a-backup] [--force]
  */
 import { existsSync } from 'node:fs';
 import { join as _join } from 'node:path';
-import type { Language } from '@edu/shared';
+import type { Language, ScoringRule } from '@edu/shared';
 import {
   type DraftQuestion,
   type DraftReport,
@@ -44,6 +49,7 @@ import {
   Report,
   type VersionCtx,
   activeQuestions,
+  applyTextFixes,
   assertPhaseA,
   dismissSystemFlags,
   flagForReview,
@@ -65,6 +71,8 @@ import {
   version,
   writeArtifact,
 } from './lib.js';
+import { frozenQuestionIds } from '../../modules/quizzes/policy.js';
+import { type TextFix, unfinishedSeries } from './revisions.js';
 
 const SCRIPT = 'graded-bank';
 const ARTIFACT = 'graded-bank.v1.json';
@@ -88,6 +96,11 @@ interface Artifact {
     gates: Record<string, Record<string, Gate>>;
     warnings: Record<string, string[]>;
     redrafted: string[];
+    /** Правки рецензента (человекочитаемо). */
+    reviewEdits?: string[];
+    reviewNotes?: string[];
+    /** Те же правки текста для стендов, где банк уже применён (lib.applyTextFixes). */
+    textFixes?: TextFix[];
   };
   ru: Record<string, PortableQuestion[]>;
   kk: Record<string, PortableQuestion[]>;
@@ -214,7 +227,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     outputTokens: art.meta.llm.outputTokens + usage.outputTokens,
     costUsd: art.meta.llm.costUsd + usage.costUsd,
   };
-  const out = writeArtifact(args.dataDir, ARTIFACT, art);
+  const out = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...usage });
   console.log(`\nЧерновик: ${out}`);
 
@@ -235,6 +248,39 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
 }
 
 /* ── Применение ─────────────────────────────────────────────────── */
+
+/**
+ * Записи с незавершённой серией попыток на тестах quizIds (revisions.unfinishedSeries). С
+ * questionId — только серии, где этот вопрос уже показывался (следующая попытка получила бы его
+ * в другом виде); серии на старом, архивном банке правку текста нового вопроса не затрагивают.
+ */
+async function seriesInProgress(quizIds: string[], questionId?: string): Promise<{ quizId: string; quizTitle: string; email: string; attempts: number }[]> {
+  if (!quizIds.length) return [];
+  const quizzes = await prisma.quiz.findMany({ where: { id: { in: quizIds } }, select: { id: true, title: true, maxAttempts: true, scoringRule: true } });
+  const out: { quizId: string; quizTitle: string; email: string; attempts: number }[] = [];
+  for (const quiz of quizzes) {
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { quizId: quiz.id },
+      select: {
+        id: true,
+        enrollmentId: true,
+        startedAt: true,
+        submittedAt: true,
+        score: true,
+        passed: true,
+        presentation: true,
+        answers: true,
+        enrollment: { select: { user: { select: { email: true } } } },
+      },
+    });
+    for (const enrollmentId of unfinishedSeries(attempts, { maxAttempts: quiz.maxAttempts, scoringRule: quiz.scoringRule as ScoringRule })) {
+      const mine = attempts.filter((a) => a.enrollmentId === enrollmentId);
+      if (questionId && !frozenQuestionIds(mine).has(questionId)) continue;
+      out.push({ quizId: quiz.id, quizTitle: quiz.title, email: mine[0]!.enrollment.user.email, attempts: mine.length });
+    }
+  }
+  return out;
+}
 
 async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
   const art = readArtifact<Artifact>(args.from!);
@@ -261,14 +307,32 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
       targets.push({ lang, v, key: m.key, quizId: m.quiz.id, items });
     }
   }
+  // Замена грозит только тестам, где банк ещё не применён (нет журнала и вопросы не совпадают).
+  const pending: typeof targets = [];
+  for (const t of targets) {
+    const current = await activeQuestions(prisma, t.quizId);
+    const same = current.length === t.items.length && current.every((q, i) => q.canonicalKey === t.items[i]!.canonicalKey && q.prompt === t.items[i]!.prompt.trim());
+    if (!(await ledgerGet(prisma, ledgerKey(SCRIPT, `${t.lang}:${t.key}`))) && !same) pending.push(t);
+  }
   const inProgress = await prisma.quizAttempt.findMany({
-    where: { quizId: { in: targets.map((t) => t.quizId) }, submittedAt: null },
+    where: { quizId: { in: pending.map((t) => t.quizId) }, submittedAt: null },
     select: { id: true, quizId: true, startedAt: true, enrollment: { select: { user: { select: { email: true } } } } },
   });
   if (inProgress.length) {
     console.log('✖ У целевых тестов есть НЕЗАВЕРШЁННЫЕ попытки — замена банка отложена:');
     for (const a of inProgress) console.log(`   ${a.id} ${a.enrollment.user.email} тест ${a.quizId} начата ${a.startedAt.toISOString()}`);
     return 1;
+  }
+  // Незавершённая серия: 1-я попытка отправлена на старом банке, финал не наступил — 2-я пошла бы
+  // по новому банку, и BEST сравнил бы баллы разных инструментов. Отказ без --force.
+  const series = await seriesInProgress(pending.map((t) => t.quizId));
+  if (series.length) {
+    console.log(`${args.force ? '⚠' : '✖'} У студентов НЕЗАВЕРШЁННАЯ серия попыток на старом банке (отправлена попытка, финал не наступил):`);
+    for (const s of series) console.log(`   ${s.email} тест ${s.quizId} (${s.quizTitle.slice(0, 60)}) · попыток ${s.attempts}`);
+    if (!args.force) {
+      console.log('   Замена банка отложена: дождитесь финала серии или решения лида (например, excuse), затем повторите; --force — заменить всё равно.');
+      return 1;
+    }
   }
 
   for (const t of targets) {
@@ -317,6 +381,25 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     });
     if (flagged) report.line(`${unit}:flags`, 'changed', `отметок ${t.lang === 'ru' ? 'EXPERT_REVIEW' : 'NATIVE_PROOFREAD'}: ${flagged}`);
   }
+
+  // Правки рецензента после применения (meta.textFixes): текст, без порядка вариантов и ключа.
+  // Правку по смыслу не переносим, пока у студентов идёт серия попыток этого теста.
+  await applyTextFixes({
+    script: SCRIPT,
+    fixes: art.meta.textFixes ?? [],
+    course,
+    langs: args.langs,
+    apply: args.apply,
+    force: args.force,
+    report,
+    guard: async (fix, q, quizId) => {
+      if (!fix.substantive) return null;
+      const busy = await prisma.quizAttempt.count({ where: { quizId, submittedAt: null } });
+      const s = await seriesInProgress([quizId], q.id);
+      if (!busy && !s.length) return null;
+      return `правка по смыслу, а у студентов ${busy ? `идёт попытка (${busy})` : ''}${busy && s.length ? ' и ' : ''}${s.length ? `незавершённая серия попыток (${s.map((x) => x.email).join(', ')})` : ''}`;
+    },
+  });
 
   if (args.apply) {
     // Проверка: прошлые попытки пересчитываются по своей presentation (архивные вопросы) в сохранённый балл.

@@ -6,6 +6,7 @@ import { ApiErrorCode, LANGUAGES } from '@edu/shared';
 import type { LanguageLockReason, LanguageSwitchPreview, LearnView } from '../../lib/learn';
 import { invalidateLearning } from '../../lib/learn';
 import { api, ApiError } from '../../lib/api';
+import { apiErrorText } from '../../lib/catalog';
 import { Button, Dialog, Icon, Spinner, toast } from '../ui';
 import { languageName } from './labels';
 
@@ -72,7 +73,7 @@ export function CourseLanguageDialog({ open, onClose, view }: { open: boolean; o
         setLockedReason(d?.reason ?? null);
         void invalidateLearning(qc);
       } else {
-        toast(err instanceof ApiError ? err.message : t('course.language.failed'), 'danger');
+        toast(apiErrorText(t, err, 'course.language.failed'), 'danger');
       }
     } finally {
       setBusy(false);

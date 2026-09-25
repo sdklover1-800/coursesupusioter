@@ -16,9 +16,12 @@ import {
   evaluationSummarySystemPrompt,
   evaluationSummaryUserMessage,
   summaryLeakCheckSystemPrompt,
+  scoreLevel,
   DIALOG_PROMPT_VERSION,
+  type ScoreLevel,
 } from './prompts/dialog.js';
 import { detectAnswerLeak } from './leakDetector.js';
+import { informalAddress } from './addressForm.js';
 import { sanitizeTutorReply } from './sanitize.js';
 import { costUsd } from './rules.js';
 
@@ -46,9 +49,14 @@ export interface StoredSessionSummary {
   highlights: { messageId: string; criterion: RubricCriterion; polarity: 'plus' | 'minus'; note: string }[];
   /** Сколько строк выброшено проверкой утечки */
   droppedLines: number;
+  /** Сколько строк выброшено проверкой формы обращения (ru «вы», kk «Сіз», A.2) */
+  addressDropped?: number;
   promptVersion: string;
   generatedAt: string;
 }
+
+/** Пошаговые баллы реплик студента по id (null — у реплики нет оценки судьи). */
+export type TurnScores = ReadonlyMap<string, Record<RubricCriterion, number> | null>;
 
 interface SummaryLine {
   text: string;
@@ -60,10 +68,54 @@ function cleanLine(s: string): string {
   return t.length > SUMMARY_LINE_MAX_CHARS ? t.slice(0, SUMMARY_LINE_MAX_CHARS) : t;
 }
 
-/** Нормализация вывода модели: только допустимые id реплик студента, лимиты по числу пунктов. */
+/**
+ * Нейтральная строка критерия по уровню итогового балла — когда строки модели нет или она
+ * выброшена проверкой. Ничего не говорит о содержании ответа (A6), только об уровне.
+ */
+const LEVEL_LINE: Record<Language, Record<ScoreLevel, string>> = {
+  ru: {
+    0: 'Пока почти не проявлялось в ваших репликах.',
+    1: 'Проявлялось эпизодически, не во всех ваших репликах.',
+    2: 'Проявлялось в большинстве ваших реплик.',
+    3: 'Устойчиво проявлялось на протяжении всего диалога.',
+  },
+  kk: {
+    0: 'Бұл Сіздің репликаларыңызда әзірге сирек байқалды.',
+    1: 'Бұл Сіздің кейбір репликаларыңызда ғана байқалды.',
+    2: 'Бұл Сіздің репликаларыңыздың көбінде байқалды.',
+    3: 'Бұл диалог бойы тұрақты байқалды.',
+  },
+  en: {
+    0: 'This has barely shown in your replies so far.',
+    1: 'This showed only in some of your replies.',
+    2: 'This showed in most of your replies.',
+    3: 'This showed consistently throughout the dialogue.',
+  },
+};
+
+export function levelLine(score: number, language: Language): string {
+  return (LEVEL_LINE[language] ?? LEVEL_LINE.ru)[scoreLevel(score)];
+}
+
+/**
+ * Отметка реплики согласована с пошаговым баллом судьи: plus — только при балле 2–3 по этому
+ * критерию, minus — при 0–1. Иначе отзыв хвалит то, что судья не засчитал (например, просьбу
+ * выдать критерии как «методичность»), или ругает засчитанное.
+ */
+function highlightAgrees(h: { message_id: string; criterion: RubricCriterion; polarity: 'plus' | 'minus' }, turnScores: TurnScores): boolean {
+  const s = turnScores.get(h.message_id);
+  if (!s) return false;
+  const v = s[h.criterion];
+  return h.polarity === 'plus' ? v >= 2 : v <= 1;
+}
+
+/**
+ * Нормализация вывода модели: только допустимые id реплик студента, отметки, согласованные с
+ * пошаговыми баллами, лимиты по числу пунктов.
+ */
 export function normalizeSummary(
   data: EvaluationSummaryOutput,
-  studentIds: ReadonlySet<string>,
+  turnScores: TurnScores,
   scores: Record<RubricCriterion, number>,
 ): StoredSessionSummary {
   const lineFor = (key: RubricCriterion) => {
@@ -75,14 +127,32 @@ export function normalizeSummary(
     strengths: data.strengths.map(cleanLine).filter(Boolean).slice(0, 2),
     toDevelop: data.to_develop.map(cleanLine).filter(Boolean).slice(0, 2),
     highlights: data.highlights
-      .filter((h) => studentIds.has(h.message_id))
+      .filter((h) => turnScores.has(h.message_id) && highlightAgrees(h, turnScores))
       .slice(0, 6)
       .map((h) => ({ messageId: h.message_id, criterion: h.criterion, polarity: h.polarity, note: cleanLine(h.note) }))
       .filter((h) => h.note),
     droppedLines: 0,
+    addressDropped: 0,
     promptVersion: DIALOG_PROMPT_VERSION,
     generatedAt: new Date().toISOString(),
   };
+}
+
+/** Строки на неформальном обращении («ты», «сен», «репликаңда») выбрасываются. Возвращает число выброшенных. */
+export function dropInformalLines(s: StoredSessionSummary, language: Language): number {
+  let n = 0;
+  for (const l of summaryLines(s)) {
+    if (informalAddress(l.text, language).length) {
+      l.drop();
+      n++;
+    }
+  }
+  return n;
+}
+
+/** Критерий без строки (не пришла или выброшена проверкой) получает нейтральную строку по уровню балла. */
+export function fillLevelLines(s: StoredSessionSummary, language: Language): void {
+  for (const c of s.criteria) if (!c.line) c.line = levelLine(c.score, language);
 }
 
 /** Все текстовые строки отзыва с возможностью выбросить конкретную. */
@@ -169,7 +239,7 @@ export async function summarizeTurns(p: {
   };
   if (p.turns.length === 0) {
     // Студент не написал ни одной реплики — оценивать нечего, вызова LLM нет.
-    return { summary: normalizeSummary({ criteria: [], strengths: [], to_develop: [], highlights: [] }, new Set(), p.scores), usage: null, droppedLines: 0 };
+    return { summary: normalizeSummary({ criteria: [], strengths: [], to_develop: [], highlights: [] }, new Map(), p.scores), usage: null, droppedLines: 0 };
   }
   const { data, result } = await gateway.completeStructured(
     {
@@ -178,14 +248,25 @@ export async function summarizeTurns(p: {
       reasoningEffort: 'low',
       maxTokens: SUMMARY_MAX_TOKENS,
       system: evaluationSummarySystemPrompt(p.language),
-      messages: [{ role: 'user', content: evaluationSummaryUserMessage(p.turns.map((t) => ({ ...t, content: t.content.slice(0, STUDENT_TURN_MAX_CHARS) }))) }],
+      messages: [
+        {
+          role: 'user',
+          content: evaluationSummaryUserMessage(
+            p.turns.map((t) => ({ ...t, content: t.content.slice(0, STUDENT_TURN_MAX_CHARS) })),
+            p.scores,
+          ),
+        },
+      ],
     },
     evaluationSummaryOutputSchema,
     'evaluation_summary',
   );
   track(result);
   if (result.finishReason === 'length') throw new Error('отзыв оборван по лимиту токенов');
-  const summary = normalizeSummary(data, new Set(p.turns.map((t) => t.id)), p.scores);
+  const summary = normalizeSummary(data, new Map(p.turns.map((t) => [t.id, t.scores])), p.scores);
+
+  // Форма обращения (A.2): строки на «ты»/«сен» не показываем.
+  summary.addressDropped = dropInformalLines(summary, p.language);
 
   // Проверка на раскрытие ответа (A6): дословный детектор по каждой строке + семантическая.
   for (const l of summaryLines(summary)) {
@@ -225,6 +306,8 @@ export async function summarizeTurns(p: {
     }
   }
   compact(summary);
+  // Строка критерия не пришла или выброшена — нейтральная строка по уровню балла, а не пусто.
+  fillLevelLines(summary, p.language);
   return { summary, usage, droppedLines: summary.droppedLines };
 }
 

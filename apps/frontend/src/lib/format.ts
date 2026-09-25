@@ -103,13 +103,24 @@ export function formatPercent(ratio: number | null | undefined, digits = 0): str
   return `${digits > 0 ? v.toFixed(digits) : Math.round(v)}%`;
 }
 
-/** Число с разделителями разрядов языка интерфейса. */
-export function formatNumber(n: number | null | undefined, lng: Lng = i18n.language): string {
+/**
+ * Числа для kk — по правилам ru-RU: в ICU Chrome нет казахских числовых данных, и Intl('kk-KZ')
+ * даёт «12,277» и «1.3» (в Казахстане запятая — десятичный разделитель, «12,277» читается как дробь).
+ * Нормы kk и ru совпадают: пробел между разрядами, запятая в дроби.
+ */
+const numberLocale = (lng: Lng): string => (lng === 'kk' ? 'ru-RU' : intlLocale(lng));
+
+/**
+ * Число с разделителями разрядов языка интерфейса: «12 277» (ru/kk), «12,277» (en).
+ * digits — ровно столько знаков после запятой: formatNumber(1.3, 'kk', 1) → «1,3».
+ */
+export function formatNumber(n: number | null | undefined, lng: Lng = i18n.language, digits?: number): string {
   if (n === null || n === undefined || !Number.isFinite(n)) return '—';
   try {
-    return new Intl.NumberFormat(intlLocale(lng)).format(n);
+    const opts: Intl.NumberFormatOptions | undefined = digits === undefined ? undefined : { minimumFractionDigits: digits, maximumFractionDigits: digits };
+    return new Intl.NumberFormat(numberLocale(lng), opts).format(n);
   } catch {
-    return String(n);
+    return digits === undefined ? String(n) : n.toFixed(digits);
   }
 }
 
@@ -124,7 +135,7 @@ export function useFormat() {
       formatDuration: (sec: number | null | undefined, style: DurationStyle = 'clock') => formatDuration(sec, style, lng),
       formatCountdown: (untilIso: DateInput, now?: Date | number) => formatCountdown(untilIso, now),
       formatPercent,
-      formatNumber: (n: number | null | undefined) => formatNumber(n, lng),
+      formatNumber: (n: number | null | undefined, digits?: number) => formatNumber(n, lng, digits),
     }),
     [lng],
   );

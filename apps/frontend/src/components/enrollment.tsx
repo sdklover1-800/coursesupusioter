@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { ApiError } from '../lib/api';
 import { isNotApproved, langCode, notApprovedDetails, useMyCourses, type EnrollmentStatus } from '../lib/catalog';
-import { buttonClass, Card, type ButtonSize, type ButtonVariant } from './ui';
-import { ErrorState } from './page';
+import { Button, buttonClass, Card, Icon, type ButtonSize, type ButtonVariant } from './ui';
 
 /**
  * Общие элементы потока «каталог → заявка → одобрение»:
@@ -60,15 +59,16 @@ export function LangBadge({ lang, active, className }: { lang: string; active?: 
   );
 }
 
+// PENDING — brand (ожидание действия), не spark: амбер — только тьютор и маркер «сейчас/далее» (§1)
 const statusDot: Record<EnrollmentStatus, string> = {
-  PENDING: 'bg-spark',
+  PENDING: 'bg-brand',
   ACTIVE: 'bg-teal',
   COMPLETED: 'bg-teal',
   REJECTED: 'bg-danger',
   WITHDRAWN: 'bg-muted',
 };
 const statusSurface: Record<EnrollmentStatus, string> = {
-  PENDING: 'border-spark/40 bg-spark/10',
+  PENDING: 'border-brand/30 bg-brand-soft/60',
   ACTIVE: 'border-teal/35 bg-teal/10',
   COMPLETED: 'border-teal/35 bg-teal/10',
   REJECTED: 'border-danger/30 bg-danger/10',
@@ -86,7 +86,7 @@ export function StatusPill({ status, className }: { status: EnrollmentStatus; cl
         className,
       )}
     >
-      <span className={clsx('h-1.5 w-1.5 rounded-full', statusDot[status] ?? 'bg-muted', status === 'PENDING' && 'animate-pulse')} aria-hidden />
+      <span className={clsx('h-1.5 w-1.5 rounded-full', statusDot[status] ?? 'bg-muted')} aria-hidden />
       {t(`requests.status.${status}`)}
     </span>
   );
@@ -166,9 +166,31 @@ export function NotApprovedScreen({ courseId, enrollmentId, error }: { courseId?
   );
 }
 
-/** Ошибка загрузки контента курса: «не одобрено» → дружелюбный экран, иначе — общий. */
+/**
+ * Ошибка загрузки контента курса: «не одобрено» → дружелюбный экран, иначе — экран по статусу
+ * (403 — материал не из этой версии курса или курс снят с публикации, 404 — не найден,
+ * прочее — общий) со ссылкой «Мои курсы». Текст сервера (по-русски) не показывается никогда.
+ */
 export function ContentError({ error, courseId, enrollmentId }: { error: unknown; courseId?: string; enrollmentId?: string }) {
   const { t } = useTranslation();
   if (isNotApproved(error)) return <NotApprovedScreen courseId={courseId} enrollmentId={enrollmentId} error={error} />;
-  return <ErrorState message={error instanceof ApiError ? error.message : t('errors.generic')} />;
+  const status = error instanceof ApiError ? error.status : 0;
+  const kind = status === 403 ? 'forbidden' : status === 404 ? 'notFound' : 'generic';
+  return (
+    <div className="mx-auto max-w-lg py-6 sm:py-12">
+      <Card className="!p-8 text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-surface-2 text-fg-2" aria-hidden>
+          {kind === 'forbidden' ? <LockIcon className="h-6 w-6" /> : <Icon name="alert" size={24} />}
+        </span>
+        <h1 className="mt-4 text-xl font-semibold leading-snug">{t(`student.contentError.${kind}Title`)}</h1>
+        <p role="alert" className="mx-auto mt-2 max-w-sm text-body text-fg-2">{t(`student.contentError.${kind}Text`)}</p>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <LinkButton to="/">{t('nav.myCourses')}</LinkButton>
+          {kind === 'generic' && (
+            <Button variant="secondary" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
 }

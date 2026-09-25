@@ -57,7 +57,7 @@ export const admin: Loc<typeof ruAdmin> = {
   },
   consent: {
     given: 'Given', outdated: 'Earlier version', missing: 'None',
-    version: 'version {{version}}',
+    version: 'Version {{version}}',
     filter: { given: 'Given (current version)', outdated: 'Given for an earlier version', missing: 'No consent' },
   },
   editUser: {
@@ -329,7 +329,7 @@ export const admin: Loc<typeof ruAdmin> = {
   auditPage: {
     subtitle: 'Who changed what: staff actions and key student steps',
     anyAction: 'All actions',
-    anyActor: 'All staff',
+    anyActor: 'All users',
     target: 'Object',
     anyTarget: 'All objects',
     colDetail: 'Details',

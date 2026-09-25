@@ -6,6 +6,7 @@ import {
   buildReview,
   canPractice,
   effectiveCooldownMinutes,
+  exhaustedEnrollmentCount,
   frozenQuestionIds,
   isAttemptStale,
   parsePresentation,
@@ -84,6 +85,34 @@ describe('canPractice (USER_DECISIONS §2)', () => {
 });
 
 /* ── buildPresentation ── */
+
+describe('exhaustedEnrollmentCount (увеличение maxAttempts после раскрытия ключа)', () => {
+  const rules = { maxAttempts: 2, cooldownMinutes: 1440, scoringRule: 'BEST' as const };
+  const at = (enrollmentId: string, n: number, over: { submitted?: boolean; passed?: boolean } = {}) => ({
+    id: `${enrollmentId}-${n}`,
+    enrollmentId,
+    startedAt: new Date(Date.UTC(2026, 8, 20 + n)),
+    submittedAt: over.submitted === false ? null : new Date(Date.UTC(2026, 8, 20 + n, 0, 20)),
+    score: over.passed ? 0.875 : 0.5,
+    passed: !!over.passed,
+  });
+  const now = new Date(Date.UTC(2026, 8, 26));
+
+  it('исчерпал обе попытки без сдачи — считается (ему уже открыт ключ)', () => {
+    expect(exhaustedEnrollmentCount([at('e1', 1), at('e1', 2)], rules, now)).toBe(1);
+  });
+
+  it('сдавший, одна попытка, идущая последняя попытка — не считаются', () => {
+    const attempts = [at('p', 1, { passed: true }), at('o', 1), at('r', 1), at('r', 2, { submitted: false })];
+    expect(exhaustedEnrollmentCount(attempts, rules, now)).toBe(0);
+  });
+
+  it('считает записи, а не попытки; без попыток — 0', () => {
+    const attempts = [at('a', 1), at('a', 2), at('b', 1), at('b', 2), at('c', 1)];
+    expect(exhaustedEnrollmentCount(attempts, rules, now)).toBe(2);
+    expect(exhaustedEnrollmentCount([], rules, now)).toBe(0);
+  });
+});
 
 describe('buildPresentation (попытка 2 перемешана)', () => {
   it('попытка 1 — канонический порядок, без seed', () => {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { LANGUAGES, Role } from '@edu/shared';
 import { useAuth } from '../../lib/auth';
-import { isApproved, pickVersion, useCatalog, useMyCourses, type CatalogItem, type MyEnrollment } from '../../lib/catalog';
+import { byLangOrder, isApproved, pickVersion, useCatalog, useMyCourses, type CatalogItem, type MyEnrollment } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Button, Card, Icon, SegmentedControl, Skeleton, buttonClass } from '../../components/ui';
@@ -13,9 +13,6 @@ import { StatusPill } from '../../components/enrollment';
 import { keepTogether } from '../../components/course/labels';
 
 type LangFilter = 'all' | (typeof LANGUAGES)[number];
-
-/** Порядок языков как в переключателе интерфейса: казахский первым. */
-const byLangOrder = (a: string, b: string) => (LANGUAGES as readonly string[]).indexOf(a) - (LANGUAGES as readonly string[]).indexOf(b);
 
 /**
  * Публичный каталог курсов (screen_specs «Public catalog…», Stepik-просто): фильтр
@@ -65,7 +62,8 @@ export function CatalogPage() {
             <ol className="mt-8 grid gap-3 sm:grid-cols-3">
               {steps.map((s) => (
                 <li key={s.n} className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <span className={clsx('num font-semibold', s.done ? 'text-teal-ink' : 'text-spark-ink')}>
+                  {/* Нейтральные маркеры: teal — только успех после проверки, spark — тьютор и «далее» (§1) */}
+                  <span className={clsx('num font-semibold', s.done ? 'text-fg' : 'text-fg-2')}>
                     {s.done ? <Icon name="check" size={18} strokeWidth={2.5} label={t('ui.done')} /> : s.n}
                   </span>
                   <div className="min-w-0">
@@ -107,7 +105,7 @@ export function CatalogPage() {
                 <SegmentedControl<LangFilter>
                   ariaLabel={t('catalog.filterLabel')}
                   tone="brand"
-                  className="grid w-full grid-cols-2 !rounded-2xl sm:inline-flex sm:w-auto sm:!rounded-full"
+                  className="grid w-full grid-cols-2 !rounded-2xl sm:inline-flex sm:w-auto sm:!rounded-full max-sm:[&>button]:h-11"
                   value={filter}
                   onChange={setFilter}
                   options={[
@@ -139,7 +137,7 @@ function FilterLabel({ text, count }: { text: string; count: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       {text}
-      <span className="num opacity-80">{count}</span>
+      <span className="num">{count}</span>
     </span>
   );
 }
@@ -169,7 +167,12 @@ function CourseCard({ course, enrollment, lang }: { course: CatalogItem; enrollm
       <div className="flex min-h-[2.5rem] items-center justify-between gap-3 bg-brand-soft px-5 py-1.5">
         <span className="text-label font-semibold text-brand">
           <span aria-hidden>{strip}</span>
-          <span className="sr-only">{t('catalog.languages')}: {langList.map((l) => t(`languages.${l}`)).join(', ')}</span>
+          <span className="sr-only">
+            {t('catalog.languages')}:{' '}
+            {langList.map((l, i) => (
+              <span key={l} lang={l}>{i > 0 && ', '}{t(`languages.${l}`)}</span>
+            ))}
+          </span>
         </span>
         {enrollment && <StatusPill status={enrollment.status} />}
       </div>

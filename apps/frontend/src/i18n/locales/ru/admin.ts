@@ -62,7 +62,7 @@ export const admin = {
   },
   consent: {
     given: 'Дано', outdated: 'Прежняя версия', missing: 'Нет',
-    version: 'версия {{version}}',
+    version: 'Версия {{version}}',
     filter: { given: 'Дано (текущая версия)', outdated: 'Дано на прежнюю версию', missing: 'Нет согласия' },
   },
   editUser: {
@@ -342,7 +342,7 @@ export const admin = {
   auditPage: {
     subtitle: 'Кто и что изменил: действия сотрудников и ключевые шаги студентов',
     anyAction: 'Все действия',
-    anyActor: 'Все сотрудники',
+    anyActor: 'Все пользователи',
     target: 'Объект',
     anyTarget: 'Все объекты',
     colDetail: 'Подробности',

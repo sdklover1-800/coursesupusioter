@@ -122,7 +122,7 @@ const KIND_BOX: Record<LearnItemKind, string> = {
   LECTURE: 'border border-border-strong bg-card text-fg',
   MINI_QUIZ: 'border border-dashed border-brand/60 bg-brand-soft/50 text-brand',
   FINAL_MINI_QUIZ: 'border border-dashed border-brand/60 bg-brand-soft/50 text-brand',
-  MODULE_QUIZ: 'border border-ink bg-ink text-white dark:border-border-strong',
+  MODULE_QUIZ: 'border border-ink bg-ink text-white dark:border-fg dark:bg-fg dark:text-ink',
   PRACTICAL: 'border border-spark bg-spark text-ink',
   CERTIFICATE: 'border border-border-strong bg-card text-fg',
 };

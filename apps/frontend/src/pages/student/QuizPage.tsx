@@ -10,6 +10,7 @@ import {
 } from '../../lib/quiz';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { ApiError } from '../../lib/api';
+import { apiErrorText } from '../../lib/catalog';
 import { Breadcrumb, toast, type Crumb } from '../../components/ui';
 import { ErrorState, LoadingRows } from '../../components/page';
 import { ContentError } from '../../components/enrollment';
@@ -94,7 +95,9 @@ interface ScreenProps {
 function useCrumbs({ lobby, courseId, enrollmentId, quizId, ctx }: ScreenProps, extra?: Crumb): Crumb[] {
   const { t } = useTranslation();
   const items: Crumb[] = [{ label: ctx.courseTitle ?? t('nav.myCourses'), to: routes.course(courseId, enrollmentId) }];
-  if (ctx.moduleTitle) items.push({ label: ctx.moduleTitle, to: routes.course(courseId, enrollmentId) });
+  // Короткая метка «Модуль II»: полное название (kk) обрезалось бы посреди слова (§8)
+  if (ctx.numeral) items.push({ label: t('course.moduleNo', { roman: ctx.numeral }), to: routes.course(courseId, enrollmentId) });
+  else if (ctx.moduleTitle) items.push({ label: ctx.moduleTitle, to: routes.course(courseId, enrollmentId) });
   items.push({ label: lobby.isGraded ? t('quiz.moduleTest') : lobby.title, to: extra ? quizRoutes.lobby(courseId, enrollmentId, quizId) : undefined });
   if (extra) items.push(extra);
   return items;
@@ -128,7 +131,7 @@ function LobbyScreen(props: ScreenProps) {
       else if (code === QuizErrorCode.COOLDOWN || code === QuizErrorCode.ATTEMPTS_EXHAUSTED || code === QuizErrorCode.QUIZ_ALREADY_PASSED) {
         toast(t(`quiz.lobby.errors.${code}`), 'muted');
         void qc.invalidateQueries({ queryKey: quizKeys.lobby(quizId, enrollmentId) });
-      } else toast(err instanceof ApiError && err.status < 500 ? err.message : t('quiz.lobby.errors.generic'), 'danger');
+      } else toast(apiErrorText(t, err, 'quiz.lobby.errors.generic'), 'danger');
     } finally {
       setStarting(false);
     }

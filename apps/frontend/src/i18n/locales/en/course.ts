@@ -10,7 +10,7 @@ export const course: Loc<typeof ruCourse> = {
   certificateCta: 'Get the certificate',
   itemName: {
     LECTURE: 'Lecture {{n}}',
-    MODULE_QUIZ: 'Module test {{roman}}',
+    MODULE_QUIZ: 'Module {{roman}} test',
     PRACTICAL: 'Final practical',
     CERTIFICATE: 'Certificate',
   },
@@ -119,7 +119,7 @@ export const course: Loc<typeof ruCourse> = {
     missingTitle: 'Still to do',
     missing: {
       LECTURES: 'Module {{roman}} lectures · {{done}} of {{total}}',
-      MODULE_QUIZ: 'Module test {{roman}}',
+      MODULE_QUIZ: 'Module {{roman}} test',
       PRACTICAL: 'Final practical',
     },
     more: 'and {{count}} more',

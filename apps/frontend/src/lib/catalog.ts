@@ -4,6 +4,8 @@
  * Доступ к материалам курса — только при одобренной записи (ACTIVE/COMPLETED).
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { TFunction } from 'i18next';
+import { LANGUAGES } from '@edu/shared';
 import type {
   CatalogLecture as SharedCatalogLecture, CatalogModule as SharedCatalogModule, CatalogVersionDetail,
   CatalogVersionSummary as SharedCatalogVersionSummary, MyCourseSummary,
@@ -103,6 +105,38 @@ export function safeNext(raw: string | null | undefined): string | null {
   if (!raw) return null;
   if (!raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return null;
   return raw;
+}
+
+/** Порядок языков как в переключателе интерфейса (design_direction §10): казахский первым. */
+export function byLangOrder(a: string, b: string): number {
+  const order = LANGUAGES as readonly string[];
+  return order.indexOf(a) - order.indexOf(b);
+}
+
+/**
+ * Текст ошибки API для студента — ТОЛЬКО из локализованных ключей: сервер пишет
+ * сообщения по-русски («Курс недоступен», «Слишком много запросов»), и в kk/en-интерфейсе
+ * их показывать нельзя. Ветвление — по статусу; fallbackKey — ключ контекста действия
+ * (5xx и прочее). Коды, у которых есть свой экран/текст (COOLDOWN, LANGUAGE_LOCKED…),
+ * вызывающий обрабатывает раньше.
+ */
+export function apiErrorText(t: TFunction, err: unknown, fallbackKey = 'errors.generic'): string {
+  if (!(err instanceof ApiError)) return t(err instanceof TypeError ? 'errors.network' : fallbackKey);
+  switch (err.status) {
+    case 400:
+    case 422:
+      return t('student.errors.invalid');
+    case 403:
+      return t('errors.forbidden');
+    case 404:
+      return t('errors.notFound');
+    case 409:
+      return t('student.errors.conflict');
+    case 429:
+      return t('student.errors.tooMany');
+    default:
+      return t(fallbackKey);
+  }
 }
 
 /** 403 ENROLLMENT_NOT_APPROVED — заявка не одобрена/отклонена/запись отменена. */

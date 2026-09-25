@@ -10,7 +10,7 @@ import { Icon } from './icons';
 export function Brand({ compact }: { compact?: boolean }) {
   const { t } = useTranslation();
   return (
-    <Link to="/catalog" className="flex shrink-0 items-center gap-2 rounded-lg" aria-label={t('common.appName')}>
+    <Link to="/catalog" className="flex min-h-11 shrink-0 items-center gap-2 rounded-lg" aria-label={t('common.appName')}>
       <LogoMark size={32} nameClassName={clsx(compact && 'hidden sm:inline')} />
     </Link>
   );

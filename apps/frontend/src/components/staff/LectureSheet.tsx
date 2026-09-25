@@ -5,6 +5,7 @@ import { Button, ConfirmDialog, Field, Input, SegmentedControl, Sheet, toast } f
 import { TranscriptView } from '../TranscriptView';
 import { apiErrorMessage, clockToSeconds, secondsToClock, useUpdateLecture, type LecturePatch, type StaffLecture } from '../../lib/staff';
 import { AutoTextarea, Notice } from './primitives';
+import { lectureDisplayTitle } from '../lecture/lectureUtils';
 
 interface Draft {
   title: string;
@@ -106,7 +107,8 @@ export function LectureSheet({
         busy={update.isPending}
         size="lg"
         title={number ? t('manager.lectureSheet.titleNumbered', { n: number }) : t('manager.lectureSheet.title')}
-        description={lecture?.title}
+        // «Лекция 1» уже в заголовке — в подзаголовке название без «1. …» (одна нумерация); сырое — в поле «Название»
+        description={lecture ? lectureDisplayTitle(lecture.title) : undefined}
         footer={
           <>
             <Button variant="secondary" onClick={requestClose} disabled={update.isPending}>

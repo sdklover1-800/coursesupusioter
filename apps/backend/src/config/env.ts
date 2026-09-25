@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isLocalUrl, resolvePublicAppUrl } from './publicUrl.js';
 
 /**
  * Булев флаг окружения. z.coerce.boolean() превращает строку 'false' в true,
@@ -84,8 +85,9 @@ const envSchema = z.object({
   CERT_RULE: z.enum(['PASS_ALL', 'COMPLETE_ALL']).default('PASS_ALL'),
   // Запрет смены исследовательских групп после старта сбора данных (A27)
   STUDY_COHORTS_LOCKED: bool(false),
-  // Публичный адрес фронтенда — для ссылок проверки сертификата
-  PUBLIC_APP_URL: z.string().default('http://localhost:5173'),
+  // Публичный адрес фронтенда — для ссылок и QR проверки сертификата.
+  // Пусто — первый адрес из FRONTEND_ORIGIN; в проде локальный адрес недопустим (см. ниже).
+  PUBLIC_APP_URL: z.string().default(''),
   // Организация-эмитент в сертификате и на странице проверки
   CERT_ISSUER_NAME: z.string().default('EduOpen'),
 
@@ -136,11 +138,20 @@ export function resolveProvider(e: Pick<z.infer<typeof envSchema>, 'LLM_PROVIDER
   return 'mock';
 }
 
+const publicAppUrl = resolvePublicAppUrl(parsed.data.PUBLIC_APP_URL, parsed.data.FRONTEND_ORIGIN);
+if (parsed.data.NODE_ENV === 'production' && isLocalUrl(publicAppUrl)) {
+  // Иначе все сертификаты уйдут с QR и ссылкой проверки на локальную машину.
+  // eslint-disable-next-line no-console
+  console.error(`❌ PUBLIC_APP_URL (или FRONTEND_ORIGIN) в проде указывает на локальный адрес: «${publicAppUrl}». Задайте публичный адрес сайта, например PUBLIC_APP_URL=https://eduopen.kz`);
+  process.exit(1);
+}
+
 const provider = resolveProvider(parsed.data);
 const defaultModel = DEFAULT_MODELS[provider];
 
 export const env = {
   ...parsed.data,
+  PUBLIC_APP_URL: publicAppUrl,
   LLM_PROVIDER: provider,
   LLM_MODEL_GENERATION: parsed.data.LLM_MODEL_GENERATION || defaultModel,
   LLM_MODEL_DIALOG: parsed.data.LLM_MODEL_DIALOG || defaultModel,

@@ -6,7 +6,7 @@ import { attemptNumber, firstParagraph, toBlocks } from '../../lib/practical';
 import { useFormat } from '../../lib/format';
 import { languageName } from '../course/labels';
 import { ReportIssueButton } from '../ReportIssue';
-import { Breadcrumb, Button, InquiryMeter, QuestionGlyph, type Crumb } from '../ui';
+import { Breadcrumb, Button, InquiryMeter, ModeBadge, QuestionGlyph, type Crumb } from '../ui';
 import { Icon } from '../icons';
 import { Inline, RichText } from './RichText';
 import { useAgenda } from './TaskPanel';
@@ -101,7 +101,9 @@ export function PracticalBrief({
       <header className="max-w-[62rem]">
         <div className="eyebrow">{t('practical.kind')}</div>
         <h1 className="mt-1.5 text-display-lg text-fg">{brief.title}</h1>
-        <p className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-fg-2">
+        {/* Режим — как у карточки практикума на странице курса: сплошной ink с ◆ (§8) */}
+        <p className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-meta text-fg-2">
+          <ModeBadge mode="graded" className="mr-1" />
           <Icon name="globe" size={16} />
           <span>{languageName(t, brief.language)}</span>
           <span aria-hidden>·</span>

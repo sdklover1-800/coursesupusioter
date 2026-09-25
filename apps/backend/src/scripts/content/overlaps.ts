@@ -5,7 +5,8 @@
  * заменяются (draftReplacementQuestions с doNotReuse = оцениваемые формулировки). Итоговый
  * мини-квиз курса здесь не трогается — его целиком пересоздаёт course-final.ts (2e).
  * Кроме того, по исправленным расшифровкам целиком пересоздаются мини-квизы kk L1, kk L7
- * и ru L2 (draftMiniQuiz с тем же числом вопросов).
+ * и ru L2 (draftMiniQuiz с тем же числом вопросов). Правки рецензента после применения
+ * (meta.textFixes) переносятся на уже пересозданные мини-квизы по точному «было → стало».
  *
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/overlaps.ts --draft
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/overlaps.ts --from overlaps.v1.json [--apply --i-have-a-backup]
@@ -24,6 +25,7 @@ import {
   Report,
   type VersionCtx,
   activeQuestions,
+  applyTextFixes,
   fromPortable,
   gradedModules,
   lectureByNumber,
@@ -42,6 +44,7 @@ import {
   version,
   writeArtifact,
 } from './lib.js';
+import type { TextFix } from './revisions.js';
 
 const SCRIPT = 'overlaps';
 const ARTIFACT = 'overlaps.v1.json';
@@ -64,7 +67,17 @@ interface Replacement {
 }
 
 interface Artifact {
-  meta: { version: 1; createdAt: string; llm: ReturnType<typeof getDraftUsage>; thresholds: string; warnings: string[] };
+  meta: {
+    version: 1;
+    createdAt: string;
+    llm: ReturnType<typeof getDraftUsage>;
+    thresholds: string;
+    warnings: string[];
+    /** Правки рецензента (человекочитаемо). */
+    reviewEdits?: string[];
+    /** Те же правки для стендов, где мини-квизы уже пересозданы (lib.applyTextFixes). */
+    textFixes?: TextFix[];
+  };
   replacements: Replacement[];
   minis: { lang: Language; lecture: number; reason: string; count: number; items: PortableQuestion[] }[];
 }
@@ -128,7 +141,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
     }
   }
   art.meta.llm = getDraftUsage();
-  const path = writeArtifact(args.dataDir, ARTIFACT, art);
+  const path = writeArtifact(args.dataDir, ARTIFACT, art, { overwriteReviewed: args.has('--overwrite-reviewed') });
   recordSpend(args.dataDir, { script: SCRIPT, at: new Date().toISOString(), ...getDraftUsage() });
   console.log(`\nЧерновик: ${path} · замен ${art.replacements.length} · мини-квизов целиком ${art.minis.length}`);
   for (const m of art.minis) {
@@ -200,6 +213,8 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     });
     report.line(unit, 'changed', `«${r.draft.prompt.slice(0, 80)}»`);
   }
+  // Правки рецензента после применения (meta.textFixes), напр. обоснования TRUE_FALSE.
+  await applyTextFixes({ script: SCRIPT, fixes: art.meta.textFixes ?? [], course, langs: args.langs, apply: args.apply, force: args.force, report });
   console.log(`\n${report.summary()}`);
   return report.errors ? 1 : 0;
 }

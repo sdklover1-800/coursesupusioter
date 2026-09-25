@@ -3,6 +3,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import type { AttemptResult, AttemptStart } from '@edu/shared';
 import { ApiError } from '../../lib/api';
+import { apiErrorText } from '../../lib/catalog';
 import { useFormat } from '../../lib/format';
 import { errorCode, QuizErrorCode, saveAttemptAnswers, submitAttempt } from '../../lib/quiz';
 import { Button, ConfirmDialog, Dialog, toast } from '../ui';
@@ -137,7 +138,7 @@ export function OfficialRunner({ start, title, maxAttempts, enrollmentId, onExit
       // Сеть / 5xx / 429 — повтор с нарастающей паузой; прочие 4xx повтор не исправит
       const status = err instanceof ApiError ? err.status : 0;
       retry = status === 0 || status >= 500 || status === 408 || status === 429 || !(err instanceof ApiError);
-      if (!retry) toast(err instanceof ApiError ? err.message : t('quiz.runner.saveFailed'), 'muted');
+      if (!retry) toast(apiErrorText(t, err, 'quiz.runner.saveFailed'), 'muted');
     } finally {
       inFlight.current = false;
     }

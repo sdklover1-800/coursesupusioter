@@ -70,5 +70,13 @@
     "inputTokens": 256717,
     "outputTokens": 20896,
     "costUsd": 0.27792975
+  },
+  {
+    "script": "lecture-minis (рецензент: перевод проверенного ru-набора на kk/en с глоссарием курса)",
+    "at": "2026-10-19T12:21:00.000Z",
+    "calls": 31,
+    "inputTokens": 307759,
+    "outputTokens": 22315,
+    "costUsd": 0.16716315
   }
 ]

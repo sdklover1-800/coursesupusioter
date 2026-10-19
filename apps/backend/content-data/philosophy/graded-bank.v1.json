@@ -147,8 +147,8 @@
             2,
             2
           ],
-          "testwise": 0.375,
-          "maxLengthRatio": 1.22
+          "testwise": 0.25,
+          "maxLengthRatio": 1.39
         },
         "en": {
           "ok": true,
@@ -159,7 +159,7 @@
             2,
             2
           ],
-          "testwise": 0.375,
+          "testwise": 0.25,
           "maxLengthRatio": 1.23
         }
       }
@@ -324,7 +324,26 @@
       "en phil:M3:Q6 options[C]: «Doxa and aletheia» → «Opinion (doxa) and truth (aletheia)» (length cue 1.53 on short pairs → 1.18)",
       "en phil:M3:Q8 optionRationales[B]: «Incorrect: mechanistic determinism (‘Laplace’s demon’) claims that with complete knowledge the future is unambiguously predictable.» → «Incorrect: mechanistic determinism (\"Laplace's demon\") claims that with complete knowledge the future is unambiguously predictable.» (quotation marks)",
       "kk: «Дұрыс емес:» → «Қате:» в обоснованиях (14), как в банке политологии",
-      "en: типографские кавычки → прямые (63 полей), как в en-лекциях курса"
+      "en: типографские кавычки → прямые (63 полей), как в en-лекциях курса",
+      "[2026-10-19] ru/kk/en phil:M2:Q6: обоснование B: у Канта есть теория первоначального договора («Метафизика нравов», учение о праве §47); неверно не это, а то, что общая воля как условие свободы в ассоциации — понятие Руссо",
+      "[2026-10-19] ru/kk/en phil:M3:Q6: обоснование D: различение бытия и сущего Хайдеггер не «ввёл», а заново заострил (как в лекции 10; схоластика — esse/ens)",
+      "[2026-10-19] kk phil:M4:Q5: kk пояснение: «ойша бақылаулар» (мысленные) → «мүмкін болатын бақылаулар» (мыслимые, как в kk-11)",
+      "[2026-10-19] kk phil:M1:Q2: kk обоснование B: «уахи» → «аян» (откровение — как в kk-01 и мини-квизе L1)",
+      "[2026-10-19] ru/kk/en phil:M1:Q3: подсказка созвучием: «атомисты» в формулировке → «атомы» только в ключе; формулировка называет Левкиппа и Демокрита без ярлыка школы",
+      "[2026-10-19] ru/kk/en phil:M2:Q1: подсказка созвучием: «не может изменить случившееся» → ключ «Изменить своё суждение» (kk өзгерте/өзгерту, en change/Change); формулировка — «вернуть уже невозможно»",
+      "[2026-10-19] ru/en phil:M2:Q2: подсказка созвучием: «ясно понимает» → ключ «вопреки ясному знанию» (en clearly/clear); kk без повтора (анық/айқын) — не менялся",
+      "[2026-10-19] ru/kk/en phil:M2:Q4: подсказка созвучием: «несомненно … метод» → ключ «методического сомнения» (kk күмәнсіз/әдісін, en doubt/method); формулировка — поиск абсолютно надёжного основания знания",
+      "[2026-10-19] ru/kk/en phil:M2:Q5: подсказка созвучием: «качества … Чью теорию» → ключ «Теорию … качеств» (единственный вариант на «Теорию»; kk қасиеттер/теориясы, en qualities/theory); формулировка — «свойства», «Чью позицию»",
+      "[2026-10-19] ru/kk/en phil:M3:Q2: подсказка созвучием: «созерцать мир» → ключ «Эстетическое созерцание» (kk тамашалау, en contemplate/contemplation); формулировка — «видеть мир бескорыстно»",
+      "[2026-10-19] en phil:M3:Q6: en подсказка созвучием: «actualizes» → ключ «actuality»; «realizes» (как ru «осуществляет», kk «жүзеге асырады»)",
+      "[2026-10-19] en phil:M3:Q7: en подсказка созвучием: «relations» → ключ «relational conception» (ru «порядок отношений»/«Реляционная», kk «қатынастар»/«реляциялық» — без повтора)",
+      "[2026-10-19] en phil:M4:Q1: en: «compared» и ключ «Compatibilism» совпадают первыми буквами (ложное срабатывание меры, но правка ничего не стоит) — «likened»",
+      "[2026-10-19] en phil:M4:Q2: en: «supports» в формулировке созвучно ключу «supposed bearer» — «holds them up» (ru «подпирает»)",
+      "[2026-10-19] kk phil:M4:Q2: kk: ключ — единственный вариант без «ретінде» (у остальных «… ретінде»), в ru/en все варианты начинаются одинаково; добавлено «ретінде»",
+      "[2026-10-19] ru/kk/en phil:M4:Q3: подсказка созвучием: «без понятий … строит понятия» → ключ «созерцания без понятий» (kk ұғымдарсыз/ұғымсыз, en without concepts); формулировка без «понятий»: «не может упорядочить», «отвлечённые схемы»",
+      "[2026-10-19] ru phil:M4:Q6: ru подсказка созвучием: «недостаток» → ключ «Недостаточное существо» (kk кемшілік/Жетімсіз, en lack/deficient — без повтора); «нехватку»",
+      "[2026-10-19] ru phil:M4:Q7: ru подсказка созвучием: «господствующим» → ключ «Диалектика господина и раба» (kk үстем/Қожайын, en dominant/master — без повтора); «берёт верх»",
+      "[2026-10-19] ru/kk/en phil:M4:Q8: подсказка созвучием: формулировка «запреты и нормы, усвоенные в детстве» → ключ «Сверх-Я: усвоенные запреты…» (kk меңгерілген тыйымдар, en prohibitions); пояснение ключа — «внутренний цензор и голос совести»"
     ],
     "reviewNotes": [
       "Черновик (gpt-5.4-mini, graded-bank --draft) переписан рецензентом почти целиком: дубли понятий внутри и между модулями (M1:Q1/Q8, M3:Q3/M4:Q3, M3:Q6/M4:Q2), подсказки атрибуцией в условии («джайнское», «буддийской», «кантовское», «гегелевское», «Гадамера»), двусмысленные ключи (материя/форма vs потенция/акт, «Я-идеал», «принцип дополнительности»), несуществующие термины («Трансцендентальная воля», «Дистенция души», «Оно-Я»), перекос по лекциям (L3 — 1 вопрос из 8).",
@@ -333,7 +352,728 @@
       "Ошибки исходных лекций, на которые банк НЕ опирается: ru-01 приписывает «двойственную истину» Ибн Рушду (исторически — латинские аверроисты; черновой вопрос об этом в банк не вошёл); ru-04 — изречение Эпиктета («не вещи тревожат людей…») Марку Аврелию; ru-06 — «тот, кто предпочитает смерть свободе, становится господином» (у Гегеля наоборот, так и в ru-12); ru-15 относит Юк Хуэя к спекулятивному реализму.",
       "Термины kk/en сверены с лекциями курса: kk — «Мен-жоқтық» (анатман), «біржақты еместік доктринасы», «пікір айтудан тыйылу» (эпохе), «ұстамды / шеткі реализм», «алдын ала белгіленген үйлесімділік», «жалпы ерік», «алыну» (Aufheben), «Ерік» у Шопенгауэра (не «Воля»), «қам», «өлімге қарай болмыс», «көкжиектердің қосылуы», «дескрипциялар», «болмыс және барлық-нәрсе», «білмейтін бірдеңе», «мазмұнсыз ойлар қуыс…», «Супер-эго / Ид / Эго», «ар-ождан»; en — «particular sciences», «first principle», «paradoxes» (апории Зенона), «Forms», «indifferents», «sage», «greatest happiness principle», «deficient being», «something, I know not what»; en-кавычки прямые, как в en-лекциях.",
       "Таймкод источника: ru — начало раздела лекции, на который опирается вопрос; kk/en — тот же раздел по номеру (translateQuestions → mapTimecodeBetween): у видео каждого языка свой хронометраж.",
-      "При применении: ru — EXPERT_REVIEW (философ: единственный верный ответ, корректность дистракторов), kk/en — NATIVE_PROOFREAD (вычитка перевода) — как у политологии."
+      "При применении: ru — EXPERT_REVIEW (философ: единственный верный ответ, корректность дистракторов), kk/en — NATIVE_PROOFREAD (вычитка перевода) — как у политологии.",
+      "[2026-10-19] Подсказки созвучием (валидность): ключ не должен повторять слово/основу формулировки, которой нет ни у одного дистрактора. Мера — общие с формулировкой основы из 4 букв (без служебных слов) только у ключа; до ревизии ru 7 / kk 5 / en 8 из 32 по относительной мере проверки и ещё M1:Q3, M2:Q2, M3:Q2 (повтор у ключа «маскировался» приманкой в другом дистракторе); после — ни одного. Ключи, их позиции, canonicalKey и порядок вариантов не менялись; гейт (meta.gates) пересчитан. Отметки EXPERT_REVIEW/NATIVE_PROOFREAD на вопросах остаются открытыми — эксперт читает исправленный текст."
+    ],
+    "textFixes": [
+      {
+        "id": "rev1-ru-M2Q6-kant",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q6",
+        "note": "обоснование B: у Канта есть теория первоначального договора («Метафизика нравов», учение о праве §47); неверно не это, а то, что общая воля как условие свободы в ассоциации — понятие Руссо",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Неверно: Кант разрабатывает категорический императив и критику разума, а не теорию общественного договора.",
+            "to": "Неверно: Кант тоже опирается на идею первоначального договора, но понятие общей воли, подчинение которой сохраняет свободу каждого, принадлежит Руссо, а не Канту."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M2Q6-kant",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q6",
+        "note": "обоснование B: у Канта есть теория первоначального договора («Метафизика нравов», учение о праве §47); неверно не это, а то, что общая воля как условие свободы в ассоциации — понятие Руссо",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Қате: Кант категориялық императивті және ақыл сындарын дамытты, қоғамдық шарт теориясын емес.",
+            "to": "Қате: Кант та бастапқы шарт идеясына сүйенеді, бірақ бағынған әр адамның еркіндігін сақтайтын жалпы ерік ұғымы Кантқа емес, Руссоға тиесілі."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M2Q6-kant",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q6",
+        "note": "обоснование B: у Канта есть теория первоначального договора («Метафизика нравов», учение о праве §47); неверно не это, а то, что общая воля как условие свободы в ассоциации — понятие Руссо",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: Kant develops the categorical imperative and critiques reason, not the theory of the social contract.",
+            "to": "Incorrect: Kant also relies on the idea of an original contract, but the concept of the general will, submission to which preserves each person's freedom, belongs to Rousseau, not Kant."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M3Q6-heidegger",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q6",
+        "note": "обоснование D: различение бытия и сущего Хайдеггер не «ввёл», а заново заострил (как в лекции 10; схоластика — esse/ens)",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Неверно: различение бытия и сущего ввёл Хайдеггер, и оно не объясняет изменение вещи.",
+            "to": "Неверно: различение бытия и сущего, заново заострённое Хайдеггером, не объясняет изменение вещи."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M3Q6-heidegger",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q6",
+        "note": "обоснование D: различение бытия и сущего Хайдеггер не «ввёл», а заново заострил (как в лекции 10; схоластика — esse/ens)",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Қате: болмыс пен барлық-нәрсені ажыратуды Хайдеггер енгізген, ол заттың өзгерісін түсіндірмейді.",
+            "to": "Қате: Хайдеггер қайтадан күшейткен болмыс пен барлық-нәрсенің айырмашылығы заттың өзгерісін түсіндірмейді."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M3Q6-heidegger",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q6",
+        "note": "обоснование D: различение бытия и сущего Хайдеггер не «ввёл», а заново заострил (как в лекции 10; схоластика — esse/ens); en подсказка созвучием: «actualizes» → ключ «actuality»; «realizes» (как ru «осуществляет», kk «жүзеге асырады»)",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Responding to Parmenides, a philosopher says: an acorn does not come from nothing and does not turn into nothing when becoming an oak; it merely actualizes what was already contained in it. What distinction are they introducing?",
+            "to": "Responding to Parmenides, a philosopher says: an acorn does not come from nothing and does not turn into nothing when becoming an oak; it merely realizes what was already contained in it. What distinction are they introducing?"
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: the distinction between Being and beings was introduced by Heidegger, and it does not explain the change of a thing.",
+            "to": "Incorrect: the distinction between Being and beings, which Heidegger sharpened anew, does not explain the change of a thing."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M4Q5-observations",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q5",
+        "note": "kk пояснение: «ойша бақылаулар» (мысленные) → «мүмкін болатын бақылаулар» (мыслимые, как в kk-11)",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Поппер бойынша оны жоққа шығара алатын ойша бақылауларға жол беретін теория ғана ғылыми. Тәжірибенің кез келген нәтижесімен үйлесетін теория, қаншалықты сенімді көрінсе де, псевдоғылыми.",
+            "to": "Поппер бойынша оны жоққа шығаратын мүмкін болатын бақылауларға жол беретін теория ғана ғылыми. Тәжірибенің кез келген нәтижесімен үйлесетін теория, қаншалықты сенімді көрінсе де, псевдоғылыми."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M1Q2-revelation",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "phil:M1:Q2",
+        "note": "kk обоснование B: «уахи» → «аян» (откровение — как в kk-01 и мини-квизе L1)",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Қате: дін де миф сияқты уахи мен дәстүр беделіне сүйенеді, ал мұнда түсіндіру дәлелге құрылады.",
+            "to": "Қате: дін де миф сияқты аян мен дәстүр беделіне сүйенеді, ал мұнда түсіндіру дәлелге құрылады."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M1Q3-atomists",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "phil:M1:Q3",
+        "note": "подсказка созвучием: «атомисты» в формулировке → «атомы» только в ключе; формулировка называет Левкиппа и Демокрита без ярлыка школы",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Как атомисты Левкипп и Демокрит ответили на вывод элеатов о невозможности движения и множественности?",
+            "to": "Как Левкипп и Демокрит ответили на вывод элеатов о невозможности движения и множественности?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M1Q3-atomists",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "phil:M1:Q3",
+        "note": "подсказка созвучием: «атомисты» в формулировке → «атомы» только в ключе; формулировка называет Левкиппа и Демокрита без ярлыка школы",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Атомистер Левкипп пен Демокрит элеаттардың қозғалыс пен көптіктің мүмкін еместігі туралы қорытындысына қалай жауап берді?",
+            "to": "Левкипп пен Демокрит элеаттардың қозғалыс пен көптіктің мүмкін еместігі туралы қорытындысына қалай жауап берді?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M1Q3-atomists",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 0
+        },
+        "canonicalKey": "phil:M1:Q3",
+        "note": "подсказка созвучием: «атомисты» в формулировке → «атомы» только в ключе; формулировка называет Левкиппа и Демокрита без ярлыка школы",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "How did the atomists Leucippus and Democritus respond to the Eleatic claim that motion and multiplicity are impossible?",
+            "to": "How did Leucippus and Democritus respond to the Eleatic claim that motion and multiplicity are impossible?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M2Q1-change",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q1",
+        "note": "подсказка созвучием: «не может изменить случившееся» → ключ «Изменить своё суждение» (kk өзгерте/өзгерту, en change/Change); формулировка — «вернуть уже невозможно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Человек потерял должность и не может изменить случившееся. Какой совет дал бы ему стоик, например Эпиктет?",
+            "to": "Человек потерял должность, и вернуть её уже невозможно. Какой совет дал бы ему стоик, например Эпиктет?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M2Q1-change",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q1",
+        "note": "подсказка созвучием: «не может изменить случившееся» → ключ «Изменить своё суждение» (kk өзгерте/өзгерту, en change/Change); формулировка — «вернуть уже невозможно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Адам лауазымынан айырылды және болған жағдайды өзгерте алмайды. Мысалы, Эпиктет сияқты стоик оған қандай кеңес берер еді?",
+            "to": "Адам лауазымынан айырылды және оны енді қайтара алмайды. Мысалы, Эпиктет сияқты стоик оған қандай кеңес берер еді?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M2Q1-change",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q1",
+        "note": "подсказка созвучием: «не может изменить случившееся» → ключ «Изменить своё суждение» (kk өзгерте/өзгерту, en change/Change); формулировка — «вернуть уже невозможно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Someone has lost their job and cannot change what has happened. What advice would a Stoic such as Epictetus give them?",
+            "to": "Someone has lost their job, and there is no way to get it back. What advice would a Stoic such as Epictetus give them?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M2Q2-clearly",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q2",
+        "note": "подсказка созвучием: «ясно понимает» → ключ «вопреки ясному знанию» (en clearly/clear); kk без повтора (анық/айқын) — не менялся",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Юноша крадёт груши, которые ему даже не нужны, хотя ясно понимает, что поступает дурно. Какой вывод делает из такого опыта Августин?",
+            "to": "Юноша крадёт груши, которые ему даже не нужны, хотя прекрасно понимает, что поступает дурно. Какой вывод делает из такого опыта Августин?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M2Q2-clearly",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q2",
+        "note": "подсказка созвучием: «ясно понимает» → ключ «вопреки ясному знанию» (en clearly/clear); kk без повтора (анық/айқын) — не менялся",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A young man steals pears that he does not even need, although he clearly understands that he is doing wrong. What conclusion does Augustine draw from such an experience?",
+            "to": "A young man steals pears he has no need for, although he fully realizes that he is doing wrong. What conclusion does Augustine draw from such an experience?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M2Q4-doubt",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q4",
+        "note": "подсказка созвучием: «несомненно … метод» → ключ «методического сомнения» (kk күмәнсіз/әдісін, en doubt/method); формулировка — поиск абсолютно надёжного основания знания",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Мыслитель хочет опереться только на то, что несомненно, и потому ставит под вопрос всё, включая данные чувств и существование внешнего мира. С какого шага он начинает свой метод?",
+            "to": "Мыслитель ищет абсолютно надёжное основание знания и потому ставит под вопрос всё, включая данные чувств и существование внешнего мира. С чего он начинает этот поиск?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M2Q4-doubt",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q4",
+        "note": "подсказка созвучием: «несомненно … метод» → ключ «методического сомнения» (kk күмәнсіз/әдісін, en doubt/method); формулировка — поиск абсолютно надёжного основания знания",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Ойшыл тек күмәнсіз нәрсеге сүйенгісі келеді, сондықтан сезім деректерін де, сыртқы дүниенің бар екенін де қоса бәрін күдік астына алады. Ол өз әдісін қандай қадамнан бастайды?",
+            "to": "Ойшыл білімнің мүлде сенімді негізін іздейді, сондықтан сезім деректерін де, сыртқы дүниенің бар екенін де қоса бәрін күдік астына алады. Ол бұл ізденісті неден бастайды?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M2Q4-doubt",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q4",
+        "note": "подсказка созвучием: «несомненно … метод» → ключ «методического сомнения» (kk күмәнсіз/әдісін, en doubt/method); формулировка — поиск абсолютно надёжного основания знания",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A thinker wants to rely only on what is beyond doubt and therefore questions everything, including the data of the senses and the existence of the external world. With what step does he begin his method?",
+            "to": "A thinker seeks an absolutely reliable foundation for knowledge and therefore questions everything, including the data of the senses and the existence of the external world. With what does he begin this search?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M2Q5-qualities",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q5",
+        "note": "подсказка созвучием: «качества … Чью теорию» → ключ «Теорию … качеств» (единственный вариант на «Теорию»; kk қасиеттер/теориясы, en qualities/theory); формулировка — «свойства», «Чью позицию»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Философ различает в опыте качества предмета: протяжённость и форму он считает принадлежащими самому предмету, а цвет и вкус — лишь действием предмета на наши органы чувств. Чью теорию он излагает?",
+            "to": "Философ различает в опыте свойства предмета: протяжённость и форму он считает принадлежащими самому предмету, а цвет и вкус — лишь действием предмета на наши органы чувств. Чью позицию он излагает?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M2Q5-qualities",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q5",
+        "note": "подсказка созвучием: «качества … Чью теорию» → ключ «Теорию … качеств» (единственный вариант на «Теорию»; kk қасиеттер/теориясы, en qualities/theory); формулировка — «свойства», «Чью позицию»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Философ тәжірибеде заттың қасиеттерін ажыратады: созылу мен пішінді ол заттың өзіне тән деп санайды, ал түс пен дәмді — заттың біздің сезім мүшелерімізге әсері ғана деп түсіндіреді. Ол кімнің теориясын баяндап отыр?",
+            "to": "Философ тәжірибеде заттың сипаттарын ажыратады: созылу мен пішінді ол заттың өзіне тән деп санайды, ал түс пен дәмді — заттың біздің сезім мүшелерімізге әсері ғана деп түсіндіреді. Ол кімнің ұстанымын баяндап отыр?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M2Q5-qualities",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 1
+        },
+        "canonicalKey": "phil:M2:Q5",
+        "note": "подсказка созвучием: «качества … Чью теорию» → ключ «Теорию … качеств» (единственный вариант на «Теорию»; kk қасиеттер/теориясы, en qualities/theory); формулировка — «свойства», «Чью позицию»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A philosopher distinguishes in experience the qualities of an object: he treats extension and shape as belonging to the object itself, while color and taste are merely the effect of the object on our sense organs. Whose theory is he presenting?",
+            "to": "A philosopher distinguishes in experience the properties of an object: he treats extension and shape as belonging to the object itself, while color and taste are merely the effect of the object on our sense organs. Whose position is he presenting?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M3Q2-contemplation",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q2",
+        "note": "подсказка созвучием: «созерцать мир» → ключ «Эстетическое созерцание» (kk тамашалау, en contemplate/contemplation); формулировка — «видеть мир бескорыстно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Художник говорит, что его цель — не копировать предметы, а на мгновение выйти из-под власти собственных желаний и созерцать мир бескорыстно. Какой идее Шопенгауэра это ближе всего?",
+            "to": "Художник говорит, что его цель — не копировать предметы, а на мгновение выйти из-под власти собственных желаний и видеть мир бескорыстно. Какой идее Шопенгауэра это ближе всего?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M3Q2-contemplation",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q2",
+        "note": "подсказка созвучием: «созерцать мир» → ключ «Эстетическое созерцание» (kk тамашалау, en contemplate/contemplation); формулировка — «видеть мир бескорыстно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Суретші өзінің мақсаты — заттарды көшіріп салу емес, бір сәтке өз тілектерінің билігінен шығып, дүниені мүддесіз тамашалау екенін айтады. Бұл Шопенгауэрдің қай идеясымен көбірек сәйкес келеді?",
+            "to": "Суретші өзінің мақсаты — заттарды көшіріп салу емес, бір сәтке өз тілектерінің билігінен шығып, дүниеге мүддесіз көзбен қарау екенін айтады. Бұл Шопенгауэрдің қай идеясымен көбірек сәйкес келеді?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M3Q2-contemplation",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q2",
+        "note": "подсказка созвучием: «созерцать мир» → ключ «Эстетическое созерцание» (kk тамашалау, en contemplate/contemplation); формулировка — «видеть мир бескорыстно»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "An artist says that their goal is not to copy objects, but to step for a moment out from under the power of their own desires and contemplate the world disinterestedly. Which Schopenhauerian idea is this closest to?",
+            "to": "An artist says that their goal is not to copy objects, but to step for a moment out from under the power of their own desires and look at the world disinterestedly. Which Schopenhauerian idea is this closest to?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M3Q7-relations",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 2
+        },
+        "canonicalKey": "phil:M3:Q7",
+        "note": "en подсказка созвучием: «relations» → ключ «relational conception» (ru «порядок отношений»/«Реляционная», kk «қатынастар»/«реляциялық» — без повтора)",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A physicist claims that space does not exist as an empty arena in its own right: it is only an order of relations among bodies, and without bodies there is nothing to say about it. Which position is this closest to?",
+            "to": "A physicist claims that space does not exist as an empty arena in its own right: it is nothing but the way bodies are arranged with respect to one another, and without bodies there is nothing to say about it. Which position is this closest to?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M4Q1-likened",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q1",
+        "note": "en: «compared» и ключ «Compatibilism» совпадают первыми буквами (ложное срабатывание меры, но правка ничего не стоит) — «likened»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Chrysippus compared a person to a cylinder: a push sets it in motion, but it rolls thanks to its own round shape. Which position in the debate about free will does this image illustrate?",
+            "to": "Chrysippus likened a person to a cylinder: a push sets it in motion, but it rolls thanks to its own round shape. Which position in the debate about free will does this image illustrate?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M4Q2-holds",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q2",
+        "note": "en: «supports» в формулировке созвучно ключу «supposed bearer» — «holds them up» (ru «подпирает»)",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "An empiricist argues: we perceive only the color, hardness, and taste of a thing, while what \"supports\" them is never given in experience. How does John Locke understand substance?",
+            "to": "An empiricist argues: we perceive only the color, hardness, and taste of a thing, while what \"holds them up\" is never given in experience. How does John Locke understand substance?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M4Q2-retinde",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q2",
+        "note": "kk: ключ — единственный вариант без «ретінде» (у остальных «… ретінде»), в ru/en все варианты начинаются одинаково; добавлено «ретінде»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Сапалардың болжамды тасымалдаушысы — «білмейтін бірдеңе»",
+            "to": "Сапалардың болжамды тасымалдаушысы ретінде — «білмейтін бірдеңе»"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M4Q3-concepts",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q3",
+        "note": "подсказка созвучием: «без понятий … строит понятия» → ключ «созерцания без понятий» (kk ұғымдарсыз/ұғымсыз, en without concepts); формулировка без «понятий»: «не может упорядочить», «отвлечённые схемы»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Один исследователь копит наблюдения, но без понятий не может связать их в знание; другой строит понятия, не наполненные никаким опытом. Какой тезис описывает ошибку обоих?",
+            "to": "Один исследователь копит наблюдения, но не может упорядочить их и связать в знание; другой строит отвлечённые схемы, за которыми не стоит никакой опыт. Какой тезис описывает ошибку обоих?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M4Q3-concepts",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q3",
+        "note": "подсказка созвучием: «без понятий … строит понятия» → ключ «созерцания без понятий» (kk ұғымдарсыз/ұғымсыз, en without concepts); формулировка без «понятий»: «не может упорядочить», «отвлечённые схемы»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Бір зерттеуші бақылауларды жинайды, бірақ ұғымдарсыз оларды білімге біріктіре алмайды; екіншісі тәжірибемен толтырылмаған ұғымдар құрады. Осы екеуінің қателігін қандай тезис сипаттайды?",
+            "to": "Бір зерттеуші бақылауларды жинайды, бірақ оларды реттеп, білімге біріктіре алмайды; екіншісі ешқандай тәжірибеге сүйенбейтін дерексіз сызбалар құрады. Осы екеуінің қателігін қандай тезис сипаттайды?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M4Q3-concepts",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q3",
+        "note": "подсказка созвучием: «без понятий … строит понятия» → ключ «созерцания без понятий» (kk ұғымдарсыз/ұғымсыз, en without concepts); формулировка без «понятий»: «не может упорядочить», «отвлечённые схемы»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "One researcher accumulates observations but cannot connect them into knowledge without concepts; another builds concepts that are not filled with any experience. Which thesis describes the mistake of both?",
+            "to": "One researcher accumulates observations but cannot organize them and connect them into knowledge; another builds abstract schemes that rest on no experience at all. Which thesis describes the mistake of both?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M4Q6-lack",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q6",
+        "note": "ru подсказка созвучием: «недостаток» → ключ «Недостаточное существо» (kk кемшілік/Жетімсіз, en lack/deficient — без повтора); «нехватку»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Человек рождается без жёсткой биологической специализации — без острых клыков, густого меха и точных инстинктов — и вынужден восполнять этот недостаток орудиями, языком и институтами. Какое понятие философской антропологии описывает такого человека?",
+            "to": "Человек рождается без жёсткой биологической специализации — без острых клыков, густого меха и точных инстинктов — и вынужден восполнять эту нехватку орудиями, языком и институтами. Какое понятие философской антропологии описывает такого человека?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M4Q7-dominant",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q7",
+        "note": "ru подсказка созвучием: «господствующим» → ключ «Диалектика господина и раба» (kk үстем/Қожайын, en dominant/master — без повтора); «берёт верх»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Два самосознания вступают в борьбу за признание: один готов рисковать жизнью и становится господствующим, другой ради сохранения жизни подчиняется. Но признание от того, кого сам не считаешь равным, оказывается неполным. Какое понятие описывает этот сюжет?",
+            "to": "Два самосознания вступают в борьбу за признание: один готов рисковать жизнью и берёт верх, другой ради сохранения жизни подчиняется. Но признание от того, кого сам не считаешь равным, оказывается неполным. Какое понятие описывает этот сюжет?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-M4Q8-superego",
+        "lang": "ru",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q8",
+        "note": "подсказка созвучием: формулировка «запреты и нормы, усвоенные в детстве» → ключ «Сверх-Я: усвоенные запреты…» (kk меңгерілген тыйымдар, en prohibitions); пояснение ключа — «внутренний цензор и голос совести»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Сверх-Я: усвоенные запреты, ставшие совестью",
+            "to": "Сверх-Я: внутренний цензор и голос совести"
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-M4Q8-superego",
+        "lang": "kk",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q8",
+        "note": "подсказка созвучием: формулировка «запреты и нормы, усвоенные в детстве» → ключ «Сверх-Я: усвоенные запреты…» (kk меңгерілген тыйымдар, en prohibitions); пояснение ключа — «внутренний цензор и голос совести»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Супер-эго: ар-ожданға айналған меңгерілген тыйымдар",
+            "to": "Супер-эго: ішкі цензор және ар-ождан үні"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-M4Q8-superego",
+        "lang": "en",
+        "quiz": {
+          "kind": "MODULE_FINAL",
+          "module": 3
+        },
+        "canonicalKey": "phil:M4:Q8",
+        "note": "подсказка созвучием: формулировка «запреты и нормы, усвоенные в детстве» → ключ «Сверх-Я: усвоенные запреты…» (kk меңгерілген тыйымдар, en prohibitions); пояснение ключа — «внутренний цензор и голос совести»",
+        "substantive": true,
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Superego: prohibitions internalized as conscience",
+            "to": "Superego: the inner censor and conscience"
+          }
+        ]
+      }
     ]
   },
   "ru": {
@@ -396,7 +1136,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Как атомисты Левкипп и Демокрит ответили на вывод элеатов о невозможности движения и множественности?",
+        "prompt": "Как Левкипп и Демокрит ответили на вывод элеатов о невозможности движения и множественности?",
         "options": [
           "Признали атомы неизменными, но допустили пустоту, в которой они движутся",
           "Объявили изменение единственной реальностью, а покой — иллюзией",
@@ -566,7 +1306,7 @@
     "M2": [
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Человек потерял должность и не может изменить случившееся. Какой совет дал бы ему стоик, например Эпиктет?",
+        "prompt": "Человек потерял должность, и вернуть её уже невозможно. Какой совет дал бы ему стоик, например Эпиктет?",
         "options": [
           "Воздержаться от любого суждения: истина о вещах недостижима",
           "Утешиться радостями дружбы, ведь цель жизни — удовольствие",
@@ -594,7 +1334,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Юноша крадёт груши, которые ему даже не нужны, хотя ясно понимает, что поступает дурно. Какой вывод делает из такого опыта Августин?",
+        "prompt": "Юноша крадёт груши, которые ему даже не нужны, хотя прекрасно понимает, что поступает дурно. Какой вывод делает из такого опыта Августин?",
         "options": [
           "Порок — следствие незнания: знающий благо не выберет зло",
           "Поступок предопределён судьбой, в нашей власти лишь суждение",
@@ -650,7 +1390,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Мыслитель хочет опереться только на то, что несомненно, и потому ставит под вопрос всё, включая данные чувств и существование внешнего мира. С какого шага он начинает свой метод?",
+        "prompt": "Мыслитель ищет абсолютно надёжное основание знания и потому ставит под вопрос всё, включая данные чувств и существование внешнего мира. С чего он начинает этот поиск?",
         "options": [
           "С методического сомнения",
           "С индукции из наблюдений",
@@ -678,7 +1418,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Философ различает в опыте качества предмета: протяжённость и форму он считает принадлежащими самому предмету, а цвет и вкус — лишь действием предмета на наши органы чувств. Чью теорию он излагает?",
+        "prompt": "Философ различает в опыте свойства предмета: протяжённость и форму он считает принадлежащими самому предмету, а цвет и вкус — лишь действием предмета на наши органы чувств. Чью позицию он излагает?",
         "options": [
           "Учение о врождённых идеях Декарта",
           "Теорию первичных и вторичных качеств Локка",
@@ -719,7 +1459,7 @@
         "explanation": "Руссо ищет форму ассоциации, в которой каждый, объединяясь со всеми, подчиняется только самому себе. Ключевое понятие — общая воля, которую он отличает от простой суммы частных желаний, воли всех.",
         "optionRationales": [
           "Неверно: Дидро известен «Энциклопедией» и материализмом, а не теорией общей воли.",
-          "Неверно: Кант разрабатывает категорический императив и критику разума, а не теорию общественного договора.",
+          "Неверно: Кант тоже опирается на идею первоначального договора, но понятие общей воли, подчинение которой сохраняет свободу каждого, принадлежит Руссо, а не Канту.",
           "Неверно: Вольтер боролся с религиозным фанатизмом и защищал веротерпимость, но не формулировал эту концепцию.",
           "Верно: общая воля и подчинение ей как форма свободы — центральные идеи трактата Руссо «Об общественном договоре»."
         ],
@@ -820,7 +1560,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Художник говорит, что его цель — не копировать предметы, а на мгновение выйти из-под власти собственных желаний и созерцать мир бескорыстно. Какой идее Шопенгауэра это ближе всего?",
+        "prompt": "Художник говорит, что его цель — не копировать предметы, а на мгновение выйти из-под власти собственных желаний и видеть мир бескорыстно. Какой идее Шопенгауэра это ближе всего?",
         "options": [
           "Аскеза как путь избавления",
           "Эстетическое созерцание",
@@ -947,7 +1687,7 @@
           "Верно: потенция и акт — аристотелевское различение возможного и осуществлённого бытия.",
           "Неверно: субстанция и акциденция различают носителя свойств и его признаки, а не стадии осуществления.",
           "Неверно: докса и алетейя — парменидовское противопоставление мнения и истины.",
-          "Неверно: различение бытия и сущего ввёл Хайдеггер, и оно не объясняет изменение вещи."
+          "Неверно: различение бытия и сущего, заново заострённое Хайдеггером, не объясняет изменение вещи."
         ],
         "source": {
           "module": 2,
@@ -1074,7 +1814,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Один исследователь копит наблюдения, но без понятий не может связать их в знание; другой строит понятия, не наполненные никаким опытом. Какой тезис описывает ошибку обоих?",
+        "prompt": "Один исследователь копит наблюдения, но не может упорядочить их и связать в знание; другой строит отвлечённые схемы, за которыми не стоит никакой опыт. Какой тезис описывает ошибку обоих?",
         "options": [
           "Нет ничего в разуме, чего прежде не было бы в ощущениях",
           "Мысли без содержания пусты, созерцания без понятий слепы",
@@ -1158,7 +1898,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Человек рождается без жёсткой биологической специализации — без острых клыков, густого меха и точных инстинктов — и вынужден восполнять этот недостаток орудиями, языком и институтами. Какое понятие философской антропологии описывает такого человека?",
+        "prompt": "Человек рождается без жёсткой биологической специализации — без острых клыков, густого меха и точных инстинктов — и вынужден восполнять эту нехватку орудиями, языком и институтами. Какое понятие философской антропологии описывает такого человека?",
         "options": [
           "Существование прежде сущности",
           "Символическое животное",
@@ -1186,7 +1926,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Два самосознания вступают в борьбу за признание: один готов рисковать жизнью и становится господствующим, другой ради сохранения жизни подчиняется. Но признание от того, кого сам не считаешь равным, оказывается неполным. Какое понятие описывает этот сюжет?",
+        "prompt": "Два самосознания вступают в борьбу за признание: один готов рисковать жизнью и берёт верх, другой ради сохранения жизни подчиняется. Но признание от того, кого сам не считаешь равным, оказывается неполным. Какое понятие описывает этот сюжет?",
         "options": [
           "Трансцендентальное единство апперцепции",
           "Критерий памяти Локка",
@@ -1216,7 +1956,7 @@
         "type": "SINGLE_CHOICE",
         "prompt": "Человек испытывает острое чувство вины, хотя его никто не упрекает: в нём «говорят» запреты и нормы, усвоенные в детстве. Как Фрейд объяснил бы источник этого переживания?",
         "options": [
-          "Сверх-Я: усвоенные запреты, ставшие совестью",
+          "Сверх-Я: внутренний цензор и голос совести",
           "Оно: резервуар влечений, подчинённый удовольствию",
           "Я: посредник между влечениями и реальностью",
           "Архетип коллективного бессознательного"
@@ -1287,7 +2027,7 @@
         "explanation": "«Мифтен логосқа» өтуі — философияның туу формуласы: Фалес пен оның ізбасарлары әлемді құдайлар туралы хикаялармен емес, талқылауға, сынға және теріске шығаруға болатын рационалдық гипотезалармен түсіндіреді.",
         "optionRationales": [
           "Қате: табиғат туралы сұрақтан адам туралы сұраққа бет бұруды кейін софистер мен Сократ жасады; бұл түсіндіру тәсілін емес, философияның пәнін өзгертеді.",
-          "Қате: дін де миф сияқты уахи мен дәстүр беделіне сүйенеді, ал мұнда түсіндіру дәлелге құрылады.",
+          "Қате: дін де миф сияқты аян мен дәстүр беделіне сүйенеді, ал мұнда түсіндіру дәлелге құрылады.",
           "Дұрыс: логос қасиетті аңызды қайталаудың орнына сынға ашық рационалдық негіздемені талап етеді.",
           "Қате: жеке ғылымдар натуралды философиядан Жаңа заманда бөлініп шықты, ал әңгіме б.з.д. VI ғасырдағы философияның тууы туралы."
         ],
@@ -1302,7 +2042,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Атомистер Левкипп пен Демокрит элеаттардың қозғалыс пен көптіктің мүмкін еместігі туралы қорытындысына қалай жауап берді?",
+        "prompt": "Левкипп пен Демокрит элеаттардың қозғалыс пен көптіктің мүмкін еместігі туралы қорытындысына қалай жауап берді?",
         "options": [
           "Атомдарды өзгермейтін деп таныды, бірақ олар қозғалатын бос орынды мойындады",
           "Өзгерісті жалғыз шындық деп жариялап, тыныштықты елес деп санады",
@@ -1472,7 +2212,7 @@
     "M2": [
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Адам лауазымынан айырылды және болған жағдайды өзгерте алмайды. Мысалы, Эпиктет сияқты стоик оған қандай кеңес берер еді?",
+        "prompt": "Адам лауазымынан айырылды және оны енді қайтара алмайды. Мысалы, Эпиктет сияқты стоик оған қандай кеңес берер еді?",
         "options": [
           "Кез келген пікір айтудан тыйылу: заттар туралы ақиқатқа жету мүмкін емес",
           "Достықтың қуанышымен жұбану, өйткені өмірдің мақсаты — ләззат",
@@ -1556,7 +2296,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Ойшыл тек күмәнсіз нәрсеге сүйенгісі келеді, сондықтан сезім деректерін де, сыртқы дүниенің бар екенін де қоса бәрін күдік астына алады. Ол өз әдісін қандай қадамнан бастайды?",
+        "prompt": "Ойшыл білімнің мүлде сенімді негізін іздейді, сондықтан сезім деректерін де, сыртқы дүниенің бар екенін де қоса бәрін күдік астына алады. Ол бұл ізденісті неден бастайды?",
         "options": [
           "Әдістемелік күмәннен",
           "Бақылаудан индукция жасаудан",
@@ -1584,7 +2324,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Философ тәжірибеде заттың қасиеттерін ажыратады: созылу мен пішінді ол заттың өзіне тән деп санайды, ал түс пен дәмді — заттың біздің сезім мүшелерімізге әсері ғана деп түсіндіреді. Ол кімнің теориясын баяндап отыр?",
+        "prompt": "Философ тәжірибеде заттың сипаттарын ажыратады: созылу мен пішінді ол заттың өзіне тән деп санайды, ал түс пен дәмді — заттың біздің сезім мүшелерімізге әсері ғана деп түсіндіреді. Ол кімнің ұстанымын баяндап отыр?",
         "options": [
           "Декарттың туа біткен идеялар туралы ілімі",
           "Локктің бастапқы және қосалқы қасиеттер теориясы",
@@ -1625,7 +2365,7 @@
         "explanation": "Руссо әр адам бәрімен біріге отырып, тек өзіне ғана бағынатын қауымдастық формасын іздейді. Негізгі ұғым — жалпы ерік; ол оны жеке қалаулардың жай қосындысынан — барлығының еркінен ажыратады.",
         "optionRationales": [
           "Қате: Дидро «Энциклопедиясымен» және материализммен белгілі, жалпы ерік теориясымен емес.",
-          "Қате: Кант категориялық императивті және ақыл сындарын дамытты, қоғамдық шарт теориясын емес.",
+          "Қате: Кант та бастапқы шарт идеясына сүйенеді, бірақ бағынған әр адамның еркіндігін сақтайтын жалпы ерік ұғымы Кантқа емес, Руссоға тиесілі.",
           "Қате: Вольтер діни фанатизмге қарсы күресіп, діни төзімділікті қорғады, бірақ бұл тұжырымдаманы қалыптастырған жоқ.",
           "Дұрыс: жалпы ерік және оған бағынуды еркіндік формасы ретінде түсіну — Руссоның «Қоғамдық шарт туралы» трактатының өзекті идеялары."
         ],
@@ -1726,7 +2466,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Суретші өзінің мақсаты — заттарды көшіріп салу емес, бір сәтке өз тілектерінің билігінен шығып, дүниені мүддесіз тамашалау екенін айтады. Бұл Шопенгауэрдің қай идеясымен көбірек сәйкес келеді?",
+        "prompt": "Суретші өзінің мақсаты — заттарды көшіріп салу емес, бір сәтке өз тілектерінің билігінен шығып, дүниеге мүддесіз көзбен қарау екенін айтады. Бұл Шопенгауэрдің қай идеясымен көбірек сәйкес келеді?",
         "options": [
           "Азаптан құтылу жолы ретінде аскетизм",
           "Эстетикалық тамашалау",
@@ -1853,7 +2593,7 @@
           "Дұрыс: потенция және акт — Аристотельдегі мүмкін және жүзеге асқан болмыстың айырмашылығы.",
           "Қате: субстанция және акциденция қасиет иесін және оның белгілерін айырады, жүзеге асу сатыларын емес.",
           "Қате: докса және алетейя — Парменидтегі пікір мен ақиқаттың қарама-қарсылығы.",
-          "Қате: болмыс пен барлық-нәрсені ажыратуды Хайдеггер енгізген, ол заттың өзгерісін түсіндірмейді."
+          "Қате: Хайдеггер қайтадан күшейткен болмыс пен барлық-нәрсенің айырмашылығы заттың өзгерісін түсіндірмейді."
         ],
         "source": {
           "module": 2,
@@ -1956,7 +2696,7 @@
         "options": [
           "Біртұтас субстанция ретінде — Құдай, немесе Табиғат",
           "Бос сөз ретінде: бар болу — қабылданатын болу",
-          "Сапалардың болжамды тасымалдаушысы — «білмейтін бірдеңе»",
+          "Сапалардың болжамды тасымалдаушысы ретінде — «білмейтін бірдеңе»",
           "Түйсіктерді реттейтін ақыл категориясы ретінде"
         ],
         "correctOptionIds": [
@@ -1980,7 +2720,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Бір зерттеуші бақылауларды жинайды, бірақ ұғымдарсыз оларды білімге біріктіре алмайды; екіншісі тәжірибемен толтырылмаған ұғымдар құрады. Осы екеуінің қателігін қандай тезис сипаттайды?",
+        "prompt": "Бір зерттеуші бақылауларды жинайды, бірақ оларды реттеп, білімге біріктіре алмайды; екіншісі ешқандай тәжірибеге сүйенбейтін дерексіз сызбалар құрады. Осы екеуінің қателігін қандай тезис сипаттайды?",
         "options": [
           "Ақылда сезімде бұрын болмаған ешнәрсе жоқ",
           "Мазмұнсыз ойлар қуыс, ұғымсыз түйсіктер соқыр",
@@ -2046,7 +2786,7 @@
         "correctOptionIds": [
           2
         ],
-        "explanation": "Поппер бойынша оны жоққа шығара алатын ойша бақылауларға жол беретін теория ғана ғылыми. Тәжірибенің кез келген нәтижесімен үйлесетін теория, қаншалықты сенімді көрінсе де, псевдоғылыми.",
+        "explanation": "Поппер бойынша оны жоққа шығаратын мүмкін болатын бақылауларға жол беретін теория ғана ғылыми. Тәжірибенің кез келген нәтижесімен үйлесетін теория, қаншалықты сенімді көрінсе де, псевдоғылыми.",
         "optionRationales": [
           "Қате: практикалық пайдалық — прагматистік өлшем, ал попперлік демаркация өлшемі емес.",
           "Қате: интерсубъективтілік нәтижелердің әртүрлі зерттеушілер арқылы қайта өндірілуін білдіреді, жоққа шығарылу мүмкіндігін емес.",
@@ -2122,7 +2862,7 @@
         "type": "SINGLE_CHOICE",
         "prompt": "Адамды ешкім кінәламаса да, ол қатты кінә сезімін бастан кешіреді: оның ішінде бала кезде меңгерілген тыйымдар мен нормалар «сөйлейді». Фрейд бұл сезімнің қайнарын қалай түсіндірер еді?",
         "options": [
-          "Супер-эго: ар-ожданға айналған меңгерілген тыйымдар",
+          "Супер-эго: ішкі цензор және ар-ождан үні",
           "Ид: ләззат принципіне бағынатын құмарлықтар қоры",
           "Эго: құмарлықтар мен шындық арасындағы делдал",
           "Ұжымдық санасыздың архетипі"
@@ -2208,7 +2948,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "How did the atomists Leucippus and Democritus respond to the Eleatic claim that motion and multiplicity are impossible?",
+        "prompt": "How did Leucippus and Democritus respond to the Eleatic claim that motion and multiplicity are impossible?",
         "options": [
           "They accepted atoms as unchanging, but allowed a void in which they move",
           "They declared change the only reality, and rest an illusion",
@@ -2378,7 +3118,7 @@
     "M2": [
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Someone has lost their job and cannot change what has happened. What advice would a Stoic such as Epictetus give them?",
+        "prompt": "Someone has lost their job, and there is no way to get it back. What advice would a Stoic such as Epictetus give them?",
         "options": [
           "Withhold all judgment, since the truth about things is unattainable",
           "Take comfort in friendship, since the goal of life is pleasure",
@@ -2406,7 +3146,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "A young man steals pears that he does not even need, although he clearly understands that he is doing wrong. What conclusion does Augustine draw from such an experience?",
+        "prompt": "A young man steals pears he has no need for, although he fully realizes that he is doing wrong. What conclusion does Augustine draw from such an experience?",
         "options": [
           "Vice is the result of ignorance: one who knows the good will not choose evil",
           "An action is predetermined by fate; only judgment is in our power",
@@ -2462,7 +3202,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "A thinker wants to rely only on what is beyond doubt and therefore questions everything, including the data of the senses and the existence of the external world. With what step does he begin his method?",
+        "prompt": "A thinker seeks an absolutely reliable foundation for knowledge and therefore questions everything, including the data of the senses and the existence of the external world. With what does he begin this search?",
         "options": [
           "With methodical doubt",
           "With induction from observations",
@@ -2490,7 +3230,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "A philosopher distinguishes in experience the qualities of an object: he treats extension and shape as belonging to the object itself, while color and taste are merely the effect of the object on our sense organs. Whose theory is he presenting?",
+        "prompt": "A philosopher distinguishes in experience the properties of an object: he treats extension and shape as belonging to the object itself, while color and taste are merely the effect of the object on our sense organs. Whose position is he presenting?",
         "options": [
           "Descartes's doctrine of innate ideas",
           "Locke's theory of primary and secondary qualities",
@@ -2531,7 +3271,7 @@
         "explanation": "Rousseau seeks a form of association in which each person, uniting with all, obeys only himself. The key concept is the general will, which he distinguishes from the mere sum of private wishes, the will of all.",
         "optionRationales": [
           "Incorrect: Diderot is known for the Encyclopédie and materialism, not for the theory of the general will.",
-          "Incorrect: Kant develops the categorical imperative and critiques reason, not the theory of the social contract.",
+          "Incorrect: Kant also relies on the idea of an original contract, but the concept of the general will, submission to which preserves each person's freedom, belongs to Rousseau, not Kant.",
           "Incorrect: Voltaire fought religious fanaticism and defended toleration, but he did not formulate this concept.",
           "Correct: the general will and submission to it as a form of freedom are central ideas of Rousseau's treatise The Social Contract."
         ],
@@ -2632,7 +3372,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "An artist says that their goal is not to copy objects, but to step for a moment out from under the power of their own desires and contemplate the world disinterestedly. Which Schopenhauerian idea is this closest to?",
+        "prompt": "An artist says that their goal is not to copy objects, but to step for a moment out from under the power of their own desires and look at the world disinterestedly. Which Schopenhauerian idea is this closest to?",
         "options": [
           "Asceticism as a path to liberation",
           "Aesthetic contemplation",
@@ -2744,7 +3484,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Responding to Parmenides, a philosopher says: an acorn does not come from nothing and does not turn into nothing when becoming an oak; it merely actualizes what was already contained in it. What distinction are they introducing?",
+        "prompt": "Responding to Parmenides, a philosopher says: an acorn does not come from nothing and does not turn into nothing when becoming an oak; it merely realizes what was already contained in it. What distinction are they introducing?",
         "options": [
           "Potentiality and actuality",
           "Substance and accident",
@@ -2759,7 +3499,7 @@
           "Correct: potentiality and actuality are Aristotle's distinction between possible and realized being.",
           "Incorrect: substance and accident distinguish the bearer of properties from its attributes, not stages of actualization.",
           "Incorrect: doxa and aletheia are Parmenides' opposition between opinion and truth.",
-          "Incorrect: the distinction between Being and beings was introduced by Heidegger, and it does not explain the change of a thing."
+          "Incorrect: the distinction between Being and beings, which Heidegger sharpened anew, does not explain the change of a thing."
         ],
         "source": {
           "module": 2,
@@ -2772,7 +3512,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "A physicist claims that space does not exist as an empty arena in its own right: it is only an order of relations among bodies, and without bodies there is nothing to say about it. Which position is this closest to?",
+        "prompt": "A physicist claims that space does not exist as an empty arena in its own right: it is nothing but the way bodies are arranged with respect to one another, and without bodies there is nothing to say about it. Which position is this closest to?",
         "options": [
           "Newton's absolute space",
           "Kant's a priori form of sensibility",
@@ -2830,7 +3570,7 @@
     "M4": [
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "Chrysippus compared a person to a cylinder: a push sets it in motion, but it rolls thanks to its own round shape. Which position in the debate about free will does this image illustrate?",
+        "prompt": "Chrysippus likened a person to a cylinder: a push sets it in motion, but it rolls thanks to its own round shape. Which position in the debate about free will does this image illustrate?",
         "options": [
           "Hard determinism",
           "Compatibilism",
@@ -2858,7 +3598,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "An empiricist argues: we perceive only the color, hardness, and taste of a thing, while what \"supports\" them is never given in experience. How does John Locke understand substance?",
+        "prompt": "An empiricist argues: we perceive only the color, hardness, and taste of a thing, while what \"holds them up\" is never given in experience. How does John Locke understand substance?",
         "options": [
           "As the single substance of everything: God, or Nature",
           "As an empty word, since to be is to be perceived",
@@ -2886,7 +3626,7 @@
       },
       {
         "type": "SINGLE_CHOICE",
-        "prompt": "One researcher accumulates observations but cannot connect them into knowledge without concepts; another builds concepts that are not filled with any experience. Which thesis describes the mistake of both?",
+        "prompt": "One researcher accumulates observations but cannot organize them and connect them into knowledge; another builds abstract schemes that rest on no experience at all. Which thesis describes the mistake of both?",
         "options": [
           "There is nothing in the intellect that was not first in the senses",
           "Thoughts without content are empty, intuitions without concepts are blind",
@@ -3028,7 +3768,7 @@
         "type": "SINGLE_CHOICE",
         "prompt": "A person experiences a sharp sense of guilt even though no one reproaches them: in them, prohibitions and norms learned in childhood \"speak.\" How would Freud explain the source of this experience?",
         "options": [
-          "Superego: prohibitions internalized as conscience",
+          "Superego: the inner censor and conscience",
           "Id: a reservoir of drives governed by pleasure",
           "Ego: mediator between drives and reality",
           "An archetype of the collective unconscious"

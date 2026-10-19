@@ -5,9 +5,11 @@ import { describe, expect, it } from 'vitest';
 import type { Language } from '@edu/shared';
 import { lengthCue, testwiseScore } from '../../generation/quality.js';
 import {
+  CYRILLIC_ROMAN_RE,
   type EditableQuestion,
   type TextFix,
   applyTextEdits,
+  latinRoman,
   questionLanguageProblems,
   replaceFirstLine,
   shortRationales,
@@ -104,6 +106,35 @@ describe('applyTextEdits', () => {
   it('два вхождения якоря — mismatch (неоднозначно)', () => {
     expect(applyTextEdits(q({ prompt: 'a b a' }), [{ field: 'prompt', from: 'a', to: 'c' }]).status).toBe('mismatch');
   });
+
+  it('таймкод источника — только целиком, вместе с текстом вопроса', () => {
+    const fix = [
+      { field: 'prompt' as const, from: 'The leader', to: 'A party leader' },
+      { field: 'sourceTimecode' as const, from: '10:54', to: '01:36' },
+    ];
+    const r = applyTextEdits(q({ sourceTimecode: '10:54' }), fix);
+    expect(r.status).toBe('apply');
+    if (r.status !== 'apply') return;
+    expect(r.next.sourceTimecode).toBe('01:36');
+    expect(r.changedFields).toEqual(['prompt', 'sourceTimecode']);
+    // Стенд с исправленным артефактом — «уже»; иной таймкод — mismatch, частичного совпадения нет.
+    expect(applyTextEdits(q({ prompt: r.next.prompt, sourceTimecode: '01:36' }), fix)).toEqual({ status: 'already' });
+    expect(applyTextEdits(q({ sourceTimecode: '110:54' }), fix).status).toBe('mismatch');
+    // Без таймкода у вопроса поле не появляется.
+    const plain = applyTextEdits(q(), [fix[0]!]);
+    expect(plain.status === 'apply' && 'sourceTimecode' in plain.next).toBe(false);
+  });
+});
+
+describe('kk: римские цифры кириллицей', () => {
+  const fix = (s: string) => s.replace(CYRILLIC_ROMAN_RE, latinRoman);
+  it('кириллические Х/І в римском числе → латиница; инициалы и слова не трогаются', () => {
+    expect(fix('ХІХ ғасырдың бейклассикалық философиясы')).toBe('XIX ғасырдың бейклассикалық философиясы');
+    expect(fix('ХХ–ХХІ ғасырлардағы теориялар, XІV ғасыр')).toBe('XX–XXI ғасырлардағы теориялар, XIV ғасыр');
+    expect(fix('Гадамер Х.-Г. Ақиқат және әдіс. Йонас Х. Жауапкершілік принципі')).toBe('Гадамер Х.-Г. Ақиқат және әдіс. Йонас Х. Жауапкершілік принципі');
+    expect(fix('ІС-ӘРЕКЕТ, ХАЛЫҚ, XIX ғасыр, ХІХ-шы')).toBe('ІС-ӘРЕКЕТ, ХАЛЫҚ, XIX ғасыр, XIX-шы');
+    expect('XIX–XX ғасырлар'.match(CYRILLIC_ROMAN_RE)).toBeNull();
+  });
 });
 
 describe('validateTextFixes', () => {
@@ -113,6 +144,7 @@ describe('validateTextFixes', () => {
     expect(validateTextFixes([base, base])).toEqual(['x: повтор id']);
     expect(validateTextFixes([{ ...base, orderIndex: undefined }])).toEqual(['x: нет canonicalKey или orderIndex']);
     expect(validateTextFixes([{ ...base, edits: [{ field: 'options', from: 'a', to: 'b' }] }])).toEqual(['x: options без index']);
+    expect(validateTextFixes([{ ...base, edits: [{ field: 'sourceTimecode', from: '10:54', to: '1:96' }] }])).toEqual(['x: sourceTimecode «1:96» не в формате мм:сс']);
   });
 });
 
@@ -254,3 +286,54 @@ describe('обоснования TRUE_FALSE (rationales.v1.json, overlaps.v1.jso
     }
   });
 });
+
+describe('философия: правки рецензента (meta.textFixes) уже внесены в сами артефакты', () => {
+  const PHIL = join(dirname(fileURLToPath(import.meta.url)), '../../../content-data/philosophy');
+  const readPhil = <T>(name: string): T => JSON.parse(readFileSync(join(PHIL, name), 'utf8')) as T;
+  type Item = ArtQuestion & { sourceTimecode: string | null };
+  const bank = readPhil<{ meta: { textFixes?: TextFix[] } } & Record<'ru' | 'kk' | 'en', Record<string, Item[]>>>('graded-bank.v1.json');
+  const minis = readPhil<{ meta: { textFixes?: TextFix[] }; minis: { lang: Language; lecture: number; items: Item[] }[] }>('lecture-minis.v1.json');
+  const final = readPhil<{ meta: { textFixes?: TextFix[] } } & Record<'ru' | 'kk' | 'en', Item[]>>('course-final.v1.json');
+  const langs: Language[] = ['ru', 'kk', 'en'];
+
+  it('оцениваемый банк: правки — по canonicalKey, «уже»; гейт длины и testwise ≤ 0.375 в каждом модуле', () => {
+    const fixes = bank.meta.textFixes ?? [];
+    expect(fixes.length).toBeGreaterThan(0);
+    expect(validateTextFixes(fixes)).toEqual([]);
+    for (const f of fixes) {
+      const m = f.quiz.kind === 'MODULE_FINAL' ? `M${f.quiz.module + 1}` : '';
+      const item = bank[f.lang as 'ru' | 'kk' | 'en'][m]!.find((x) => x.canonicalKey === f.canonicalKey)!;
+      expect(item, f.id).toBeDefined();
+      expect(applyTextEdits(item, f.edits), f.id).toEqual({ status: 'already' });
+    }
+    for (const lang of langs) {
+      for (const [m, items] of Object.entries(bank[lang])) {
+        for (const x of items) {
+          expect(questionLanguageProblems(lang, x), `${lang} ${x.canonicalKey}`).toEqual([]);
+          expect(lengthCue(x.options, x.correctOptionIds), `${lang} ${x.canonicalKey}`).toBe(false);
+        }
+        expect(testwiseScore(items), `${lang} ${m}`).toBeLessThanOrEqual(0.375);
+      }
+    }
+  });
+
+  it('мини-квизы и итоговый мини-квиз: правки — по позиции и снимку прежней формулировки, «уже»', () => {
+    const fixes = [...(minis.meta.textFixes ?? []), ...(final.meta.textFixes ?? [])];
+    expect(validateTextFixes(fixes)).toEqual([]);
+    for (const f of fixes) {
+      const lang = f.lang as 'ru' | 'kk' | 'en';
+      const item =
+        f.quiz.kind === 'LECTURE_MINI'
+          ? minis.minis.find((r) => r.lang === lang && r.lecture === (f.quiz as { lecture: number }).lecture)!.items[f.orderIndex!]!
+          : final[lang][f.orderIndex!]!;
+      expect(item, f.id).toBeDefined();
+      expect(f.prompt, f.id).toBeDefined();
+      expect(applyTextEdits(item, f.edits), f.id).toEqual({ status: 'already' });
+      // Формулировка менялась — снимок равен прежней («было»), иначе — текущей.
+      const p = f.edits.find((e) => e.field === 'prompt');
+      expect(f.prompt, f.id).toBe(p ? p.from : item.prompt);
+      expect(questionLanguageProblems(lang, { type: item.type, ...item }), f.id).toEqual([]);
+    }
+  });
+});
+

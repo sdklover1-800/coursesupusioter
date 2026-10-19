@@ -33,12 +33,23 @@ const messages: Record<string, { sessionEnrollmentId: string; version: string }>
 const lectures: Record<string, string> = { 'l-own': 'v-ru', 'l-foreign': 'v-kk' };
 const versions: Record<string, string> = { 'v-ru': 'c1', 'v-kk': 'c1' };
 
+/** Отбор строки по where Prisma: равенство полей и `{in: […]}` (счётчики очереди). */
+const matchesWhere = (row: Record<string, unknown>, where: Record<string, unknown>) =>
+  Object.entries(where).every(([k, v]) =>
+    v !== null && typeof v === 'object' && 'in' in v ? (v as { in: unknown[] }).in.includes(row[k]) : row[k] === v,
+  );
+
 vi.mock('../../lib/prisma.js', () => {
   const quizRel = (version: string) => ({ courseLanguageVersionId: null, module: { courseLanguageVersionId: version }, lecture: null });
   return {
     prisma: {
       contentIssue: {
-        count: vi.fn(async ({ where }: { where: { reporterId: string } }) => db.recentCount ?? db.issues.filter((i) => i.reporterId === where.reporterId).length),
+        // Суточный лимит (where.reporterId) — как прежде; иначе — счётчик очереди по where.
+        count: vi.fn(async ({ where }: { where: Record<string, unknown> }) =>
+          'reporterId' in where
+            ? (db.recentCount ?? db.issues.filter((i) => i.reporterId === where.reporterId).length)
+            : db.issues.filter((i) => matchesWhere(i, where)).length,
+        ),
         findFirst: vi.fn(async ({ where }: { where: { reporterId: string; targetType: string; targetId: string; reason: string; status: string } }) =>
           db.issues.find((i) => i.reporterId === where.reporterId && i.targetType === where.targetType && i.targetId === where.targetId && i.reason === where.reason && i.status === where.status) ?? null,
         ),
@@ -68,6 +79,12 @@ vi.mock('../../lib/prisma.js', () => {
       practicalTask: { findUnique: vi.fn(async () => null) },
       courseLanguageVersion: {
         findUnique: vi.fn(async ({ where }: { where: { id: string } }) => (versions[where.id] ? { courseId: versions[where.id] } : null)),
+        // Версии языка (id «v-<язык>»).
+        findMany: vi.fn(async ({ where }: { where: { language: string; courseId?: string } }) =>
+          Object.entries(versions)
+            .filter(([id, courseId]) => id === `v-${where.language}` && (!where.courseId || courseId === where.courseId))
+            .map(([id]) => ({ id })),
+        ),
       },
       enrollment: {
         findFirst: vi.fn(async ({ where }: { where: { userId: string; languageVersionId: string } }) =>
@@ -98,7 +115,7 @@ vi.mock('../learn/access.js', async () => {
 const logEvent = vi.fn(async () => undefined);
 vi.mock('../../telemetry/events.js', () => ({ logEvent: (...args: unknown[]) => (logEvent as (...a: unknown[]) => Promise<void>)(...args), audit: vi.fn() }));
 
-const { reportIssue, validateIssueInput, isOverDailyLimit, issueAccepted, groupIssueRows, statusPatch } = await import('./issues.service.js');
+const { reportIssue, validateIssueInput, isOverDailyLimit, issueAccepted, groupIssueRows, statusPatch, issueSummary } = await import('./issues.service.js');
 const { AppError } = await import('../../lib/errors.js');
 
 const student = { id: 's1', role: 'STUDENT' as const };
@@ -247,5 +264,25 @@ describe('очередь сотрудника', () => {
     const now = new Date('2026-09-25T12:00:00Z');
     expect(statusPatch('RESOLVED', 'm1', ' проверено ', now)).toEqual({ status: 'RESOLVED', resolvedById: 'm1', resolvedAt: now, note: 'проверено' });
     expect(statusPatch('OPEN', 'm1', undefined, now)).toEqual({ status: 'OPEN', resolvedById: null, resolvedAt: null });
+  });
+});
+
+describe('счётчики очереди (summary) — те же фильтры, что у списка', () => {
+  const issue = (id: string, over: Record<string, unknown>) =>
+    ({ id, reporterId: null, origin: 'SYSTEM', reason: 'EXPERT_REVIEW', status: 'OPEN', createdAt: new Date(), courseId: 'c1', languageVersionId: 'v-ru', targetType: 'QUIZ_QUESTION', targetId: id, ...over }) as Db['issues'][number];
+
+  it('без фильтров — все курсы (бейдж навигации); язык, происхождение и тип объекта сужают оба числа', async () => {
+    db.issues = [
+      issue('a', {}),
+      issue('b', { languageVersionId: 'v-kk' }),
+      issue('c', { languageVersionId: 'v-kk', targetType: 'LECTURE' }),
+      issue('d', { origin: 'STUDENT', reporterId: 's1', reason: 'UNCLEAR' }),
+      issue('e', { status: 'RESOLVED' }),
+    ];
+    expect(await issueSummary()).toEqual({ open: 4, openSystem: 3 });
+    expect(await issueSummary({ courseId: 'c1' })).toEqual({ open: 4, openSystem: 3 });
+    expect(await issueSummary({ courseId: 'c1', language: 'kk' })).toEqual({ open: 2, openSystem: 2 });
+    expect(await issueSummary({ courseId: 'c1', language: 'ru', origin: 'STUDENT' })).toEqual({ open: 1, openSystem: 0 });
+    expect(await issueSummary({ language: 'kk', targetType: 'LECTURE' })).toEqual({ open: 1, openSystem: 1 });
   });
 });

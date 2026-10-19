@@ -4,17 +4,19 @@
  * «айырмашылық неде?», ретинде→ретінде (только целые слова). Правятся неархивные
  * kk-вопросы (формулировка, варианты, пояснение, обоснования; порядок вариантов и ключ
  * не меняются) и kk-расшифровки. Каждый изменённый объект получает отметку
- * NATIVE_PROOFREAD для вычитки носителем.
+ * NATIVE_PROOFREAD для вычитки носителем — кроме чисто типографских замен (профиль курса
+ * latinRomanNumerals: римские цифры кириллицей «ХІХ» → «XIX», философия).
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/fix-kk-text.ts [--apply --i-have-a-backup]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/fix-kk-text.ts [--course "…"] [--apply --i-have-a-backup]
  */
 import {
-  KK_LEXICON,
   Report,
   applyKkLexicon,
   courseQuestions,
   editQuestionText,
   flagForReview,
+  kkLexicon,
+  kkLexiconNeedsReview,
   lectureCode,
   ledgerGet,
   ledgerKey,
@@ -36,7 +38,7 @@ async function main(): Promise<number> {
   const course = await loadCourse();
   const v = version(course, 'kk');
   const preview: unknown[] = [];
-  console.log(`Лексикон: ${KK_LEXICON.map((x) => x.label).join(' · ')}\n`);
+  console.log(`Лексикон: ${kkLexicon().map((x) => x.label).join(' · ')}\n`);
 
   /* ── Вопросы ── */
   const questions = (await courseQuestions(prisma, course)).filter((x) => x.lang === 'kk');
@@ -72,14 +74,16 @@ async function main(): Promise<number> {
           ...(edit.optionRationales ? { optionRationales: edit.optionRationales } : {}),
         },
       });
-      await flagForReview(tx, {
-        reason: 'NATIVE_PROOFREAD',
-        targetType: 'QUIZ_QUESTION',
-        targetId: q.id,
-        courseId: course.courseId,
-        languageVersionId: v.id,
-        comment: `Вычитка: исправлены опечатки (${Object.keys(hits).join(', ')}) — проверьте формулировку целиком`,
-      });
+      if (kkLexiconNeedsReview(hits)) {
+        await flagForReview(tx, {
+          reason: 'NATIVE_PROOFREAD',
+          targetType: 'QUIZ_QUESTION',
+          targetId: q.id,
+          courseId: course.courseId,
+          languageVersionId: v.id,
+          comment: `Вычитка: исправлены опечатки (${Object.keys(hits).join(', ')}) — проверьте формулировку целиком`,
+        });
+      }
       await ledgerPut(tx, key, { label, hits, fields: edit.changedFields });
       return true;
     });
@@ -107,14 +111,16 @@ async function main(): Promise<number> {
       const cur = await tx.lecture.findUniqueOrThrow({ where: { id: l.id }, select: { transcriptText: true } });
       if (cur.transcriptText !== before || (await ledgerGet(tx, key))) return false;
       await tx.lecture.update({ where: { id: l.id }, data: { transcriptText: r.text } });
-      await flagForReview(tx, {
-        reason: 'NATIVE_PROOFREAD',
-        targetType: 'LECTURE',
-        targetId: l.id,
-        courseId: course.courseId,
-        languageVersionId: v.id,
-        comment: `Вычитка расшифровки: исправлены опечатки (${Object.keys(r.hits).join(', ')})`,
-      });
+      if (kkLexiconNeedsReview(r.hits)) {
+        await flagForReview(tx, {
+          reason: 'NATIVE_PROOFREAD',
+          targetType: 'LECTURE',
+          targetId: l.id,
+          courseId: course.courseId,
+          languageVersionId: v.id,
+          comment: `Вычитка расшифровки: исправлены опечатки (${Object.keys(r.hits).join(', ')})`,
+        });
+      }
       await ledgerPut(tx, key, { hits: r.hits });
       return true;
     });

@@ -445,12 +445,19 @@ export function statusPatch(status: ContentIssueStatus, actorId: string, note: s
   };
 }
 
-/** GET /content-issues/summary — открытые жалобы и открытые системные отметки (бейдж навигации). */
-export async function issueSummary(courseId?: string): Promise<{ open: number; openSystem: number }> {
-  const base = { status: 'OPEN' as const, ...(courseId ? { courseId } : {}) };
+/** Отбор счётчика: те же фильтры, что у очереди (статус — всегда «открыто»). */
+export type IssueSummaryFilters = Pick<IssueListFilters, 'courseId' | 'language' | 'origin' | 'targetType'>;
+
+/**
+ * GET /content-issues/summary — открытые жалобы и открытые системные отметки: бейдж навигации
+ * (без фильтров — по всем курсам) и шапка очереди (с её фильтрами — числа совпадают со списком).
+ */
+export async function issueSummary(f: IssueSummaryFilters = {}): Promise<{ open: number; openSystem: number }> {
+  const base = await whereFor({ ...f, status: 'OPEN', limit: 0 });
   const [open, openSystem] = await Promise.all([
     prisma.contentIssue.count({ where: base }),
-    prisma.contentIssue.count({ where: { ...base, origin: 'SYSTEM' } }),
+    // Отбор «только студенты» системных отметок не содержит.
+    f.origin === 'STUDENT' ? 0 : prisma.contentIssue.count({ where: { ...base, origin: 'SYSTEM' } }),
   ]);
   return { open, openSystem };
 }

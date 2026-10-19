@@ -26,7 +26,7 @@ import type { DraftQuestion } from '../../generation/drafts.js';
 import { prisma } from '../../lib/prisma.js';
 import { parseStoredAnswers, presentedQuestions, toPolicyQuestion } from '../../modules/quizzes/policy.js';
 import { scoreQuiz } from '../../modules/quizzes/scoring.js';
-import { type TextFix, applyTextEdits, validateTextFixes } from './revisions.js';
+import { CYRILLIC_ROMAN_RE, type TextFix, applyTextEdits, latinRoman, validateTextFixes } from './revisions.js';
 
 export { prisma };
 
@@ -82,6 +82,12 @@ export interface CourseProfile {
   parityExceptions: readonly number[];
   /** Название курса строкой в конце расшифровки — «хвост» (аудит). */
   trailerRe: RegExp;
+  /**
+   * kk: римские цифры веков, набранные кириллицей («ХІХ», «ХХ» — буквы Х и І), — к латинице (как
+   * в остальном курсе): правило лексикона без вычитки носителем (fix-kk-text, fix-titles, аудит).
+   * У политологии выключено: её опубликованные kk-тексты не трогаем.
+   */
+  latinRomanNumerals: boolean;
 }
 
 export const COURSE_PROFILES: readonly CourseProfile[] = [
@@ -101,6 +107,7 @@ export const COURSE_PROFILES: readonly CourseProfile[] = [
     // Документированное расхождение: видео kk-15 смонтировано с другими таймкодами (проверка по видео — за носителем).
     parityExceptions: [15],
     trailerRe: /^\s*(INTRODUCTION TO POLITICAL SCIENCE|ВВЕДЕНИЕ В ПОЛИТОЛОГИЮ|САЯСАТТАНУҒА КІРІСПЕ)\s*$/u,
+    latinRomanNumerals: false,
   },
   {
     ruTitle: 'Введение в философию',
@@ -117,6 +124,7 @@ export const COURSE_PROFILES: readonly CourseProfile[] = [
     timecodeParity: 'sections',
     parityExceptions: [],
     trailerRe: /^\s*(INTRODUCTION TO PHILOSOPHY|ВВЕДЕНИЕ В ФИЛОСОФИЮ|ФИЛОСОФИЯҒА КІРІСПЕ)\s*$/u,
+    latinRomanNumerals: true,
   },
 ];
 
@@ -702,8 +710,16 @@ export function isSentencePerLine(text: string): boolean {
 
 /* ── Казахская лексика (A20) ─────────────────────────────────────── */
 
+export interface KkLexiconEntry {
+  re: RegExp;
+  to: string | ((match: string) => string);
+  label: string;
+  /** false — типографская замена: вычитка носителем не нужна (fix-kk-text не ставит отметку). */
+  review?: boolean;
+}
+
 /** Однозначные опечатки/кальки в казахских текстах: [шаблон, замена, подпись]. */
-export const KK_LEXICON: { re: RegExp; to: string; label: string }[] = [
+export const KK_LEXICON: KkLexiconEntry[] = [
   { re: /(?<![\p{L}])берту(?![\p{L}])/gu, to: 'беру', label: 'берту→беру' },
   { re: /(?<![\p{L}])үздіксіс(?![\p{L}])/gu, to: 'үздіксіз', label: 'үздіксіс→үздіксіз' },
   { re: /(?<![\p{L}])яйни(?![\p{L}])/gu, to: 'яғни', label: 'яйни→яғни' },
@@ -712,10 +728,23 @@ export const KK_LEXICON: { re: RegExp; to: string; label: string }[] = [
   { re: /(?<![\p{L}])ретинде(?![\p{L}])/gu, to: 'ретінде', label: 'ретинде→ретінде' },
 ];
 
+/** Римские цифры веков, набранные кириллицей (revisions.CYRILLIC_ROMAN_RE): «ХІХ ғасыр» → «XIX ғасыр». */
+export const KK_ROMAN_NUMERALS: KkLexiconEntry = {
+  re: CYRILLIC_ROMAN_RE,
+  to: latinRoman,
+  label: 'римские цифры кириллицей→латиница',
+  review: false,
+};
+
+/** Лексикон курса (--course): общий + римские цифры, если их правит профиль курса. */
+export function kkLexicon(): KkLexiconEntry[] {
+  return courseProfile().latinRomanNumerals ? [...KK_LEXICON, KK_ROMAN_NUMERALS] : KK_LEXICON;
+}
+
 /** Попадания лексикона в тексте: подпись → число. */
 export function kkLexiconHits(text: string): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const { re, label } of KK_LEXICON) {
+  for (const { re, label } of kkLexicon()) {
     const n = (text.match(re) ?? []).length;
     if (n) out[label] = n;
   }
@@ -725,8 +754,13 @@ export function kkLexiconHits(text: string): Record<string, number> {
 export function applyKkLexicon(text: string): { text: string; hits: Record<string, number> } {
   const hits = kkLexiconHits(text);
   let out = text;
-  for (const { re, to } of KK_LEXICON) out = out.replace(re, to);
+  for (const { re, to } of kkLexicon()) out = typeof to === 'string' ? out.replace(re, to) : out.replace(re, to);
   return { text: out, hits };
+}
+
+/** Нужна ли вычитка носителем после замен лексикона (типографские замены — без неё). */
+export function kkLexiconNeedsReview(hits: Record<string, number>): boolean {
+  return Object.keys(hits).some((label) => kkLexicon().find((x) => x.label === label)?.review !== false);
 }
 
 /* ── Вопросы ─────────────────────────────────────────────────────── */
@@ -847,19 +881,23 @@ export interface ApplyTextFixesOptions {
  * «было → стало» (revisions.applyTextEdits). Порядок вариантов и ключ не меняются. Одна
  * транзакция и одна строка сводки на правку; журнал `content:v1:<скрипт>:fix:<id>`; отметка на
  * проверку — если задана в правке. На стенде, получившем уже исправленный артефакт, — «уже исправлено».
+ * Новый курс: тестов ещё нет — в предпросмотре правка пропускается (тест запишется из артефакта, где
+ * она уже учтена), а при записи контекст курса перечитывается: тесты, созданные этим же запуском, видны.
  */
 export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
   const invalid = validateTextFixes(o.fixes);
   for (const p of invalid) o.report.line('textFixes', 'error', p);
   if (invalid.length) return;
+  const course = o.apply && o.fixes.length ? await loadCourse() : o.course;
   for (const fix of o.fixes) {
     if (!o.langs.includes(fix.lang)) continue;
     const unit = `fix:${fix.id}`;
     const key = ledgerKey(o.script, unit);
-    const v = version(o.course, fix.lang);
+    const v = version(course, fix.lang);
     const quizId = resolveQuiz(v, fix.quiz);
     if (!quizId) {
-      o.report.line(unit, 'error', `тест ${locatorLabel(fix.lang, fix.quiz)} не найден`);
+      if (o.apply) o.report.line(unit, 'error', `тест ${locatorLabel(fix.lang, fix.quiz)} не найден`);
+      else o.report.line(unit, 'skip', `тест ${locatorLabel(fix.lang, fix.quiz)} ещё не создан — запишется из артефакта, где правка уже учтена`);
       continue;
     }
     if (await ledgerGet(prisma, key)) {
@@ -900,6 +938,7 @@ export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
       const row = await tx.quizQuestion.findUniqueOrThrow({ where: { id: q.id } });
       const fresh = applyTextEdits(toQuestionRow(row), fix.edits);
       if (fresh.status !== 'apply' || (await ledgerGet(tx, key))) return false;
+      const timecode = fresh.changedFields.includes('sourceTimecode');
       await tx.quizQuestion.update({
         where: { id: q.id },
         data: {
@@ -907,6 +946,7 @@ export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
           options: fresh.next.options,
           explanation: fresh.next.explanation,
           ...(fresh.next.optionRationales ? { optionRationales: fresh.next.optionRationales } : {}),
+          ...(timecode ? { sourceTimecode: fresh.next.sourceTimecode ?? null } : {}),
         },
       });
       await ledgerPut(tx, key, {
@@ -915,7 +955,13 @@ export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
         canonicalKey: q.canonicalKey,
         fields: fresh.changedFields,
         note: fix.note,
-        before: { prompt: row.prompt, options: row.options, explanation: row.explanation, optionRationales: row.optionRationales },
+        before: {
+          prompt: row.prompt,
+          options: row.options,
+          explanation: row.explanation,
+          optionRationales: row.optionRationales,
+          ...(timecode ? { sourceTimecode: row.sourceTimecode } : {}),
+        },
         ...(refusal ? { forced: refusal } : {}),
       });
       if (fix.review) {
@@ -923,7 +969,7 @@ export async function applyTextFixes(o: ApplyTextFixesOptions): Promise<void> {
           reason: fix.review.reason,
           targetType: 'QUIZ_QUESTION',
           targetId: q.id,
-          courseId: o.course.courseId,
+          courseId: course.courseId,
           languageVersionId: v.id,
           comment: fix.review.comment,
           dedupeKey: `review:v1:${fix.review.reason}:${q.id}:${fix.id}`,

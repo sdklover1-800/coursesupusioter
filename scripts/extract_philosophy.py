@@ -36,7 +36,10 @@
  - абзацы: в L13/L14 раздел — один абзац в 2–4,7 тыс. символов; режем по границам
    предложений на абзацы ~700 символов (текст не меняется — проверяется);
  - латинские буквы-двойники внутри кириллических слов («формaны», «жаhандық») → кириллица
-   (ломают поиск по расшифровке); markdown-курсив «*…*» (en L15) → обычный текст.
+   (ломают поиск по расшифровке); markdown-курсив «*…*» (en L15) → обычный текст;
+ - kk: римские цифры веков, набранные кириллицей («ХІХ», «ХХ» — буквы Х и І), → латиница, как в
+   названиях разделов, ru-версии и вопросах (то же правило — у content-скриптов: профиль курса
+   latinRomanNumerals); одиночная «Х.» в списке литературы — инициал, не трогается.
 
 Использование:
     python3 scripts/extract_philosophy.py [<папка_с_docx>] [<выходной.json>]
@@ -371,6 +374,26 @@ def fix_homoglyphs(text: str, lang: str, log: List[str]) -> str:
     return re.sub(r"[^\W\d_]+", repl, text)
 
 
+# Римские цифры с кириллическими Х (U+0425) / І (U+0406), не короче двух букв (одиночная «Х.» —
+# инициал: «Гадамер Х.-Г.», «Йонас Х.»). Как revisions.CYRILLIC_ROMAN_RE у content-скриптов.
+CYRILLIC_ROMAN_RE = re.compile(r"(?<![^\W_])(?=[XIVLCMХІ]*[ХІ])[XIVLCMХІ]{2,}(?![^\W_])")
+
+
+def fix_roman_numerals(text: str, lang: str, log: List[str]) -> str:
+    if lang != "kk":
+        return text
+    hits: List[str] = []
+
+    def repl(m: re.Match) -> str:
+        hits.append(m.group(0))
+        return m.group(0).replace("Х", "X").replace("І", "I")
+
+    out = CYRILLIC_ROMAN_RE.sub(repl, text)
+    if hits:
+        log.append(f"римские цифры кириллицей → латиница: {len(hits)} ({', '.join(sorted(set(hits)))})")
+    return out
+
+
 def strip_md_italics(text: str, log: List[str]) -> str:
     out, n = re.subn(r"\*([^*\n]+?)\*", r"\1", text)
     if n:
@@ -559,6 +582,7 @@ def normalize(lines: List[str], lang: str, number: int, title: str, log: List[st
     text = "\n".join(header + split_single_paragraph_sections(body_lines, log))
     text = strip_md_italics(text, log)
     text = fix_homoglyphs(text, lang, log)
+    text = fix_roman_numerals(text, lang, log)
 
     # Проверка языка: связный текст должен быть на языке версии.
     own = other = 0
@@ -617,7 +641,7 @@ def main() -> int:
                 if not m:
                     raise ExtractError("нет строки названия лекции")
                 base = TITLE_OVERRIDES.get((number, lang), m.group(3).strip().rstrip("."))
-                title = fix_homoglyphs(base, lang, []) + PART_SUFFIX.get(number, {}).get(lang, "")
+                title = fix_roman_numerals(fix_homoglyphs(base, lang, []), lang, []) + PART_SUFFIX.get(number, {}).get(lang, "")
                 text, duration, source_title = normalize(lines, lang, number, title, log)
             except ExtractError as e:
                 print(f"❌ лекция {number} [{lang}] {fname}: {e}", file=sys.stderr)

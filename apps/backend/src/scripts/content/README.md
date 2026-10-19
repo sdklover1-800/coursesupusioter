@@ -170,3 +170,46 @@ npx tsx --env-file-if-exists=../../.env src/scripts/content/translate-transcript
   после (так переносится исправленный артефакт); текст автора или правку менеджера — только с
   `--force`. Длительность — конец последнего таймкода, если не задана вручную. На каждую лекцию —
   отметка NATIVE_PROOFREAD (вычитка носителем). Журнал — `content:v1:philosophy:translate-transcripts:<код>`.
+
+## Курс «Введение в философию»: материалы (банк, практикум, мини-квизы, краткие содержания)
+
+Профиль курса — `lib.COURSE_PROFILES`: `--course "Введение в философию"` → артефакты
+`content-data/philosophy`, журнал `content:v1:philosophy:<скрипт>:<единица>`, ключи банка
+`phil:M<n>:Q<n>`, канон практикума «Логосия» (`logosia-v1`; ru-канон вписан в сам артефакт —
+`canonicalSource: 'artifact'`), паритет таймкодов — по числу разделов (у видео каждого языка свой
+хронометраж). Без `--course` — политология, поведение прежнее: предпросмотры всех общих скриптов
+на политологии совпадают с версией до курса философии.
+
+У нового курса тестов и задания ещё нет — их создают сами скрипты фазы 2: `graded-bank` (тесты
+модулей I–IV, сразу с политикой попыток set-quiz-policy), `canonical-practical` (задание раздела V,
+сразу с конфигом set-practical-config), `course-final` (итоговый мини-квиз), `lecture-minis`
+(мини-квизы лекций, `LECTURE_MINI`, тренировочные). Поэтому set-quiz-policy, set-practical-config,
+shuffle-options и fix-titles после них дают 0 изменений — это проверка, а не шаг записи.
+
+Черновики (локально, LLM; расход — `content-data/philosophy/llm-spend.json`):
+
+```bash
+npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --course "Введение в философию" --draft [--only M1]
+npx tsx --env-file-if-exists=../../.env src/scripts/content/canonical-practical.ts --course "Введение в философию" --draft   # ru-канон уже в артефакте (meta.ruSource)
+npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts --course "Введение в философию" --draft
+npx tsx --env-file-if-exists=../../.env src/scripts/content/lecture-minis.ts --course "Введение в философию" --draft [--only ru-04]
+npx tsx --env-file-if-exists=../../.env src/scripts/content/summaries.ts --course "Введение в философию" --draft
+```
+
+Рецензия (`meta.reviewEdits` / `meta.reviewNotes` каждого файла):
+
+- ru — канон: фактическая точность по расшифровке своей лекции, один верный ответ, правдоподобные
+  дистракторы, без подсказок длиной/позицией, ключи A–D поровну;
+- kk/en банка и тренировочных вопросов — перевод проверенного ru (`translateQuestions` с глоссарием
+  курса: названия лекций, заголовки разделов, «Ключевые понятия»; порядок вариантов и ключ — как в
+  ru, таймкод — тот же раздел своей лекции) с вычиткой терминов по kk/en-расшифровкам: отдельные
+  kk/en-черновики повторяли понятия оцениваемого банка;
+- тренировочный вопрос (итоговый мини-квиз, мини-квизы лекций) не проверяет понятие оцениваемого
+  теста и не раскрывает его ключ в дистракторах и обоснованиях; аудит проверяет пересечения
+  формулировок (`gradedPracticeOverlaps`), остальное — рецензент.
+
+Порядок на проде — `deploy/load-content.md` §6 (резервная копия, затем каждый шаг: предпросмотр →
+`--apply --i-have-a-backup`): graded-bank → set-quiz-policy → canonical-practical →
+set-practical-config → course-final → lecture-minis → summaries → shuffle-options → fix-titles →
+audit-content (все «Критерии выхода» ✔) → publish-course (только предпросмотр). Повторный запуск
+любого шага — 0 изменений (журнал).

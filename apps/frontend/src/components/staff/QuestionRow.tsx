@@ -7,6 +7,7 @@ import { Icon } from '../icons';
 import { authorshipTone } from '../../lib/tones';
 import { isLowN, isValidTimecode, optionLetter, type EditQuestion, type ItemStatRow, type QuestionPatch } from '../../lib/staff';
 import { AutoTextarea, MetaChip, SampleSize } from './primitives';
+import { lectureDisplayTitle } from '../lecture/lectureUtils';
 import { ItemAnalysisPanel, PValue } from './ItemAnalysis';
 
 /* ── Черновик вопроса и патч (только изменённые поля) ── */
@@ -311,7 +312,7 @@ export function QuestionRow({
               <Select value={draft.sourceLectureId} onChange={(e) => set('sourceLectureId', e.target.value)} disabled={readOnly}>
                 <option value="">{t('manager.qe.sourceNone')}</option>
                 {lectures.map((l) => (
-                  <option key={l.id} value={l.id}>{t('manager.qe.sourceOption', { n: l.lectureNumber, title: l.title })}</option>
+                  <option key={l.id} value={l.id}>{t('manager.qe.sourceOption', { n: l.lectureNumber, title: lectureDisplayTitle(l.title) })}</option>
                 ))}
               </Select>
             </Field>

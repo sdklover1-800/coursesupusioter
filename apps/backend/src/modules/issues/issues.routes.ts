@@ -58,11 +58,19 @@ export async function issuesRoutes(app: FastifyInstance): Promise<void> {
     return listIssues(q);
   });
 
-  // GET /content-issues/summary?courseId? → {open, openSystem}. Без courseId — по всем
-  // курсам (бейдж навигации сотрудника, A29).
+  // GET /content-issues/summary?courseId&language&origin&targetType → {open, openSystem}. Без
+  // фильтров — по всем курсам (бейдж навигации сотрудника, A29); с фильтрами очереди — её шапка.
   app.get('/content-issues/summary', staffGuard, async (req) => {
-    const { courseId } = parse(z.object({ courseId: z.string().optional() }), req.query);
-    return issueSummary(courseId);
+    const f = parse(
+      z.object({
+        courseId: z.string().optional(),
+        language: z.enum(['ru', 'kk', 'en']).optional(),
+        origin: z.enum([ContentIssueOrigin.STUDENT, ContentIssueOrigin.SYSTEM]).optional(),
+        targetType: targetEnum.optional(),
+      }),
+      req.query,
+    );
+    return issueSummary(f);
   });
 
   // PATCH /content-issues/:id {status, note} — решено / отклонено / снова открыто. Аудит.

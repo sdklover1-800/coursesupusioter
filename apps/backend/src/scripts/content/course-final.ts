@@ -12,6 +12,8 @@
  * Применение (--from … [--apply --i-have-a-backup]): writeQuizQuestions(finalQuizId, items,
  * {mode: 'ARCHIVE_REPLACE'}) + локализованное название (localizedTitle('COURSE_FINAL')); у нового
  * курса итогового мини-квиза ещё нет — он создаётся (COURSE_FINAL, тренировочный, как в generation/service.ts).
+ * Правки рецензента после применения (meta.textFixes) переносятся по точному «было → стало»
+ * (lib.applyTextFixes): текст, без порядка вариантов и ключа.
  *
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts [--course "…"] --draft
  *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts [--course "…"] --from course-final.v1.json [--apply --i-have-a-backup]
@@ -22,6 +24,7 @@ import {
   type PortableQuestion,
   Report,
   activeQuestions,
+  applyTextFixes,
   fromPortable,
   ledgerGet,
   ledgerKey,
@@ -36,11 +39,25 @@ import {
   version,
   writeArtifact,
 } from './lib.js';
+import type { TextFix } from './revisions.js';
 
 const SCRIPT = 'course-final';
 const ARTIFACT = 'course-final.v1.json';
 
-type Artifact = { meta: { version: 1; createdAt: string; llm: ReturnType<typeof getDraftUsage>; warnings: string[]; coverage: Record<string, string> } } & Partial<Record<Language, PortableQuestion[]>>;
+type Artifact = {
+  meta: {
+    version: 1;
+    createdAt: string;
+    llm: ReturnType<typeof getDraftUsage>;
+    warnings: string[];
+    coverage: Record<string, string>;
+    /** Правки рецензента (человекочитаемо). */
+    reviewEdits?: string[];
+    reviewNotes?: string[];
+    /** Те же правки для стендов, где итоговый мини-квиз уже записан (lib.applyTextFixes). */
+    textFixes?: TextFix[];
+  };
+} & Partial<Record<Language, PortableQuestion[]>>;
 
 async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
   const course = await loadCourse();
@@ -112,6 +129,8 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     if (v.finalMiniQuiz.title !== title) await prisma.quiz.update({ where: { id: v.finalMiniQuiz.id }, data: { title } });
     report.line(unit, ids.length ? 'changed' : 'skip', ids.length ? `архив ${cur.length} → новые ${ids.length} · покрытие ${art.meta.coverage[lang]}` : 'уже применено (журнал)');
   }
+  // Правки рецензента после применения (meta.textFixes): текст, без порядка вариантов и ключа.
+  await applyTextFixes({ script: SCRIPT, fixes: art.meta.textFixes ?? [], course, langs: args.langs, apply: args.apply, force: args.force, report });
   console.log(`\n${report.summary()}`);
   return report.errors ? 1 : 0;
 }

@@ -173,3 +173,50 @@ $C node dist/scripts/import-lectures.js /content/philosophy15.json --sync --appl
 
 (пишутся только пустые расшифровки и незаданная длительность; названия, видео, тесты и прогресс
 студентов не трогаются).
+
+### Материалы: тесты, практикум, мини-квизы, краткие содержания (без LLM)
+
+Все материалы курса сгенерированы черновиками на рабочей машине, проверены рецензентом и
+закоммичены в `apps/backend/content-data/philosophy/*.v1.json` (что в каком файле —
+`content-data/philosophy/README.md`). На проде их только применяют контент-скрипты, LLM не
+вызывается. Нужны выкаченный коммит с этими файлами (образ `api` пересобран — в нём
+`dist/scripts/content/lecture-minis.js`) и свежая резервная копия:
+
+```bash
+cd /root/coursesupusioter && umask 077
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T postgres \
+  pg_dump -U edu -Fc edu_platform > backups/edu-before-phil-materials-$(date +%Y%m%d-%H%M).dump
+CC="docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm -T \
+   -v /root/coursesupusioter/apps/backend/content-data:/app/apps/backend/content-data:ro api"
+```
+
+Каждая строка, кроме двух последних, — сначала как есть (предпросмотр, прочитать сводку), затем
+та же команда с `--apply --i-have-a-backup`; повторный запуск — 0 изменений. `audit-content` только
+читает, `publish-course` здесь — только предпросмотр. В комментариях — ожидаемый предпросмотр на
+курсе без материалов (так прошла репетиция на копии базы до материалов).
+
+```bash
+$CC node dist/scripts/content/snapshot-sessions.js                         # фаза A (общая для стенда): у всех сессий и попыток снимок есть — запись не нужна
+$CC node dist/scripts/content/graded-bank.js --course "Введение в философию" --from graded-bank.v1.json                 # would-change 12: тесты разделов I–IV, 8 вопросов × 3 языка
+$CC node dist/scripts/content/set-quiz-policy.js --course "Введение в философию"                                       # skip 12: политика уже задана (проверка)
+$CC node dist/scripts/content/canonical-practical.js --course "Введение в философию" --from canonical-practical.v1.json # would-change 3: «Логосия» (logosia-v1)
+$CC node dist/scripts/content/set-practical-config.js --course "Введение в философию"                                  # skip 3 (проверка)
+$CC node dist/scripts/content/course-final.js --course "Введение в философию" --from course-final.v1.json               # would-change 3: итоговый мини-квиз, 15 вопросов
+$CC node dist/scripts/content/lecture-minis.js --course "Введение в философию" --from lecture-minis.v1.json             # would-change 45: мини-квизы лекций по 3 вопроса
+$CC node dist/scripts/content/summaries.js --course "Введение в философию" --from summaries.v1.json                     # would-change 45
+$CC node dist/scripts/content/shuffle-options.js --course "Введение в философию"                                       # 0 изменений (варианты перемешаны при генерации)
+$CC node dist/scripts/content/fix-titles.js --course "Введение в философию"                                            # 0 изменений (skip 108)
+$CC node dist/scripts/content/audit-content.js --course "Введение в философию" --out /tmp/audit-phil.json             # все «Критерии выхода» — ✔
+$C node dist/scripts/publish-course.js --course "Введение в философию"                                                # только предпросмотр: ru/kk/en «готова»
+```
+
+`graded-bank` и `canonical-practical` при записи требуют выполненную фазу A (снимки старых сессий
+и попыток, общий шаг ремонта политологии); если её нет или появились сессии без снимка — отказ без
+записи, тогда `snapshot-sessions.js --apply --i-have-a-backup` и повтор. Тесты разделов создаются
+сразу с политикой (2 попытки, лучшая, пауза из env, полный разбор после последней), задание — с
+конфигом практикума (бюджеты 160k/190k/120k, 24 реплики, 2 попытки, 25 мин, план беседы),
+тренировочные вопросы — с уже перемешанными вариантами, поэтому set-quiz-policy,
+set-practical-config, shuffle-options и fix-titles — только проверка. На вопросы банка и практикум
+ставятся отметки EXPERT_REVIEW (ru, философ) и NATIVE_PROOFREAD (kk/en) — очередь проверки у
+менеджера (вместе с тремя переведёнными лекциями — 102 отметки). Публикация — отдельно, после
+решения лида.

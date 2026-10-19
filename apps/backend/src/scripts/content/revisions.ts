@@ -3,7 +3,8 @@
  *  - правки текста вопросов рецензентом (`meta.textFixes` артефакта): «было → стало» по точному
  *    якорю. Сам артефакт правится прямо в JSON (для стендов, где он ещё не применён), а на уже
  *    применённых стендах те же правки переносит lib.applyTextFixes. Порядок вариантов и ключ
- *    правка НЕ меняет — она допустима и для вопросов с попытками;
+ *    правка НЕ меняет — она допустима и для вопросов с попытками; таймкод источника
+ *    (sourceTimecode) правится целиком — когда вопрос заменён вопросом по другому разделу лекции;
  *  - языковые проверки аудита: кириллица в en-текстах, русские метки «верно/неверно» в kk/en,
  *    вырожденные обоснования;
  *  - незавершённые серии попыток оцениваемого теста (замену банка и правку по смыслу откладываем,
@@ -15,7 +16,7 @@ import type { QuizLocator } from './lib.js';
 
 /* ── Правки текста вопросов (meta.textFixes) ─────────────────────── */
 
-export type TextField = 'prompt' | 'explanation' | 'options' | 'optionRationales';
+export type TextField = 'prompt' | 'explanation' | 'options' | 'optionRationales' | 'sourceTimecode';
 
 export interface TextEdit {
   field: TextField;
@@ -23,7 +24,10 @@ export interface TextEdit {
   index?: number;
   from: string;
   to: string;
-  /** 'whole' — значение поля целиком равно from; по умолчанию 'part' — ровно одно вхождение from. */
+  /**
+   * 'whole' — значение поля целиком равно from; по умолчанию 'part' — ровно одно вхождение from.
+   * Таймкод источника (sourceTimecode: вопрос заменён вопросом по другому разделу лекции) — всегда целиком.
+   */
   match?: 'whole' | 'part';
 }
 
@@ -54,6 +58,8 @@ export interface EditableQuestion {
   options: string[];
   explanation: string | null;
   optionRationales: string[] | null;
+  /** Таймкод источника «мм:сс» — его правят только правки с field 'sourceTimecode'. */
+  sourceTimecode?: string | null;
 }
 
 export type FixOutcome =
@@ -73,6 +79,7 @@ const fieldLabel = (e: TextEdit) => (e.index === undefined ? e.field : `${e.fiel
 function readField(q: EditableQuestion, e: TextEdit): string | null {
   if (e.field === 'prompt') return q.prompt;
   if (e.field === 'explanation') return q.explanation;
+  if (e.field === 'sourceTimecode') return q.sourceTimecode ?? null;
   const arr = e.field === 'options' ? q.options : q.optionRationales;
   if (!arr || e.index === undefined || !Number.isInteger(e.index) || e.index < 0 || e.index >= arr.length) return null;
   return arr[e.index] ?? null;
@@ -81,6 +88,7 @@ function readField(q: EditableQuestion, e: TextEdit): string | null {
 function writeField(q: EditableQuestion, e: TextEdit, value: string): void {
   if (e.field === 'prompt') q.prompt = value;
   else if (e.field === 'explanation') q.explanation = value;
+  else if (e.field === 'sourceTimecode') q.sourceTimecode = value;
   else if (e.field === 'options') q.options[e.index!] = value;
   else q.optionRationales![e.index!] = value;
 }
@@ -97,6 +105,7 @@ export function applyTextEdits(q: EditableQuestion, edits: readonly TextEdit[]):
     options: [...q.options],
     explanation: q.explanation,
     optionRationales: q.optionRationales ? [...q.optionRationales] : null,
+    ...(q.sourceTimecode !== undefined ? { sourceTimecode: q.sourceTimecode } : {}),
   };
   const problems: string[] = [];
   const changed = new Set<TextField>();
@@ -110,7 +119,7 @@ export function applyTextEdits(q: EditableQuestion, edits: readonly TextEdit[]):
       problems.push(`${fieldLabel(e)}: поля нет`);
       continue;
     }
-    if (e.match === 'whole') {
+    if (e.match === 'whole' || e.field === 'sourceTimecode') {
       if (value === e.to) continue;
       if (value !== e.from) {
         problems.push(`${fieldLabel(e)}: текст отличается и от «было», и от «стало»`);
@@ -147,6 +156,7 @@ export function validateTextFixes(fixes: readonly TextFix[]): string[] {
     if (!f.edits?.length) out.push(`${f.id}: нет правок`);
     for (const e of f.edits ?? []) {
       if ((e.field === 'options' || e.field === 'optionRationales') && e.index === undefined) out.push(`${f.id}: ${e.field} без index`);
+      if (e.field === 'sourceTimecode' && !/^\d{1,3}:[0-5]\d$/u.test(e.to)) out.push(`${f.id}: sourceTimecode «${e.to}» не в формате мм:сс`);
     }
   }
   return out;
@@ -194,6 +204,18 @@ export function questionLanguageProblems(lang: Language, q: CheckedQuestion): st
 export function shortRationales(q: EditableQuestion): number[] {
   return (q.optionRationales ?? []).flatMap((r, i) => (r.trim().length < MIN_RATIONALE_CHARS ? [i] : []));
 }
+
+/* ── kk: римские цифры кириллицей ─────────────────────────────────── */
+
+/**
+ * Римские цифры, в которых есть кириллические Х (U+0425) или І (U+0406) — «ХІХ», «ХХ–ХХІ»: на
+ * вид не отличить от латиницы, но поиск и экранный диктор их не узнают. Не короче двух букв:
+ * одиночная «Х.» в списке литературы — инициал («Гадамер Х.-Г.», «Йонас Х.»).
+ */
+export const CYRILLIC_ROMAN_RE = /(?<![\p{L}\p{N}])(?=[XIVLCMХІ]*[ХІ])[XIVLCMХІ]{2,}(?![\p{L}\p{N}])/gu;
+
+/** Кириллические Х/І римского числа → латинские X/I. */
+export const latinRoman = (numeral: string): string => numeral.replace(/Х/gu, 'X').replace(/І/gu, 'I');
 
 /* ── Расшифровки: заголовок первой строки ─────────────────────────── */
 

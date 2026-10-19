@@ -49,7 +49,7 @@ export function ContentIssuesPage() {
     [status, origin, courseId, language, targetType],
   );
   const q = useIssues(filters);
-  const summary = useIssueSummary(courseId || null);
+  const summary = useIssueSummary({ courseId: filters.courseId, language: filters.language, origin: filters.origin, targetType: filters.targetType });
   const courses = useManagedCourses();
   const setStatus = useSetIssueStatus();
   const bulk = useBulkIssueStatus();

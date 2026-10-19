@@ -162,7 +162,14 @@
       "en-15 #1 options[D]: term of en-15",
       "en-15 #1: «standing reserve in Heidegger» → «the standing-reserve in Heidegger» (term of en-15)",
       "en-15 #3: «a way of revealing the world, a Ge-stell, in which» → «a way of revealing the world, Ge-stell (“emplacement”), in which» (term of en-15)",
-      "en-15 #3 optionRationales[B]: “standing-reserve” is Bestand, not Ge-stell (as in en-15)"
+      "en-15 #3 optionRationales[B]: “standing-reserve” is Bestand, not Ge-stell (as in en-15)",
+      "[2026-10-19] ru/kk/en L1 #3: TRUE_FALSE заменён: прежний («философия проверяет утверждения экспериментом, как частные науки») проверял различение философии и частной науки — понятие оцениваемого M1:Q1 — и давал его правило решения; новый — о Пифагоре и слове «философия» (раздел 1 лекции), ключ прежний «Неверно» (баланс TRUE_FALSE 7/15); таймкод — начало раздела 1",
+      "[2026-10-19] ru/kk/en L12 #3: TRUE_FALSE переписан: ключ утверждал, что угроза смерти снимает ответственность, а у Аристотеля («Никомахова этика» III.1, 1110a) такие поступки «смешанные, но скорее добровольные»; новый — о человеке, которого толкнул порыв ветра (источник движения вне его, поступок невольный; пример — в лекции), ключ прежний «Неверно». Упрощение в самой лекции ru-12 [16:04–19:38] (и kk/en) — передать автору",
+      "[2026-10-19] ru/kk/en L13 #1: дистракторы A–C были общими «непозициями» («отказ от любой иерархии», «сведение к привычке») → упорядочения ценностей из раздела 5 лекции (приятное выше витального, автономия выше витального — обратный выбор, святое выше духовного); обоснования — полными утверждениями без «потому что»",
+      "[2026-10-19] ru/kk/en L13 #2: обоснования «Неверно: потому что…» / «Верно: потому что…» (kk «өйткені», en «because») — полными утверждениями",
+      "[2026-10-19] ru L10 #2, L5 #3, L9 #1: имя философа в начале обоснования — с заглавной буквы (Юм, Лейбниц, Хайдеггер, Парменид, Кант; в kk/en уже верно)",
+      "[2026-10-19] en: en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса — вопросов 27 (на применённых стендах — meta.textFixes по вопросу целиком)",
+      "[2026-10-19] kk-07, kk-08: в поле title строки — римские цифры латиницей (как в названии лекции после fix-titles/извлечения); transcriptSha256 kk-05/07/08/09 — по расшифровкам после замены кириллических Х/І в римских цифрах (extract_philosophy.py, fix-kk-text)"
     ],
     "reviewNotes": [
       "ru-черновик (15 лекций × 3 вопроса: 2 SINGLE_CHOICE + 1 TRUE_FALSE, по расшифровке своей лекции): 31 из 45 вопросов заменены — 19 повторяли понятие оцениваемого банка (методическое сомнение, анатман, увэй, первичные/вторичные качества, потенция и акт, совет стоика, номинализм, товарный фетишизм, слияние горизонтов, фальсифицируемость, субстанция Локка, когерентная истина, «недостаточное существо», Сверх-Я), 10 дублировали итоговый мини-квиз, 2 повторяли понятие соседнего вопроса того же мини-квиза; ещё 7 дистракторов заменены, потому что их обоснования раскрывали ключи оцениваемых (миф → логос, методическое сомнение, стоик о внешнем, общая воля, порядок сосуществований Лейбница, категорический императив, хитрость разума). Правило: тренировочный вопрос не проверяет понятие оцениваемого теста и не объясняет его ключ.",
@@ -171,7 +178,1414 @@
       "Итог: ключи SINGLE_CHOICE A/B/C/D — 8/6/8/8 (одинаково в ru/kk/en); TRUE_FALSE «верно» 7/15; подсказок длиной (> 1.5× медианы дистракторов) нет ни в одном языке; самый длинный вариант = ключ: ru 8/30, kk 7/30, en 5/30; пересечений с оцениваемым банком и итоговым мини-квизом по порогам аудита нет.",
       "Все обоснования — с «Верно:/Неверно:» (kk «Дұрыс:/Қате:», en «Correct:/Incorrect:»); варианты TRUE_FALSE — штатные подписи языка (Верно/Неверно, Дұрыс/Қате, True/False).",
       "Предупреждения черновика сняты рецензией: ru-06 #2 — ключ укорочен (подсказка длиной 1.47 → 1.15), ru-13 #1 — 1.10, в пределах порога.",
-      "Тренировочный тест: отметки на экспертную проверку не ставятся (как у политологии); kk/en стоит показать носителям вместе с банком."
+      "Тренировочный тест: отметки на экспертную проверку не ставятся (как у политологии); kk/en стоит показать носителям вместе с банком.",
+      "[2026-10-19] Фактическая неточность в самой лекции 12 (ru [16:04–19:38], так же kk/en): «человек, действующий под угрозой немедленной смерти, по Аристотелю, частично или полностью освобождается от ответственности». У Аристотеля («Никомахова этика» III.1, 1110a) поступки под угрозой «смешанные, но скорее добровольные», снисхождение — лишь иногда; невольно — когда начало движения вне человека (порыв ветра). Текст лекции не правился (авторский) — передать автору; мини-квиз L12 #3 переписан на пример с ветром."
+    ],
+    "textFixes": [
+      {
+        "id": "rev1-ru-mini01-3-pythagoras",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 1
+        },
+        "orderIndex": 2,
+        "prompt": "Философия проверяет свои утверждения главным образом экспериментом и наблюдением, поэтому для неё характерен тот же способ верификации, что и для частных наук.",
+        "note": "TRUE_FALSE заменён: прежний («философия проверяет утверждения экспериментом, как частные науки») проверял различение философии и частной науки — понятие оцениваемого M1:Q1 — и давал его правило решения; новый — о Пифагоре и слове «философия» (раздел 1 лекции), ключ прежний «Неверно» (баланс TRUE_FALSE 7/15); таймкод — начало раздела 1",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Философия проверяет свои утверждения главным образом экспериментом и наблюдением, поэтому для неё характерен тот же способ верификации, что и для частных наук.",
+            "to": "По преданию, Пифагор называл себя мудрецом, то есть человеком, уже обладающим мудростью."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Это неверно: философия работает рациональной аргументацией, логическим анализом понятий и мысленным экспериментом; эмпирическая проверка экспериментом и наблюдением — метод частных наук.",
+            "to": "Это неверно: по легенде, Пифагор ответил, что он не мудрец, а лишь любит мудрость и стремится к ней, никогда полностью ею не обладая. Отсюда слово «философия» — «любовь к мудрости»."
+          },
+          {
+            "field": "sourceTimecode",
+            "from": "10:54",
+            "to": "01:36"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Неверно: философия не опирается главным образом на эксперимент и наблюдение как на свой основной способ проверки.",
+            "to": "Неверно: по преданию, Пифагор отказался называть себя мудрецом — он лишь любит мудрость и стремится к ней."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Верно: утверждение о преимущественно экспериментальной проверке относится к частным наукам, а не к философии.",
+            "to": "Верно: по легенде, Пифагор назвал себя не мудрецом, а любящим мудрость; отсюда «философия» — «любовь к мудрости»."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-mini01-3-pythagoras",
+        "lang": "kk",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 1
+        },
+        "orderIndex": 2,
+        "prompt": "Философия өз тұжырымдарын негізінен эксперимент пен бақылау арқылы тексереді, сондықтан оған жеке ғылымдардағыдай верификация тәсілі тән.",
+        "note": "TRUE_FALSE заменён: прежний («философия проверяет утверждения экспериментом, как частные науки») проверял различение философии и частной науки — понятие оцениваемого M1:Q1 — и давал его правило решения; новый — о Пифагоре и слове «философия» (раздел 1 лекции), ключ прежний «Неверно» (баланс TRUE_FALSE 7/15); таймкод — начало раздела 1",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Философия өз тұжырымдарын негізінен эксперимент пен бақылау арқылы тексереді, сондықтан оған жеке ғылымдардағыдай верификация тәсілі тән.",
+            "to": "Аңыз бойынша, Пифагор өзін дана, яғни даналыққа әлдеқашан ие адам деп атаған."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Бұл дұрыс емес: философия рационалдық уәждеу, ұғымдарды логикалық талдау және ойша эксперимент арқылы жұмыс істейді; эксперимент пен бақылау арқылы эмпириялық тексеру — жеке ғылымдардың әдісі.",
+            "to": "Бұл дұрыс емес: аңыз бойынша Пифагор дана емес екенін, тек даналықты сүйіп, оған ұмтылатынын, бірақ оған ешқашан толық ие бола алмайтынын айтқан. «Философия» сөзі де осыдан — «даналыққа деген сүйіспеншілік»."
+          },
+          {
+            "field": "sourceTimecode",
+            "from": "10:06",
+            "to": "01:28"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Қате: философия өз негізгі тексеру тәсілі ретінде негізінен эксперимент пен бақылауға сүйенбейді.",
+            "to": "Қате: аңыз бойынша Пифагор өзін дана деп атаудан бас тартқан — ол тек даналықты сүйіп, оған ұмтылады."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Дұрыс: негізінен эксперименттік тексеру туралы тұжырым жеке ғылымдарға тән, философияға емес.",
+            "to": "Дұрыс: аңыз бойынша Пифагор өзін дана емес, даналықты сүйетін адам деп атаған; «философия» — «даналыққа деген сүйіспеншілік» осыдан шыққан."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini01-3-pythagoras",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 1
+        },
+        "orderIndex": 2,
+        "prompt": "Philosophy tests its claims mainly by experiment and observation, so it uses the same method of verification as the particular sciences.",
+        "note": "TRUE_FALSE заменён: прежний («философия проверяет утверждения экспериментом, как частные науки») проверял различение философии и частной науки — понятие оцениваемого M1:Q1 — и давал его правило решения; новый — о Пифагоре и слове «философия» (раздел 1 лекции), ключ прежний «Неверно» (баланс TRUE_FALSE 7/15); таймкод — начало раздела 1",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Philosophy tests its claims mainly by experiment and observation, so it uses the same method of verification as the particular sciences.",
+            "to": "According to legend, Pythagoras called himself a sage, that is, someone who already possesses wisdom."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "This is false: philosophy works through rational argumentation, logical analysis of concepts, and thought experiments; empirical testing by experiment and observation is the method of the particular sciences.",
+            "to": "This is false: according to legend, Pythagoras replied that he was not a sage but only loved wisdom and strove toward it, never fully possessing it. Hence the word \"philosophy\" — \"love of wisdom.\""
+          },
+          {
+            "field": "sourceTimecode",
+            "from": "10:58",
+            "to": "01:51"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: philosophy does not mainly rely on experiment and observation as its basic way of testing claims.",
+            "to": "Incorrect: according to legend, Pythagoras refused to call himself a sage — he only loves wisdom and strives toward it."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: the claim about primarily experimental verification applies to the particular sciences, not to philosophy.",
+            "to": "Correct: according to legend, Pythagoras called himself not a sage but a lover of wisdom; hence \"philosophy,\" \"love of wisdom.\""
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini12-3-aristotle",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 12
+        },
+        "orderIndex": 2,
+        "prompt": "По Аристотелю, человек, действующий под угрозой немедленной смерти, отвечает за результат так же полно, как и тот, кто действует добровольно.",
+        "note": "TRUE_FALSE переписан: ключ утверждал, что угроза смерти снимает ответственность, а у Аристотеля («Никомахова этика» III.1, 1110a) такие поступки «смешанные, но скорее добровольные»; новый — о человеке, которого толкнул порыв ветра (источник движения вне его, поступок невольный; пример — в лекции), ключ прежний «Неверно». Упрощение в самой лекции ru-12 [16:04–19:38] (и kk/en) — передать автору",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "По Аристотелю, человек, действующий под угрозой немедленной смерти, отвечает за результат так же полно, как и тот, кто действует добровольно.",
+            "to": "По Аристотелю, человек, которого против его воли толкнул порыв ветра, совершает добровольный поступок и отвечает за его результат."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Аристотель считал поступок подлежащим похвале или порицанию, если он добровольный: исходит от самого человека, совершается со знанием обстоятельств и без внешнего принуждения. Действие под угрозой смерти частично или полностью освобождает от ответственности.",
+            "to": "Аристотель считал поступок подлежащим похвале или порицанию, если он добровольный: исходит от самого человека, совершается со знанием обстоятельств и без внешнего принуждения. Когда человека толкает порыв ветра, источник движения лежит вне его и сам он ничего в это движение не привносит, — такое действие невольное, и за результат он не отвечает."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Неверно: принуждение угрозой, по Аристотелю, уменьшает или снимает ответственность.",
+            "to": "Неверно: у человека, которого толкнул ветер, источник движения лежит вне его самого, поэтому такое действие, по Аристотелю, невольное и порицанию не подлежит."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Верно: ответственность предполагает добровольность, а угроза немедленной смерти её ограничивает.",
+            "to": "Верно: добровольным Аристотель считает действие, источник которого — в самом действующем, а при внешнем принуждении, как в случае с порывом ветра, этого условия нет."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-mini12-3-aristotle",
+        "lang": "kk",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 12
+        },
+        "orderIndex": 2,
+        "prompt": "Аристотель бойынша, дереу өлім қаупі астында әрекет ететін адам нәтижеге өз еркімен әрекет еткен адам сияқты толық жауап береді.",
+        "note": "TRUE_FALSE переписан: ключ утверждал, что угроза смерти снимает ответственность, а у Аристотеля («Никомахова этика» III.1, 1110a) такие поступки «смешанные, но скорее добровольные»; новый — о человеке, которого толкнул порыв ветра (источник движения вне его, поступок невольный; пример — в лекции), ключ прежний «Неверно». Упрощение в самой лекции ru-12 [16:04–19:38] (и kk/en) — передать автору",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Аристотель бойынша, дереу өлім қаупі астында әрекет ететін адам нәтижеге өз еркімен әрекет еткен адам сияқты толық жауап береді.",
+            "to": "Аристотель бойынша, еркінен тыс желдің лебі түрткен адам ерікті әрекет жасайды және оның нәтижесіне жауап береді."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Аристотель әрекет мақтауға немесе даттауға лайық болуы үшін оның ерікті болуын талап етті: ол адамның өзінен туындауы, жағдайды біле отырып орындалуы және сыртқы мәжбүрлеусіз жасалуы керек. Өлім қаупі астындағы әрекет жауапкершіліктен ішінара немесе толық босатады.",
+            "to": "Аристотель әрекет мақтауға немесе даттауға лайық болуы үшін оның ерікті болуын талап етті: ол адамның өзінен туындауы, жағдайды біле отырып орындалуы және сыртқы мәжбүрлеусіз жасалуы керек. Адамды желдің лебі түртсе, қозғалыстың қайнар көзі оның сыртында жатады және ол бұл қозғалысқа өзінен ештеңе қоспайды, — мұндай әрекет еріксіз, сондықтан ол нәтижеге жауап бермейді."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Қате: қауіппен мәжбүрлеу, Аристотель бойынша, жауапкершілікті азайтады немесе жояды.",
+            "to": "Қате: желдің лебі түрткен адамда қозғалыстың қайнар көзі оның өзінен тыс жатыр, сондықтан Аристотель бойынша бұл әрекет еріксіз және айыптауға жатпайды."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Дұрыс: жауапкершілік еріктілікке сүйенеді, ал дереу өлім қаупі оны шектейді.",
+            "to": "Дұрыс: Аристотель қайнар көзі әрекет етушінің өзінде жатқан әрекетті ғана ерікті деп санайды, ал желдің лебі сияқты сыртқы мәжбүрлеуде бұл шарт жоқ."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini12-3-aristotle",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 12
+        },
+        "orderIndex": 2,
+        "prompt": "According to Aristotle, a person acting under the threat of immediate death is responsible for the result just as fully as someone who acts voluntarily.",
+        "note": "TRUE_FALSE переписан: ключ утверждал, что угроза смерти снимает ответственность, а у Аристотеля («Никомахова этика» III.1, 1110a) такие поступки «смешанные, но скорее добровольные»; новый — о человеке, которого толкнул порыв ветра (источник движения вне его, поступок невольный; пример — в лекции), ключ прежний «Неверно». Упрощение в самой лекции ru-12 [16:04–19:38] (и kk/en) — передать автору",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "According to Aristotle, a person acting under the threat of immediate death is responsible for the result just as fully as someone who acts voluntarily.",
+            "to": "According to Aristotle, a person pushed by a gust of wind against their will performs a voluntary act and is responsible for its result."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Aristotle considered an act subject to praise or blame if it is voluntary: it comes from the agent, is done with knowledge of the circumstances, and is not brought about by external compulsion. Action under threat of death partly or completely releases one from responsibility.",
+            "to": "Aristotle considered an act subject to praise or blame if it is voluntary: it comes from the agent, is done with knowledge of the circumstances, and is not brought about by external compulsion. When a gust of wind pushes a person, the source of the movement lies outside them and they contribute nothing to it, so the act is involuntary and they are not responsible for the result."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: coercion by threat, for Aristotle, reduces or removes responsibility.",
+            "to": "Incorrect: for a person pushed by the wind, the source of the movement lies outside them, so on Aristotle's account the act is involuntary and not subject to blame."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: responsibility presupposes voluntariness, and the threat of immediate death limits it.",
+            "to": "Correct: Aristotle counts as voluntary only an act whose source lies in the agent, and under external compulsion such as a gust of wind this condition is missing."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini13-1-axiology",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 0,
+        "prompt": "В обществе временно ограничивают личную свободу передвижения, чтобы снизить риск распространения болезни и сохранить здоровье как можно большего числа людей. Какая аксиологическая логика здесь проявляется?",
+        "note": "дистракторы A–C были общими «непозициями» («отказ от любой иерархии», «сведение к привычке») → упорядочения ценностей из раздела 5 лекции (приятное выше витального, автономия выше витального — обратный выбор, святое выше духовного); обоснования — полными утверждениями без «потому что»",
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Признание удовольствия высшей ценностью",
+            "to": "Помещение приятного выше витальной ценности"
+          },
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Отказ от любой иерархии ценностей",
+            "to": "Помещение автономии выше витальной ценности"
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Сведение ценности к культурной привычке",
+            "to": "Помещение ценности святого выше духовных ценностей"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Неверно: речь идёт не о приятном и неприятном, а о здоровье и свободе.",
+            "to": "Неверно: ценности приятного, то есть удовольствия, в примере не сопоставляются — речь идёт о здоровье и свободе передвижения."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Неверно: потому что в примере как раз принимается определённое соподчинение ценностей.",
+            "to": "Неверно: это обратный выбор — отказаться от ограничений ради свободы; в примере же ради здоровья ограничивают именно автономию."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Неверно: потому что ценность здесь не сводят к обычаю или привычке, а именно сопоставляют по значимости.",
+            "to": "Неверно: ценности святого — вершина иерархии Шелера, но в примере они не затронуты: сопоставляются здоровье и свобода передвижения."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Верно: это прямо соответствует ситуации, где витальная ценность жизни и здоровья ставится выше автономии.",
+            "to": "Верно: ограничивая свободу передвижения ради здоровья, общество ставит витальную ценность жизни и здоровья выше индивидуальной автономии."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-mini13-1-axiology",
+        "lang": "kk",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 0,
+        "prompt": "Қоғамда аурудың таралу қаупін азайту және адамдардың мүмкіндігінше көп бөлігінің денсаулығын сақтау үшін жеке жүріп-тұру еркіндігін уақытша шектейді. Мұнда қандай аксиологиялық логика көрініс табады?",
+        "note": "дистракторы A–C были общими «непозициями» («отказ от любой иерархии», «сведение к привычке») → упорядочения ценностей из раздела 5 лекции (приятное выше витального, автономия выше витального — обратный выбор, святое выше духовного); обоснования — полными утверждениями без «потому что»",
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Ләззатты ең жоғары құндылық деп тану",
+            "to": "Жағымдыны витальды құндылықтан жоғары қою"
+          },
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Құндылықтардың кез келген иерархиясынан бас тарту",
+            "to": "Автономияны витальды құндылықтан жоғары қою"
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Құндылықты мәдени әдетке дейін түсіру",
+            "to": "Қасиеттінің құндылығын рухани құндылықтардан жоғары қою"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Қате: мұнда жағымды және жағымсыз туралы емес, денсаулық пен еркіндік туралы айтылып отыр.",
+            "to": "Қате: мысалда жағымды, яғни ләззат құндылықтары салыстырылмайды — сөз денсаулық пен жүріп-тұру еркіндігі туралы."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Қате: өйткені мысалда құндылықтардың белгілі бір бағыну тәртібі қабылданып отыр.",
+            "to": "Қате: бұл кері таңдау — еркіндік үшін шектеулерден бас тарту; ал мысалда денсаулық үшін дәл автономия шектеледі."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Қате: өйткені мұнда құндылықты әдетке не дағдыға дейін төмендету емес, оның маңызын салыстыру жүріп отыр.",
+            "to": "Қате: қасиеттінің құндылығы — Шелер иерархиясының шыңы, бірақ мысалда ол қозғалмайды: денсаулық пен жүріп-тұру еркіндігі салыстырылады."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Дұрыс: бұл өмір мен денсаулықтың витальды құндылығы автономиядан жоғары қойылатын жағдайға тікелей сәйкес келеді.",
+            "to": "Дұрыс: денсаулық үшін жүріп-тұру еркіндігін шектей отырып, қоғам өмір мен денсаулықтың витальды құндылығын жеке автономиядан жоғары қояды."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini13-1-axiology",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 0,
+        "prompt": "In society, personal freedom of movement is temporarily restricted in order to reduce the risk of spreading disease and preserve the health of as many people as possible. What axiological logic is expressed here?",
+        "note": "дистракторы A–C были общими «непозициями» («отказ от любой иерархии», «сведение к привычке») → упорядочения ценностей из раздела 5 лекции (приятное выше витального, автономия выше витального — обратный выбор, святое выше духовного); обоснования — полными утверждениями без «потому что»",
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Recognition of pleasure as the highest value",
+            "to": "Placing the pleasant above vital value"
+          },
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Rejection of any hierarchy of values",
+            "to": "Placing autonomy above vital value"
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Reducing value to a cultural habit",
+            "to": "Placing the values of the holy above spiritual values"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: this is not about pleasure and displeasure, but about health and freedom.",
+            "to": "Incorrect: values of the pleasant, that is, of pleasure, are not being weighed in the example — it is about health and freedom of movement."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: because the example in fact accepts a certain subordination of values.",
+            "to": "Incorrect: that would be the opposite choice — giving up restrictions for the sake of freedom; in the example, autonomy is what gets restricted for the sake of health."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Incorrect: because value here is not reduced to custom or habit, but compared by significance.",
+            "to": "Incorrect: the values of the holy crown Scheler's hierarchy, but they play no part in the example, which weighs health against freedom of movement."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Correct: this directly matches a situation in which the vital value of life and health is placed above autonomy.",
+            "to": "Correct: by restricting freedom of movement for the sake of health, society places the vital value of life and health above individual autonomy."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini13-2-because",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 1,
+        "prompt": "В этике добродетели правильность поступка определяется прежде всего тем, насколько он соответствует универсальному правилу, обязательному без исключений.",
+        "note": "обоснования «Неверно: потому что…» / «Верно: потому что…» (kk «өйткені», en «because») — полными утверждениями",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Неверно: потому что универсальное правило без исключений характерно для деонтологии, а не для этики добродетели.",
+            "to": "Неверно: универсальное правило без исключений характерно для деонтологии, а не для этики добродетели."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Верно: потому что именно такая проверка через универсальное правило описывает деонтологию, а не этику добродетели.",
+            "to": "Верно: проверка поступка универсальным правилом описывает деонтологию, а этика добродетели спрашивает, каким человеком следует быть."
+          }
+        ]
+      },
+      {
+        "id": "rev1-kk-mini13-2-because",
+        "lang": "kk",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 1,
+        "prompt": "Парасаттылық этикасында іс-әрекеттің дұрыстығы, ең алдымен, оның ешбір ерекшеліксіз міндетті жалпы ережеге қаншалықты сәйкес келетінімен анықталады.",
+        "note": "обоснования «Неверно: потому что…» / «Верно: потому что…» (kk «өйткені», en «because») — полными утверждениями",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Қате: өйткені ешбір ерекшеліксіз жалпы ереже деонтологияға тән, ал парасаттылық этикасына емес.",
+            "to": "Қате: ешбір ерекшеліксіз жалпы ереже парасаттылық этикасына емес, деонтологияға тән."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Дұрыс: өйткені дәл осындай жалпы ереже арқылы тексеру деонтологияны, ал парасаттылық этикасын емес, сипаттайды.",
+            "to": "Дұрыс: әрекетті жалпы ережемен тексеру деонтологияны сипаттайды, ал парасаттылық этикасы қандай адам болу керектігін сұрайды."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini13-2-because",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 13
+        },
+        "orderIndex": 1,
+        "prompt": "In virtue ethics, the rightness of an action is determined primarily by how well it conforms to a universal rule that is binding without exceptions.",
+        "note": "обоснования «Неверно: потому что…» / «Верно: потому что…» (kk «өйткені», en «because») — полными утверждениями",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: because a universal rule without exceptions is characteristic of deontology, not virtue ethics.",
+            "to": "Incorrect: a universal rule without exceptions is characteristic of deontology, not virtue ethics."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: because this kind of testing by a universal rule describes deontology, not virtue ethics.",
+            "to": "Correct: testing an action against a universal rule describes deontology, whereas virtue ethics asks what sort of person one ought to be."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini05-3-names",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 5
+        },
+        "orderIndex": 2,
+        "prompt": "Для Дэвида Юма наблюдение только показывает, что одно событие следует за другим, но не даёт увидеть необходимую связь между причиной и следствием.",
+        "note": "имя философа в начале обоснования — с заглавной буквы (Юм, Лейбниц, Хайдеггер, Парменид, Кант; в kk/en уже верно)",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Верно: юм считает, что необходимая связь не дана в опыте и возникает как результат привычки.",
+            "to": "Верно: Юм считает, что необходимая связь не дана в опыте и возникает как результат привычки."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini09-1-names",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 9
+        },
+        "orderIndex": 0,
+        "prompt": "Философ утверждает, что вопрос о бытии можно свести к тому, какие сущности приходится допускать в наших лучших научных теориях как значения переменных. К чьей позиции это относится?",
+        "note": "имя философа в начале обоснования — с заглавной буквы (Юм, Лейбниц, Хайдеггер, Парменид, Кант; в kk/en уже верно)",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Неверно: лейбниц объясняет пространство, время и монады, но не формулирует этот лингвистический подход к онтологии.",
+            "to": "Неверно: Лейбниц объясняет пространство, время и монады, но не формулирует этот лингвистический подход к онтологии."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Неверно: хайдеггер критикует забвение бытия, но не сводит онтологию к анализу научных переменных.",
+            "to": "Неверно: Хайдеггер критикует забвение бытия, но не сводит онтологию к анализу научных переменных."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Неверно: парменид утверждает неизменность и единство бытия, а не языковой критерий онтологического обязательства.",
+            "to": "Неверно: Парменид утверждает неизменность и единство бытия, а не языковой критерий онтологического обязательства."
+          }
+        ]
+      },
+      {
+        "id": "rev1-ru-mini10-2-names",
+        "lang": "ru",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 10
+        },
+        "orderIndex": 1,
+        "prompt": "Исследователь замечает, что одно и то же событие должно быть дано нам как происходящее в пространстве и времени, и делает вывод, что эти формы не открываются в вещах самих по себе, а привносятся познающим субъектом. Какую позицию он выражает?",
+        "note": "имя философа в начале обоснования — с заглавной буквы (Юм, Лейбниц, Хайдеггер, Парменид, Кант; в kk/en уже верно)",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Верно: кант именно так объясняет пространство и время — как формы, которые субъект привносит в опыт.",
+            "to": "Верно: Кант именно так объясняет пространство и время — как формы, которые субъект привносит в опыт."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini01-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 1
+        },
+        "orderIndex": 0,
+        "prompt": "The thinker insists that genuine faith begins where reason ends; it cannot be justified by arguments, but can only be “leaped into.” Whose position on the relation between faith and reason is he expressing?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "The thinker insists that genuine faith begins where reason ends; it cannot be justified by arguments, but can only be “leaped into.” Whose position on the relation between faith and reason is he expressing?",
+            "to": "The thinker insists that genuine faith begins where reason ends; it cannot be justified by arguments, but can only be \"leaped into.\" Whose position on the relation between faith and reason is he expressing?"
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Kierkegaard held that genuine faith begins where reason ends — in an irrational “leap of faith” that cannot be philosophically justified. This is the opposite pole from Aquinas’s model of harmony.",
+            "to": "Kierkegaard held that genuine faith begins where reason ends — in an irrational \"leap of faith\" that cannot be philosophically justified. This is the opposite pole from Aquinas's model of harmony."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: Russell described philosophy as a “no-man’s-land” between theology and science, appealing to reason rather than faith.",
+            "to": "Incorrect: Russell described philosophy as a \"no-man's-land\" between theology and science, appealing to reason rather than faith."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Correct: the “leap of faith” is Kierkegaard’s position: faith begins where reason ends.",
+            "to": "Correct: the \"leap of faith\" is Kierkegaard's position: faith begins where reason ends."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini01-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 1
+        },
+        "orderIndex": 1,
+        "prompt": "A philosopher remarks: if oxen and lions could paint, they would depict gods as oxen and lions. What conclusion does he draw?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Incorrect: water as the first principle is Thales’ hypothesis, not Xenophanes’ conclusion.",
+            "to": "Incorrect: water as the first principle is Thales' hypothesis, not Xenophanes' conclusion."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini02-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 2
+        },
+        "orderIndex": 0,
+        "prompt": "The Buddha’s teaching about suffering, its cause, the possibility of its cessation, and the path to that cessation was later compared by tradition to a doctor’s work. What is the basis of this comparison?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "The Buddha’s teaching about suffering, its cause, the possibility of its cessation, and the path to that cessation was later compared by tradition to a doctor’s work. What is the basis of this comparison?",
+            "to": "The Buddha's teaching about suffering, its cause, the possibility of its cessation, and the path to that cessation was later compared by tradition to a doctor's work. What is the basis of this comparison?"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Correct: the four truths are structured like a doctor’s diagnosis — symptom (suffering), cause (craving), prognosis (cessation), treatment (the eightfold path).",
+            "to": "Correct: the four truths are structured like a doctor's diagnosis — symptom (suffering), cause (craving), prognosis (cessation), treatment (the eightfold path)."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini02-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 2
+        },
+        "orderIndex": 1,
+        "prompt": "A philosopher argues against Shankara: individual souls and the material world do not dissolve completely into Brahman, but retain relative reality as its attributes. Whose position is he presenting?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Ramanuja criticized Shankara’s Advaita and developed Vishishtadvaita — “qualified non-dualism”: souls and the world are relatively real, as attributes of the one Brahman. The dispute between Shankara and Ramanuja shows that Indian philosophy developed through criticism and counterargument.",
+            "to": "Ramanuja criticized Shankara's Advaita and developed Vishishtadvaita — \"qualified non-dualism\": souls and the world are relatively real, as attributes of the one Brahman. The dispute between Shankara and Ramanuja shows that Indian philosophy developed through criticism and counterargument."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Correct: Ramanuja’s Vishishtadvaita preserves for souls and the world a relative reality as attributes of Brahman.",
+            "to": "Correct: Ramanuja's Vishishtadvaita preserves for souls and the world a relative reality as attributes of Brahman."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini02-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 2
+        },
+        "orderIndex": 2,
+        "prompt": "For Eastern traditions — Buddhism, Jainism, Confucianism — it is characteristic that knowledge is almost never separated from the practice of transforming the very person who philosophizes.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Unlike the ancient ideal of contemplative “theory,” Eastern philosophy links knowledge with practice — meditation in Buddhism, asceticism in Jainism, moral self-cultivation in Confucianism: philosophy is a tool for transforming the subject.",
+            "to": "Unlike the ancient ideal of contemplative \"theory,\" Eastern philosophy links knowledge with practice — meditation in Buddhism, asceticism in Jainism, moral self-cultivation in Confucianism: philosophy is a tool for transforming the subject."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini03-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 3
+        },
+        "orderIndex": 0,
+        "prompt": "The thinker says that one cannot step into the same river twice, but behind visible flux there is an unchanging law of measure. What does he call this law?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Heraclitus taught that everything flows (“panta rhei”) and that the world is a struggle of opposites, but behind this flux stands logos, a rational law of measure that determines the rhythm of all transformations.",
+            "to": "Heraclitus taught that everything flows (\"panta rhei\") and that the world is a struggle of opposites, but behind this flux stands logos, a rational law of measure that determines the rhythm of all transformations."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: the apeiron is Anaximander’s “boundless” first principle.",
+            "to": "Incorrect: the apeiron is Anaximander's \"boundless\" first principle."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini04-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 4
+        },
+        "orderIndex": 0,
+        "prompt": "A philosopher reassures a student: “While we exist, death is not there; and when it comes, we are no longer there,” so there is no point in fearing it. Whose thought is this?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A philosopher reassures a student: “While we exist, death is not there; and when it comes, we are no longer there,” so there is no point in fearing it. Whose thought is this?",
+            "to": "A philosopher reassures a student: \"While we exist, death is not there; and when it comes, we are no longer there,\" so there is no point in fearing it. Whose thought is this?"
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini05-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 5
+        },
+        "orderIndex": 0,
+        "prompt": "A humanist puts into God’s mouth words addressed to Adam: you have been given neither a fixed place nor a form of your own—you will choose for yourself what you are to become. What conclusion about the human being does he draw?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A humanist puts into God’s mouth words addressed to Adam: you have been given neither a fixed place nor a form of your own—you will choose for yourself what you are to become. What conclusion about the human being does he draw?",
+            "to": "A humanist puts into God's mouth words addressed to Adam: you have been given neither a fixed place nor a form of your own—you will choose for yourself what you are to become. What conclusion about the human being does he draw?"
+          },
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Human dignity lies in one’s place in the hierarchy of creation",
+            "to": "Human dignity lies in one's place in the hierarchy of creation"
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Human dignity lies in the freedom to determine one’s own nature",
+            "to": "Human dignity lies in the freedom to determine one's own nature"
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: the “blank slate” (tabula rasa) is Locke’s empiricist account of the origin of knowledge.",
+            "to": "Incorrect: the \"blank slate\" (tabula rasa) is Locke's empiricist account of the origin of knowledge."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: subjection to necessity is closer to Spinoza’s conclusion that free will is an illusion.",
+            "to": "Incorrect: subjection to necessity is closer to Spinoza's conclusion that free will is an illusion."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini05-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 5
+        },
+        "orderIndex": 1,
+        "prompt": "A philosopher compares the ordinary human being to a stone which, if it were conscious, would think it was flying of its own will, not understanding the laws of being thrown. In his view, what is true freedom?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Correct: for Spinoza, freedom is the understanding of necessity, an “intellectual love of God.”",
+            "to": "Correct: for Spinoza, freedom is the understanding of necessity, an \"intellectual love of God.\""
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: the deviation of atoms (clinamen) is Epicurus’s argument in favor of freedom.",
+            "to": "Incorrect: the deviation of atoms (clinamen) is Epicurus's argument in favor of freedom."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: pre-established harmony is Leibniz’s doctrine of the coordination of monads.",
+            "to": "Incorrect: pre-established harmony is Leibniz's doctrine of the coordination of monads."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini05-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 5
+        },
+        "orderIndex": 2,
+        "prompt": "For David Hume, observation only shows that one event follows another, but does not reveal any necessary connection between cause and effect.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: this contradicts Hume’s analysis of causality, which precisely denies that the necessity of the connection is observed.",
+            "to": "Incorrect: this contradicts Hume's analysis of causality, which precisely denies that the necessity of the connection is observed."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini06-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 6
+        },
+        "orderIndex": 0,
+        "prompt": "Rousseau describes a person who experiences constant envy of others’ success and painfully compares himself with others. What concept does he use for this state?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Rousseau describes a person who experiences constant envy of others’ success and painfully compares himself with others. What concept does he use for this state?",
+            "to": "Rousseau describes a person who experiences constant envy of others' success and painfully compares himself with others. What concept does he use for this state?"
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: natural pity for another’s suffering belongs to human beings in the state of nature, not to envious self-comparison.",
+            "to": "Incorrect: natural pity for another's suffering belongs to human beings in the state of nature, not to envious self-comparison."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Correct: this concept denotes self-love dependent on others’ opinions and producing comparison, envy, and vanity.",
+            "to": "Correct: this concept denotes self-love dependent on others' opinions and producing comparison, envy, and vanity."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini06-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 6
+        },
+        "orderIndex": 1,
+        "prompt": "A philosopher claims that scientific knowledge is possible because the knowing subject already brings into experience the forms of space and time and categories such as causality. What position is he thereby defending?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "This is Kant’s idea that cognition does not passively adapt to things; rather, things as objects of experience conform to the conditions of our cognition. That is why universal and necessary laws of science are possible for Kant.",
+            "to": "This is Kant's idea that cognition does not passively adapt to things; rather, things as objects of experience conform to the conditions of our cognition. That is why universal and necessary laws of science are possible for Kant."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Correct: this is Kant’s “Copernican revolution” in epistemology — the active role belongs to the knowing subject.",
+            "to": "Correct: this is Kant's \"Copernican revolution\" in epistemology — the active role belongs to the knowing subject."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini07-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 7
+        },
+        "orderIndex": 0,
+        "prompt": "The weak, unable to affirm themselves in reality, declare the strength and pride of the strong to be evil and humility and meekness to be virtue. What does Nietzsche call the psychological mechanism of such morality?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "In On the Genealogy of Morality, Nietzsche describes the “revolt of the slaves in morality”: the repressed resentment of the weak — ressentiment — turns into moral condemnation of the strong; this gives rise to slave morality, opposed to aristocratic master morality.",
+            "to": "In On the Genealogy of Morality, Nietzsche describes the \"revolt of the slaves in morality\": the repressed resentment of the weak — ressentiment — turns into moral condemnation of the strong; this gives rise to slave morality, opposed to aristocratic master morality."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: amor fati is love of fate, the ability to accept one’s own life as a whole.",
+            "to": "Incorrect: amor fati is love of fate, the ability to accept one's own life as a whole."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: the Apollonian principle is the element of measure and clear form in culture, in Nietzsche’s early thought.",
+            "to": "Incorrect: the Apollonian principle is the element of measure and clear form in culture, in Nietzsche's early thought."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini07-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 7
+        },
+        "orderIndex": 1,
+        "prompt": "The thinker reproaches his predecessors: philosophers have only interpreted the world in various ways, but the point is to change it. What idea is he expressing?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: the rejection of the question “why” in favor of describing facts is Comte’s positivism.",
+            "to": "Incorrect: the rejection of the question \"why\" in favor of describing facts is Comte's positivism."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Correct: this is Marx’s eleventh thesis on Feuerbach — a call to praxis.",
+            "to": "Correct: this is Marx's eleventh thesis on Feuerbach — a call to praxis."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: the pendulum of suffering and boredom is Schopenhauer’s pessimism.",
+            "to": "Incorrect: the pendulum of suffering and boredom is Schopenhauer's pessimism."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini07-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 7
+        },
+        "orderIndex": 2,
+        "prompt": "Nietzsche’s phrase “God is dead” is a joyful cry of an atheist of the Enlightenment, celebrating the victory of science over religion.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "Nietzsche’s phrase “God is dead” is a joyful cry of an atheist of the Enlightenment, celebrating the victory of science over religion.",
+            "to": "Nietzsche's phrase \"God is dead\" is a joyful cry of an atheist of the Enlightenment, celebrating the victory of science over religion."
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "“God is dead” in The Gay Science is not joyful irreligion, but a diagnosis of cultural catastrophe: the foundation of European values has collapsed, while the habit of thinking in its categories remains; ahead lies an age of nihilism.",
+            "to": "\"God is dead\" in The Gay Science is not joyful irreligion, but a diagnosis of cultural catastrophe: the foundation of European values has collapsed, while the habit of thinking in its categories remains; ahead lies an age of nihilism."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: for Nietzsche, “the death of God” is a diagnosis of the devaluation of higher values, not a cause for rejoicing.",
+            "to": "Correct: for Nietzsche, \"the death of God\" is a diagnosis of the devaluation of higher values, not a cause for rejoicing."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini08-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 8
+        },
+        "orderIndex": 0,
+        "prompt": "A waiter plays the role of “a waiter” too carefully, almost theatrically, as if this role were his unchanging essence rather than freely chosen behavior. What does Sartre call such self-deception?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A waiter plays the role of “a waiter” too carefully, almost theatrically, as if this role were his unchanging essence rather than freely chosen behavior. What does Sartre call such self-deception?",
+            "to": "A waiter plays the role of \"a waiter\" too carefully, almost theatrically, as if this role were his unchanging essence rather than freely chosen behavior. What does Sartre call such self-deception?"
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Sartre calls “bad faith” the self-deception of a person who persuades themselves that they are a thing with a fixed essence rather than a free project: the waiter plays the role as if it were his unchanging nature, thereby relieving himself of responsibility for choice.",
+            "to": "Sartre calls \"bad faith\" the self-deception of a person who persuades themselves that they are a thing with a fixed essence rather than a free project: the waiter plays the role as if it were his unchanging nature, thereby relieving himself of responsibility for choice."
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Incorrect: being-toward-death in Heidegger is the awareness of one’s own finitude as a condition of authenticity.",
+            "to": "Incorrect: being-toward-death in Heidegger is the awareness of one's own finitude as a condition of authenticity."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: Camus’s absurd is the gap between the craving for meaning and the silence of the world.",
+            "to": "Incorrect: Camus's absurd is the gap between the craving for meaning and the silence of the world."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Correct: bad faith is Sartre’s self-deception, an escape from freedom and responsibility.",
+            "to": "Correct: bad faith is Sartre's self-deception, an escape from freedom and responsibility."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini08-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 8
+        },
+        "orderIndex": 1,
+        "prompt": "A philosopher analyzes the sentence “the present King of France is bald,” even though France has long been no monarchy, and shows that logical analysis dissolves the apparent puzzle of nonexistent objects. What theory did he develop?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A philosopher analyzes the sentence “the present King of France is bald,” even though France has long been no monarchy, and shows that logical analysis dissolves the apparent puzzle of nonexistent objects. What theory did he develop?",
+            "to": "A philosopher analyzes the sentence \"the present King of France is bald,\" even though France has long been no monarchy, and shows that logical analysis dissolves the apparent puzzle of nonexistent objects. What theory did he develop?"
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "In “On Denoting,” Russell developed the theory of descriptions: the logical analysis of a grammatically innocent sentence such as “the present King of France is bald” removes the problem of the existence of nonexistent objects.",
+            "to": "In \"On Denoting,\" Russell developed the theory of descriptions: the logical analysis of a grammatically innocent sentence such as \"the present King of France is bald\" removes the problem of the existence of nonexistent objects."
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Correct: Russell’s theory of descriptions dissolves the metaphysical puzzle through logical analysis of descriptions.",
+            "to": "Correct: Russell's theory of descriptions dissolves the metaphysical puzzle through logical analysis of descriptions."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini08-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 8
+        },
+        "orderIndex": 2,
+        "prompt": "Camus ends The Myth of Sisyphus by concluding that one must imagine Sisyphus happy.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "By recognizing the absurdity of his labor and rejecting the illusion that the stone will remain at the summit, Sisyphus wins back from the gods the only freedom available to him — to be master of his own action; therefore, according to Camus, “one must imagine Sisyphus happy.”",
+            "to": "By recognizing the absurdity of his labor and rejecting the illusion that the stone will remain at the summit, Sisyphus wins back from the gods the only freedom available to him — to be master of his own action; therefore, according to Camus, \"one must imagine Sisyphus happy.\""
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Correct: this is the famous ending of Camus’s essay The Myth of Sisyphus.",
+            "to": "Correct: this is the famous ending of Camus's essay The Myth of Sisyphus."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini09-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 9
+        },
+        "orderIndex": 1,
+        "prompt": "The experiments of Benjamin Libet, according to the general view among researchers, definitively disproved free will.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Libet recorded a “readiness potential” in the brain hundreds of milliseconds before the person became aware of the decision. Some saw this as a refutation of free will, while others objected that the experiment concerns the preparation of a simple movement and does not rule out conscious control, for example a “veto power”.",
+            "to": "Libet recorded a \"readiness potential\" in the brain hundreds of milliseconds before the person became aware of the decision. Some saw this as a refutation of free will, while others objected that the experiment concerns the preparation of a simple movement and does not rule out conscious control, for example a \"veto power\"."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: critics point out that the experiment concerns a simple motor act and still leaves room for a “veto power”.",
+            "to": "Correct: critics point out that the experiment concerns a simple motor act and still leaves room for a \"veto power\"."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini10-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 10
+        },
+        "orderIndex": 0,
+        "prompt": "When we say “the chair is blue,” we ascribe to the chair a feature that does not exist apart from it. What does Aristotle call such a feature, as distinct from the thing itself?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "When we say “the chair is blue,” we ascribe to the chair a feature that does not exist apart from it. What does Aristotle call such a feature, as distinct from the thing itself?",
+            "to": "When we say \"the chair is blue,\" we ascribe to the chair a feature that does not exist apart from it. What does Aristotle call such a feature, as distinct from the thing itself?"
+          },
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Aristotle distinguishes primary substance (ousia) — a concrete thing that exists in its own right — from accidents: features that exist only “in” a substance, like blueness in a chair.",
+            "to": "Aristotle distinguishes primary substance (ousia) — a concrete thing that exists in its own right — from accidents: features that exist only \"in\" a substance, like blueness in a chair."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini10-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 10
+        },
+        "orderIndex": 1,
+        "prompt": "A researcher notices that one and the same event must be given to us as occurring in space and time, and concludes that these forms are not disclosed in things in themselves but are contributed by the knowing subject. What position is he expressing?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "options",
+            "index": 0,
+            "match": "whole",
+            "from": "Newton’s idea of an absolute container",
+            "to": "Newton's idea of an absolute container"
+          },
+          {
+            "field": "options",
+            "index": 1,
+            "match": "whole",
+            "from": "Einstein’s theory of spacetime",
+            "to": "Einstein's theory of spacetime"
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Mach’s principle of reference to distant masses",
+            "to": "Mach's principle of reference to distant masses"
+          },
+          {
+            "field": "options",
+            "index": 3,
+            "match": "whole",
+            "from": "Kant’s doctrine of a priori forms",
+            "to": "Kant's doctrine of a priori forms"
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Incorrect: Mach’s principle links rotation to the total mass of distant bodies, not to forms of sensibility.",
+            "to": "Incorrect: Mach's principle links rotation to the total mass of distant bodies, not to forms of sensibility."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini10-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 10
+        },
+        "orderIndex": 2,
+        "prompt": "Nagarjuna taught that even nirvana is empty of its own independent essence.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "Nagarjuna’s doctrine of shunyata, or “emptiness,” says that all things, including causality and even nirvana, lack their own independent nature (svabhava) — not in the sense of sheer non-being, but in the sense of lacking a self-sufficient core.",
+            "to": "Nagarjuna's doctrine of shunyata, or \"emptiness,\" says that all things, including causality and even nirvana, lack their own independent nature (svabhava) — not in the sense of sheer non-being, but in the sense of lacking a self-sufficient core."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini11-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 11
+        },
+        "orderIndex": 0,
+        "prompt": "A student hears a melody and says that consciousness does not merely “store” sound, but is always directed toward something experienced as an object of experience. Which concept best expresses this idea?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "prompt",
+            "match": "whole",
+            "from": "A student hears a melody and says that consciousness does not merely “store” sound, but is always directed toward something experienced as an object of experience. Which concept best expresses this idea?",
+            "to": "A student hears a melody and says that consciousness does not merely \"store\" sound, but is always directed toward something experienced as an object of experience. Which concept best expresses this idea?"
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: categories of the understanding organize experience, but they do not designate the very structure of consciousness’s directedness.",
+            "to": "Incorrect: categories of the understanding organize experience, but they do not designate the very structure of consciousness's directedness."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini11-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 11
+        },
+        "orderIndex": 1,
+        "prompt": "Scientists long regard anomalous observations as temporary difficulties, and when such anomalies accumulate in large numbers, they change the whole system of concepts, methods, and models for solving problems. What does Kuhn call such a change?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "According to Kuhn, science during “normal” periods works within a paradigm, and anomalies are at first treated as temporary difficulties; the accumulation of unresolved anomalies leads to a scientific revolution — a change of paradigm similar to a “gestalt switch.”",
+            "to": "According to Kuhn, science during \"normal\" periods works within a paradigm, and anomalies are at first treated as temporary difficulties; the accumulation of unresolved anomalies leads to a scientific revolution — a change of paradigm similar to a \"gestalt switch.\""
+          },
+          {
+            "field": "optionRationales",
+            "index": 0,
+            "match": "whole",
+            "from": "Correct: a change of paradigm after the accumulation of anomalies is a scientific revolution in Kuhn’s sense.",
+            "to": "Correct: a change of paradigm after the accumulation of anomalies is a scientific revolution in Kuhn's sense."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: a degenerating programme is Lakatos’s term for programmes rescued by ad hoc measures.",
+            "to": "Incorrect: a degenerating programme is Lakatos's term for programmes rescued by ad hoc measures."
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: the positive stage is Comte’s highest stage in the development of knowledge, not a paradigm shift.",
+            "to": "Incorrect: the positive stage is Comte's highest stage in the development of knowledge, not a paradigm shift."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini15-1-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 15
+        },
+        "orderIndex": 0,
+        "prompt": "An engineer wears glasses almost without noticing them: he looks through them rather than at them. What type of relation between human beings and technology is described here?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "In an embodiment relation, a technical object becomes a nearly transparent extension of the body and does not stand forth as an independent object of attention. A hermeneutic relation, by contrast, requires reading and interpreting the instrument’s indications.",
+            "to": "In an embodiment relation, a technical object becomes a nearly transparent extension of the body and does not stand forth as an independent object of attention. A hermeneutic relation, by contrast, requires reading and interpreting the instrument's indications."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Incorrect: a hermeneutic relation is associated with the need to read and interpret an instrument’s data.",
+            "to": "Incorrect: a hermeneutic relation is associated with the need to read and interpret an instrument's data."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini15-2-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 15
+        },
+        "orderIndex": 1,
+        "prompt": "A person who does not know Chinese selects characters according to a rulebook, and from the outside it seems that he understands the language. What conclusion does Searle draw from this thought experiment?",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "In the “Chinese Room,” Searle shows that mechanically following rules for symbol manipulation can produce answers that seem meaningful to an observer without any understanding; syntax does not generate semantics.",
+            "to": "In the \"Chinese Room,\" Searle shows that mechanically following rules for symbol manipulation can produce answers that seem meaningful to an observer without any understanding; syntax does not generate semantics."
+          },
+          {
+            "field": "options",
+            "index": 2,
+            "match": "whole",
+            "from": "Consciousness is only an illusion of the “inner theater”",
+            "to": "Consciousness is only an illusion of the \"inner theater\""
+          },
+          {
+            "field": "optionRationales",
+            "index": 2,
+            "match": "whole",
+            "from": "Incorrect: this is Dennett’s criticism of the idea of the “hard problem of consciousness.”",
+            "to": "Incorrect: this is Dennett's criticism of the idea of the \"hard problem of consciousness.\""
+          },
+          {
+            "field": "optionRationales",
+            "index": 3,
+            "match": "whole",
+            "from": "Incorrect: this is Bostrom’s example of the existential risk of superintelligent AI.",
+            "to": "Incorrect: this is Bostrom's example of the existential risk of superintelligent AI."
+          }
+        ]
+      },
+      {
+        "id": "rev1-en-mini15-3-typography",
+        "lang": "en",
+        "quiz": {
+          "kind": "LECTURE_MINI",
+          "lecture": 15
+        },
+        "orderIndex": 2,
+        "prompt": "According to Heidegger, modern technology is a neutral set of tools, and all responsibility for its effects lies only with the person who uses them.",
+        "note": "en-типографика: “ ” ‘ ’ → прямые \" и ' — как в оцениваемом банке, итоговом мини-квизе и практикуме курса",
+        "edits": [
+          {
+            "field": "explanation",
+            "match": "whole",
+            "from": "In “The Question Concerning Technology,” Heidegger rejects the instrumental picture: modern technology is a way of revealing the world, Ge-stell (“emplacement”), in which everything that exists, including human beings, appears as a resource; the danger lies in the transformation of humanity’s very relation to the world.",
+            "to": "In \"The Question Concerning Technology,\" Heidegger rejects the instrumental picture: modern technology is a way of revealing the world, Ge-stell (\"emplacement\"), in which everything that exists, including human beings, appears as a resource; the danger lies in the transformation of humanity's very relation to the world."
+          },
+          {
+            "field": "optionRationales",
+            "index": 1,
+            "match": "whole",
+            "from": "Correct: for Heidegger, technology is not a neutral tool but Ge-stell (“emplacement”), which changes the way the world is revealed.",
+            "to": "Correct: for Heidegger, technology is not a neutral tool but Ge-stell (\"emplacement\"), which changes the way the world is revealed."
+          }
+        ]
+      }
     ]
   },
   "minis": [
@@ -185,7 +1599,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "The thinker insists that genuine faith begins where reason ends; it cannot be justified by arguments, but can only be “leaped into.” Whose position on the relation between faith and reason is he expressing?",
+          "prompt": "The thinker insists that genuine faith begins where reason ends; it cannot be justified by arguments, but can only be \"leaped into.\" Whose position on the relation between faith and reason is he expressing?",
           "options": [
             "Thomas Aquinas",
             "Bertrand Russell",
@@ -195,12 +1609,12 @@
           "correctOptionIds": [
             3
           ],
-          "explanation": "Kierkegaard held that genuine faith begins where reason ends — in an irrational “leap of faith” that cannot be philosophically justified. This is the opposite pole from Aquinas’s model of harmony.",
+          "explanation": "Kierkegaard held that genuine faith begins where reason ends — in an irrational \"leap of faith\" that cannot be philosophically justified. This is the opposite pole from Aquinas's model of harmony.",
           "optionRationales": [
             "Incorrect: Aquinas proposed a model of harmony — truths of reason and revelation do not conflict with each other.",
-            "Incorrect: Russell described philosophy as a “no-man’s-land” between theology and science, appealing to reason rather than faith.",
+            "Incorrect: Russell described philosophy as a \"no-man's-land\" between theology and science, appealing to reason rather than faith.",
             "Incorrect: Xenophanes criticized anthropomorphic gods of mythology as a projection of human culture.",
-            "Correct: the “leap of faith” is Kierkegaard’s position: faith begins where reason ends."
+            "Correct: the \"leap of faith\" is Kierkegaard's position: faith begins where reason ends."
           ],
           "source": {
             "module": 0,
@@ -226,7 +1640,7 @@
           "optionRationales": [
             "Correct: Xenophanes sees anthropomorphic gods as a projection of human ideas.",
             "Incorrect: this was taught later by Epicurus, and it does not follow from the argument about oxen and lions.",
-            "Incorrect: water as the first principle is Thales’ hypothesis, not Xenophanes’ conclusion.",
+            "Incorrect: water as the first principle is Thales' hypothesis, not Xenophanes' conclusion.",
             "Incorrect: Xenophanes, on the contrary, criticizes myth with a rational argument."
           ],
           "source": {
@@ -239,7 +1653,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "Philosophy tests its claims mainly by experiment and observation, so it uses the same method of verification as the particular sciences.",
+          "prompt": "According to legend, Pythagoras called himself a sage, that is, someone who already possesses wisdom.",
           "options": [
             "True",
             "False"
@@ -247,17 +1661,17 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "This is false: philosophy works through rational argumentation, logical analysis of concepts, and thought experiments; empirical testing by experiment and observation is the method of the particular sciences.",
+          "explanation": "This is false: according to legend, Pythagoras replied that he was not a sage but only loved wisdom and strove toward it, never fully possessing it. Hence the word \"philosophy\" — \"love of wisdom.\"",
           "optionRationales": [
-            "Incorrect: philosophy does not mainly rely on experiment and observation as its basic way of testing claims.",
-            "Correct: the claim about primarily experimental verification applies to the particular sciences, not to philosophy."
+            "Incorrect: according to legend, Pythagoras refused to call himself a sage — he only loves wisdom and strives toward it.",
+            "Correct: according to legend, Pythagoras called himself not a sage but a lover of wisdom; hence \"philosophy,\" \"love of wisdom.\""
           ],
           "source": {
             "module": 0,
             "lecture": 0,
             "number": 1
           },
-          "sourceTimecode": "10:58",
+          "sourceTimecode": "01:51",
           "difficulty": "EASY"
         }
       ]
@@ -272,7 +1686,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "The Buddha’s teaching about suffering, its cause, the possibility of its cessation, and the path to that cessation was later compared by tradition to a doctor’s work. What is the basis of this comparison?",
+          "prompt": "The Buddha's teaching about suffering, its cause, the possibility of its cessation, and the path to that cessation was later compared by tradition to a doctor's work. What is the basis of this comparison?",
           "options": [
             "Symptom, cause, prognosis, and treatment",
             "Thesis, antithesis, and synthesis",
@@ -284,7 +1698,7 @@
           ],
           "explanation": "The Four Noble Truths: existence is permeated by suffering (dukkha), suffering has a cause — craving (tanha), suffering can be ended, and there is a path to its cessation — the eightfold path. This structure resembles a medical diagnosis: symptom, cause, prognosis, treatment.",
           "optionRationales": [
-            "Correct: the four truths are structured like a doctor’s diagnosis — symptom (suffering), cause (craving), prognosis (cessation), treatment (the eightfold path).",
+            "Correct: the four truths are structured like a doctor's diagnosis — symptom (suffering), cause (craving), prognosis (cessation), treatment (the eightfold path).",
             "Incorrect: thesis, antithesis, and synthesis is a simplified scheme of Hegelian dialectics.",
             "Incorrect: sensation, perception, and representation are forms of sensory knowledge.",
             "Incorrect: ahimsa, asceticism, and purification of the soul are a path to liberation in Jainism, not the structure of the Four Noble Truths."
@@ -309,11 +1723,11 @@
           "correctOptionIds": [
             2
           ],
-          "explanation": "Ramanuja criticized Shankara’s Advaita and developed Vishishtadvaita — “qualified non-dualism”: souls and the world are relatively real, as attributes of the one Brahman. The dispute between Shankara and Ramanuja shows that Indian philosophy developed through criticism and counterargument.",
+          "explanation": "Ramanuja criticized Shankara's Advaita and developed Vishishtadvaita — \"qualified non-dualism\": souls and the world are relatively real, as attributes of the one Brahman. The dispute between Shankara and Ramanuja shows that Indian philosophy developed through criticism and counterargument.",
           "optionRationales": [
             "Incorrect: Nagarjuna was a Buddhist thinker of the Madhyamaka school, who taught the emptiness of phenomena, not Brahman.",
             "Incorrect: Mahavira is associated with Jainism, which recognized multiple eternal souls without a single Brahman.",
-            "Correct: Ramanuja’s Vishishtadvaita preserves for souls and the world a relative reality as attributes of Brahman.",
+            "Correct: Ramanuja's Vishishtadvaita preserves for souls and the world a relative reality as attributes of Brahman.",
             "Incorrect: Laozi was a Daoist sage who taught about the Dao, not Brahman."
           ],
           "source": {
@@ -334,7 +1748,7 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "Unlike the ancient ideal of contemplative “theory,” Eastern philosophy links knowledge with practice — meditation in Buddhism, asceticism in Jainism, moral self-cultivation in Confucianism: philosophy is a tool for transforming the subject.",
+          "explanation": "Unlike the ancient ideal of contemplative \"theory,\" Eastern philosophy links knowledge with practice — meditation in Buddhism, asceticism in Jainism, moral self-cultivation in Confucianism: philosophy is a tool for transforming the subject.",
           "optionRationales": [
             "Correct: Eastern thought understands philosophy as a path of transformation, not as a detached description of reality.",
             "Incorrect: the separation of theory from practice is more characteristic of the ancient contemplative ideal."
@@ -369,9 +1783,9 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Heraclitus taught that everything flows (“panta rhei”) and that the world is a struggle of opposites, but behind this flux stands logos, a rational law of measure that determines the rhythm of all transformations.",
+          "explanation": "Heraclitus taught that everything flows (\"panta rhei\") and that the world is a struggle of opposites, but behind this flux stands logos, a rational law of measure that determines the rhythm of all transformations.",
           "optionRationales": [
-            "Incorrect: the apeiron is Anaximander’s “boundless” first principle.",
+            "Incorrect: the apeiron is Anaximander's \"boundless\" first principle.",
             "Correct: logos in Heraclitus is the objective rational law governing the changing cosmos.",
             "Incorrect: eidos is an eternal Idea in Plato, not the law of the changing world.",
             "Incorrect: atom is the indivisible particle of being in Democritus."
@@ -446,7 +1860,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "A philosopher reassures a student: “While we exist, death is not there; and when it comes, we are no longer there,” so there is no point in fearing it. Whose thought is this?",
+          "prompt": "A philosopher reassures a student: \"While we exist, death is not there; and when it comes, we are no longer there,\" so there is no point in fearing it. Whose thought is this?",
           "options": [
             "Thomas Aquinas",
             "Epicurus",
@@ -533,11 +1947,11 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "A humanist puts into God’s mouth words addressed to Adam: you have been given neither a fixed place nor a form of your own—you will choose for yourself what you are to become. What conclusion about the human being does he draw?",
+          "prompt": "A humanist puts into God's mouth words addressed to Adam: you have been given neither a fixed place nor a form of your own—you will choose for yourself what you are to become. What conclusion about the human being does he draw?",
           "options": [
             "The human being is a blank slate on which experience writes",
-            "Human dignity lies in one’s place in the hierarchy of creation",
-            "Human dignity lies in the freedom to determine one’s own nature",
+            "Human dignity lies in one's place in the hierarchy of creation",
+            "Human dignity lies in the freedom to determine one's own nature",
             "The human being is a link in a chain fully subject to necessity"
           ],
           "correctOptionIds": [
@@ -545,10 +1959,10 @@
           ],
           "explanation": "In his Oration on the Dignity of Man (1486), Pico della Mirandola argues that animals and angels are given their nature once and for all, whereas the human being has no fixed essence and can fall to the level of beasts or rise to the divine. Dignity is derived not from a place in the hierarchy of creation, but from the freedom to move across it.",
           "optionRationales": [
-            "Incorrect: the “blank slate” (tabula rasa) is Locke’s empiricist account of the origin of knowledge.",
+            "Incorrect: the \"blank slate\" (tabula rasa) is Locke's empiricist account of the origin of knowledge.",
             "Incorrect: it is precisely this medieval idea that Pico overturns.",
             "Correct: for Pico, the human being chooses his own form and place—that is where dignity lies.",
-            "Incorrect: subjection to necessity is closer to Spinoza’s conclusion that free will is an illusion."
+            "Incorrect: subjection to necessity is closer to Spinoza's conclusion that free will is an illusion."
           ],
           "source": {
             "module": 1,
@@ -572,10 +1986,10 @@
           ],
           "explanation": "For Spinoza, everything happens by necessity, and the only substance is God, or Nature; free will in the ordinary sense is an illusion of someone who does not know the causes. A person is free insofar as they understand necessity and replace passive affects with adequate ideas.",
           "optionRationales": [
-            "Correct: for Spinoza, freedom is the understanding of necessity, an “intellectual love of God.”",
-            "Incorrect: the deviation of atoms (clinamen) is Epicurus’s argument in favor of freedom.",
+            "Correct: for Spinoza, freedom is the understanding of necessity, an \"intellectual love of God.\"",
+            "Incorrect: the deviation of atoms (clinamen) is Epicurus's argument in favor of freedom.",
             "Incorrect: Spinoza regards a causeless choice as an illusion.",
-            "Incorrect: pre-established harmony is Leibniz’s doctrine of the coordination of monads."
+            "Incorrect: pre-established harmony is Leibniz's doctrine of the coordination of monads."
           ],
           "source": {
             "module": 1,
@@ -598,7 +2012,7 @@
           "explanation": "Hume criticizes causality in exactly this way: we see only the customary sequence of events, not the necessary connection itself. Therefore, he ties confidence in causality to habit, not to direct observation.",
           "optionRationales": [
             "Correct: Hume believes that the necessary connection is not given in experience and arises as a result of habit.",
-            "Incorrect: this contradicts Hume’s analysis of causality, which precisely denies that the necessity of the connection is observed."
+            "Incorrect: this contradicts Hume's analysis of causality, which precisely denies that the necessity of the connection is observed."
           ],
           "source": {
             "module": 1,
@@ -620,7 +2034,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "Rousseau describes a person who experiences constant envy of others’ success and painfully compares himself with others. What concept does he use for this state?",
+          "prompt": "Rousseau describes a person who experiences constant envy of others' success and painfully compares himself with others. What concept does he use for this state?",
           "options": [
             "Property",
             "Natural pity",
@@ -633,8 +2047,8 @@
           "explanation": "Amour-propre in Rousseau is social self-love that arises through comparison with others and leads to vanity and envy. Amour de soi, by contrast, denotes natural self-love connected with self-preservation.",
           "optionRationales": [
             "Incorrect: for Rousseau, private property is an institution that gave rise to inequality, not an inner state.",
-            "Incorrect: natural pity for another’s suffering belongs to human beings in the state of nature, not to envious self-comparison.",
-            "Correct: this concept denotes self-love dependent on others’ opinions and producing comparison, envy, and vanity.",
+            "Incorrect: natural pity for another's suffering belongs to human beings in the state of nature, not to envious self-comparison.",
+            "Correct: this concept denotes self-love dependent on others' opinions and producing comparison, envy, and vanity.",
             "Incorrect: this is natural self-love, linked to self-preservation, not to rivalry and comparison."
           ],
           "source": {
@@ -657,9 +2071,9 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "This is Kant’s idea that cognition does not passively adapt to things; rather, things as objects of experience conform to the conditions of our cognition. That is why universal and necessary laws of science are possible for Kant.",
+          "explanation": "This is Kant's idea that cognition does not passively adapt to things; rather, things as objects of experience conform to the conditions of our cognition. That is why universal and necessary laws of science are possible for Kant.",
           "optionRationales": [
-            "Correct: this is Kant’s “Copernican revolution” in epistemology — the active role belongs to the knowing subject.",
+            "Correct: this is Kant's \"Copernican revolution\" in epistemology — the active role belongs to the knowing subject.",
             "Incorrect: for Kant, the moral law is not derived from experience; it is given as an unconditional practical principle.",
             "Incorrect: this is the position of empiricism, which Kant limits by introducing a priori forms.",
             "Incorrect: for Kant, the thing-in-itself does not coincide with appearance and is not directly given in experience."
@@ -717,12 +2131,12 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "In On the Genealogy of Morality, Nietzsche describes the “revolt of the slaves in morality”: the repressed resentment of the weak — ressentiment — turns into moral condemnation of the strong; this gives rise to slave morality, opposed to aristocratic master morality.",
+          "explanation": "In On the Genealogy of Morality, Nietzsche describes the \"revolt of the slaves in morality\": the repressed resentment of the weak — ressentiment — turns into moral condemnation of the strong; this gives rise to slave morality, opposed to aristocratic master morality.",
           "optionRationales": [
             "Correct: ressentiment is the repressed resentment of the weak, turned into moral condemnation of the strong.",
-            "Incorrect: amor fati is love of fate, the ability to accept one’s own life as a whole.",
+            "Incorrect: amor fati is love of fate, the ability to accept one's own life as a whole.",
             "Incorrect: the will to power is the drive toward growth and self-overcoming, not the mechanism of the morality of the weak.",
-            "Incorrect: the Apollonian principle is the element of measure and clear form in culture, in Nietzsche’s early thought."
+            "Incorrect: the Apollonian principle is the element of measure and clear form in culture, in Nietzsche's early thought."
           ],
           "source": {
             "module": 2,
@@ -746,10 +2160,10 @@
           ],
           "explanation": "In the Eleventh Thesis on Feuerbach, Marx formulates the philosophical core of Marxism — praxis: the unity of theory and revolutionary action; philosophy must not only explain the world but also change it.",
           "optionRationales": [
-            "Incorrect: the rejection of the question “why” in favor of describing facts is Comte’s positivism.",
+            "Incorrect: the rejection of the question \"why\" in favor of describing facts is Comte's positivism.",
             "Incorrect: eternal recurrence is an existential test in Nietzsche.",
-            "Correct: this is Marx’s eleventh thesis on Feuerbach — a call to praxis.",
-            "Incorrect: the pendulum of suffering and boredom is Schopenhauer’s pessimism."
+            "Correct: this is Marx's eleventh thesis on Feuerbach — a call to praxis.",
+            "Incorrect: the pendulum of suffering and boredom is Schopenhauer's pessimism."
           ],
           "source": {
             "module": 2,
@@ -761,7 +2175,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "Nietzsche’s phrase “God is dead” is a joyful cry of an atheist of the Enlightenment, celebrating the victory of science over religion.",
+          "prompt": "Nietzsche's phrase \"God is dead\" is a joyful cry of an atheist of the Enlightenment, celebrating the victory of science over religion.",
           "options": [
             "True",
             "False"
@@ -769,10 +2183,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "“God is dead” in The Gay Science is not joyful irreligion, but a diagnosis of cultural catastrophe: the foundation of European values has collapsed, while the habit of thinking in its categories remains; ahead lies an age of nihilism.",
+          "explanation": "\"God is dead\" in The Gay Science is not joyful irreligion, but a diagnosis of cultural catastrophe: the foundation of European values has collapsed, while the habit of thinking in its categories remains; ahead lies an age of nihilism.",
           "optionRationales": [
             "Incorrect: Nietzsche emphasizes that this is not the triumph of the atheist, but a diagnosis of catastrophe and approaching nihilism.",
-            "Correct: for Nietzsche, “the death of God” is a diagnosis of the devaluation of higher values, not a cause for rejoicing."
+            "Correct: for Nietzsche, \"the death of God\" is a diagnosis of the devaluation of higher values, not a cause for rejoicing."
           ],
           "source": {
             "module": 2,
@@ -794,7 +2208,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "A waiter plays the role of “a waiter” too carefully, almost theatrically, as if this role were his unchanging essence rather than freely chosen behavior. What does Sartre call such self-deception?",
+          "prompt": "A waiter plays the role of \"a waiter\" too carefully, almost theatrically, as if this role were his unchanging essence rather than freely chosen behavior. What does Sartre call such self-deception?",
           "options": [
             "Being-toward-death (Sein-zum-Tode)",
             "The absurd according to Camus",
@@ -804,12 +2218,12 @@
           "correctOptionIds": [
             3
           ],
-          "explanation": "Sartre calls “bad faith” the self-deception of a person who persuades themselves that they are a thing with a fixed essence rather than a free project: the waiter plays the role as if it were his unchanging nature, thereby relieving himself of responsibility for choice.",
+          "explanation": "Sartre calls \"bad faith\" the self-deception of a person who persuades themselves that they are a thing with a fixed essence rather than a free project: the waiter plays the role as if it were his unchanging nature, thereby relieving himself of responsibility for choice.",
           "optionRationales": [
-            "Incorrect: being-toward-death in Heidegger is the awareness of one’s own finitude as a condition of authenticity.",
-            "Incorrect: Camus’s absurd is the gap between the craving for meaning and the silence of the world.",
+            "Incorrect: being-toward-death in Heidegger is the awareness of one's own finitude as a condition of authenticity.",
+            "Incorrect: Camus's absurd is the gap between the craving for meaning and the silence of the world.",
             "Incorrect: historically effected consciousness in Gadamer is the rootedness of understanding in history and tradition.",
-            "Correct: bad faith is Sartre’s self-deception, an escape from freedom and responsibility."
+            "Correct: bad faith is Sartre's self-deception, an escape from freedom and responsibility."
           ],
           "source": {
             "module": 2,
@@ -821,7 +2235,7 @@
         },
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "A philosopher analyzes the sentence “the present King of France is bald,” even though France has long been no monarchy, and shows that logical analysis dissolves the apparent puzzle of nonexistent objects. What theory did he develop?",
+          "prompt": "A philosopher analyzes the sentence \"the present King of France is bald,\" even though France has long been no monarchy, and shows that logical analysis dissolves the apparent puzzle of nonexistent objects. What theory did he develop?",
           "options": [
             "The theory of speech acts",
             "The hermeneutic circle",
@@ -831,11 +2245,11 @@
           "correctOptionIds": [
             2
           ],
-          "explanation": "In “On Denoting,” Russell developed the theory of descriptions: the logical analysis of a grammatically innocent sentence such as “the present King of France is bald” removes the problem of the existence of nonexistent objects.",
+          "explanation": "In \"On Denoting,\" Russell developed the theory of descriptions: the logical analysis of a grammatically innocent sentence such as \"the present King of France is bald\" removes the problem of the existence of nonexistent objects.",
           "optionRationales": [
             "Incorrect: the theory of speech acts was developed by Austin and Searle, concerning the idea that words can perform actions.",
             "Incorrect: the hermeneutic circle describes textual understanding in Gadamer.",
-            "Correct: Russell’s theory of descriptions dissolves the metaphysical puzzle through logical analysis of descriptions.",
+            "Correct: Russell's theory of descriptions dissolves the metaphysical puzzle through logical analysis of descriptions.",
             "Incorrect: the picture theory is the early Wittgensteinian view of a proposition as a picture of a fact."
           ],
           "source": {
@@ -856,9 +2270,9 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "By recognizing the absurdity of his labor and rejecting the illusion that the stone will remain at the summit, Sisyphus wins back from the gods the only freedom available to him — to be master of his own action; therefore, according to Camus, “one must imagine Sisyphus happy.”",
+          "explanation": "By recognizing the absurdity of his labor and rejecting the illusion that the stone will remain at the summit, Sisyphus wins back from the gods the only freedom available to him — to be master of his own action; therefore, according to Camus, \"one must imagine Sisyphus happy.\"",
           "optionRationales": [
-            "Correct: this is the famous ending of Camus’s essay The Myth of Sisyphus.",
+            "Correct: this is the famous ending of Camus's essay The Myth of Sisyphus.",
             "Incorrect: Camus, contrary to expectation, concludes that one must imagine Sisyphus happy."
           ],
           "source": {
@@ -916,10 +2330,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Libet recorded a “readiness potential” in the brain hundreds of milliseconds before the person became aware of the decision. Some saw this as a refutation of free will, while others objected that the experiment concerns the preparation of a simple movement and does not rule out conscious control, for example a “veto power”.",
+          "explanation": "Libet recorded a \"readiness potential\" in the brain hundreds of milliseconds before the person became aware of the decision. Some saw this as a refutation of free will, while others objected that the experiment concerns the preparation of a simple movement and does not rule out conscious control, for example a \"veto power\".",
           "optionRationales": [
             "Incorrect: the interpretation of Libet's experiments is controversial, and many researchers do not regard them as a refutation of free will.",
-            "Correct: critics point out that the experiment concerns a simple motor act and still leaves room for a “veto power”."
+            "Correct: critics point out that the experiment concerns a simple motor act and still leaves room for a \"veto power\"."
           ],
           "source": {
             "module": 2,
@@ -968,7 +2382,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "When we say “the chair is blue,” we ascribe to the chair a feature that does not exist apart from it. What does Aristotle call such a feature, as distinct from the thing itself?",
+          "prompt": "When we say \"the chair is blue,\" we ascribe to the chair a feature that does not exist apart from it. What does Aristotle call such a feature, as distinct from the thing itself?",
           "options": [
             "Accident",
             "Primary substance",
@@ -978,7 +2392,7 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "Aristotle distinguishes primary substance (ousia) — a concrete thing that exists in its own right — from accidents: features that exist only “in” a substance, like blueness in a chair.",
+          "explanation": "Aristotle distinguishes primary substance (ousia) — a concrete thing that exists in its own right — from accidents: features that exist only \"in\" a substance, like blueness in a chair.",
           "optionRationales": [
             "Correct: blueness is an accident, existing only in a self-subsistent substance — the chair.",
             "Incorrect: primary substance (ousia) is the concrete chair itself, the bearer of features, not the feature itself.",
@@ -997,10 +2411,10 @@
           "type": "SINGLE_CHOICE",
           "prompt": "A researcher notices that one and the same event must be given to us as occurring in space and time, and concludes that these forms are not disclosed in things in themselves but are contributed by the knowing subject. What position is he expressing?",
           "options": [
-            "Newton’s idea of an absolute container",
-            "Einstein’s theory of spacetime",
-            "Mach’s principle of reference to distant masses",
-            "Kant’s doctrine of a priori forms"
+            "Newton's idea of an absolute container",
+            "Einstein's theory of spacetime",
+            "Mach's principle of reference to distant masses",
+            "Kant's doctrine of a priori forms"
           ],
           "correctOptionIds": [
             3
@@ -1009,7 +2423,7 @@
           "optionRationales": [
             "Incorrect: for Newton, space is thought of as an absolute container existing independently of bodies.",
             "Incorrect: the theory of relativity describes the physical relation of space and time, not their origin in the knowing subject.",
-            "Incorrect: Mach’s principle links rotation to the total mass of distant bodies, not to forms of sensibility.",
+            "Incorrect: Mach's principle links rotation to the total mass of distant bodies, not to forms of sensibility.",
             "Correct: Kant explains space and time in exactly this way — as forms that the subject contributes to experience."
           ],
           "source": {
@@ -1030,7 +2444,7 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "Nagarjuna’s doctrine of shunyata, or “emptiness,” says that all things, including causality and even nirvana, lack their own independent nature (svabhava) — not in the sense of sheer non-being, but in the sense of lacking a self-sufficient core.",
+          "explanation": "Nagarjuna's doctrine of shunyata, or \"emptiness,\" says that all things, including causality and even nirvana, lack their own independent nature (svabhava) — not in the sense of sheer non-being, but in the sense of lacking a self-sufficient core.",
           "optionRationales": [
             "Correct: according to Nagarjuna, all things are empty, including nirvana itself.",
             "Incorrect: the teaching of shunyata makes no exception even for nirvana."
@@ -1055,7 +2469,7 @@
       "items": [
         {
           "type": "SINGLE_CHOICE",
-          "prompt": "A student hears a melody and says that consciousness does not merely “store” sound, but is always directed toward something experienced as an object of experience. Which concept best expresses this idea?",
+          "prompt": "A student hears a melody and says that consciousness does not merely \"store\" sound, but is always directed toward something experienced as an object of experience. Which concept best expresses this idea?",
           "options": [
             "The Copernican revolution",
             "An a priori category of the understanding",
@@ -1068,7 +2482,7 @@
           "explanation": "Intentionality means that consciousness is always consciousness of something, that is, it is originally directed toward an object. This is what makes the relation between subject and object an internal feature of experience.",
           "optionRationales": [
             "Incorrect: the Copernican revolution explains the active role of the subject in constituting experience, not the directedness of consciousness as such.",
-            "Incorrect: categories of the understanding organize experience, but they do not designate the very structure of consciousness’s directedness.",
+            "Incorrect: categories of the understanding organize experience, but they do not designate the very structure of consciousness's directedness.",
             "Incorrect: naive realism, by contrast, simply accepts perceptual data as an object without philosophical analysis of the relation between consciousness and the object.",
             "Correct: the point is the directedness of consciousness toward an object of experience."
           ],
@@ -1092,12 +2506,12 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "According to Kuhn, science during “normal” periods works within a paradigm, and anomalies are at first treated as temporary difficulties; the accumulation of unresolved anomalies leads to a scientific revolution — a change of paradigm similar to a “gestalt switch.”",
+          "explanation": "According to Kuhn, science during \"normal\" periods works within a paradigm, and anomalies are at first treated as temporary difficulties; the accumulation of unresolved anomalies leads to a scientific revolution — a change of paradigm similar to a \"gestalt switch.\"",
           "optionRationales": [
-            "Correct: a change of paradigm after the accumulation of anomalies is a scientific revolution in Kuhn’s sense.",
-            "Incorrect: a degenerating programme is Lakatos’s term for programmes rescued by ad hoc measures.",
+            "Correct: a change of paradigm after the accumulation of anomalies is a scientific revolution in Kuhn's sense.",
+            "Incorrect: a degenerating programme is Lakatos's term for programmes rescued by ad hoc measures.",
             "Incorrect: normal science is precisely the period of stable work within a paradigm, before a revolution.",
-            "Incorrect: the positive stage is Comte’s highest stage in the development of knowledge, not a paradigm shift."
+            "Incorrect: the positive stage is Comte's highest stage in the development of knowledge, not a paradigm shift."
           ],
           "source": {
             "module": 3,
@@ -1196,7 +2610,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "According to Aristotle, a person acting under the threat of immediate death is responsible for the result just as fully as someone who acts voluntarily.",
+          "prompt": "According to Aristotle, a person pushed by a gust of wind against their will performs a voluntary act and is responsible for its result.",
           "options": [
             "True",
             "False"
@@ -1204,10 +2618,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Aristotle considered an act subject to praise or blame if it is voluntary: it comes from the agent, is done with knowledge of the circumstances, and is not brought about by external compulsion. Action under threat of death partly or completely releases one from responsibility.",
+          "explanation": "Aristotle considered an act subject to praise or blame if it is voluntary: it comes from the agent, is done with knowledge of the circumstances, and is not brought about by external compulsion. When a gust of wind pushes a person, the source of the movement lies outside them and they contribute nothing to it, so the act is involuntary and they are not responsible for the result.",
           "optionRationales": [
-            "Incorrect: coercion by threat, for Aristotle, reduces or removes responsibility.",
-            "Correct: responsibility presupposes voluntariness, and the threat of immediate death limits it."
+            "Incorrect: for a person pushed by the wind, the source of the movement lies outside them, so on Aristotle's account the act is involuntary and not subject to blame.",
+            "Correct: Aristotle counts as voluntary only an act whose source lies in the agent, and under external compulsion such as a gust of wind this condition is missing."
           ],
           "source": {
             "module": 3,
@@ -1231,9 +2645,9 @@
           "type": "SINGLE_CHOICE",
           "prompt": "In society, personal freedom of movement is temporarily restricted in order to reduce the risk of spreading disease and preserve the health of as many people as possible. What axiological logic is expressed here?",
           "options": [
-            "Recognition of pleasure as the highest value",
-            "Rejection of any hierarchy of values",
-            "Reducing value to a cultural habit",
+            "Placing the pleasant above vital value",
+            "Placing autonomy above vital value",
+            "Placing the values of the holy above spiritual values",
             "Placing vital value above autonomy"
           ],
           "correctOptionIds": [
@@ -1241,10 +2655,10 @@
           ],
           "explanation": "In this case, health and life are regarded as more significant than individual freedom of movement. Such a choice directly corresponds to the discussion of the hierarchy of values in axiology.",
           "optionRationales": [
-            "Incorrect: this is not about pleasure and displeasure, but about health and freedom.",
-            "Incorrect: because the example in fact accepts a certain subordination of values.",
-            "Incorrect: because value here is not reduced to custom or habit, but compared by significance.",
-            "Correct: this directly matches a situation in which the vital value of life and health is placed above autonomy."
+            "Incorrect: values of the pleasant, that is, of pleasure, are not being weighed in the example — it is about health and freedom of movement.",
+            "Incorrect: that would be the opposite choice — giving up restrictions for the sake of freedom; in the example, autonomy is what gets restricted for the sake of health.",
+            "Incorrect: the values of the holy crown Scheler's hierarchy, but they play no part in the example, which weighs health against freedom of movement.",
+            "Correct: by restricting freedom of movement for the sake of health, society places the vital value of life and health above individual autonomy."
           ],
           "source": {
             "module": 4,
@@ -1266,8 +2680,8 @@
           ],
           "explanation": "This statement is incorrect: virtue ethics asks not about a strict universal rule, but about what sort of person one ought to be. The focus here is on character, practical wisdom, and the cultivation of virtues.",
           "optionRationales": [
-            "Incorrect: because a universal rule without exceptions is characteristic of deontology, not virtue ethics.",
-            "Correct: because this kind of testing by a universal rule describes deontology, not virtue ethics."
+            "Incorrect: a universal rule without exceptions is characteristic of deontology, not virtue ethics.",
+            "Correct: testing an action against a universal rule describes deontology, whereas virtue ethics asks what sort of person one ought to be."
           ],
           "source": {
             "module": 4,
@@ -1413,10 +2827,10 @@
           "correctOptionIds": [
             0
           ],
-          "explanation": "In an embodiment relation, a technical object becomes a nearly transparent extension of the body and does not stand forth as an independent object of attention. A hermeneutic relation, by contrast, requires reading and interpreting the instrument’s indications.",
+          "explanation": "In an embodiment relation, a technical object becomes a nearly transparent extension of the body and does not stand forth as an independent object of attention. A hermeneutic relation, by contrast, requires reading and interpreting the instrument's indications.",
           "optionRationales": [
             "Correct: the glasses function as an extension of the body and do not become an object of separate contemplation.",
-            "Incorrect: a hermeneutic relation is associated with the need to read and interpret an instrument’s data.",
+            "Incorrect: a hermeneutic relation is associated with the need to read and interpret an instrument's data.",
             "Incorrect: a technical system is the autonomous logic of efficiency, not a way of directly experiencing technology.",
             "Incorrect: the standing-reserve in Heidegger refers to the way beings appear as resources, not as an extension of the body."
           ],
@@ -1434,18 +2848,18 @@
           "options": [
             "A machine that passes the Turing test thinks",
             "Manipulating symbols is not yet understanding",
-            "Consciousness is only an illusion of the “inner theater”",
+            "Consciousness is only an illusion of the \"inner theater\"",
             "A superintelligent AI will absorb all resources for its goal"
           ],
           "correctOptionIds": [
             1
           ],
-          "explanation": "In the “Chinese Room,” Searle shows that mechanically following rules for symbol manipulation can produce answers that seem meaningful to an observer without any understanding; syntax does not generate semantics.",
+          "explanation": "In the \"Chinese Room,\" Searle shows that mechanically following rules for symbol manipulation can produce answers that seem meaningful to an observer without any understanding; syntax does not generate semantics.",
           "optionRationales": [
             "Incorrect: Searle precisely challenges this functional Turing-style criterion.",
             "Correct: for Searle, processing symbols, however complex, is not identical with understanding.",
-            "Incorrect: this is Dennett’s criticism of the idea of the “hard problem of consciousness.”",
-            "Incorrect: this is Bostrom’s example of the existential risk of superintelligent AI."
+            "Incorrect: this is Dennett's criticism of the idea of the \"hard problem of consciousness.\"",
+            "Incorrect: this is Bostrom's example of the existential risk of superintelligent AI."
           ],
           "source": {
             "module": 4,
@@ -1465,10 +2879,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "In “The Question Concerning Technology,” Heidegger rejects the instrumental picture: modern technology is a way of revealing the world, Ge-stell (“emplacement”), in which everything that exists, including human beings, appears as a resource; the danger lies in the transformation of humanity’s very relation to the world.",
+          "explanation": "In \"The Question Concerning Technology,\" Heidegger rejects the instrumental picture: modern technology is a way of revealing the world, Ge-stell (\"emplacement\"), in which everything that exists, including human beings, appears as a resource; the danger lies in the transformation of humanity's very relation to the world.",
           "optionRationales": [
             "Incorrect: Heidegger considers the instrumental view of technology to be naïve.",
-            "Correct: for Heidegger, technology is not a neutral tool but Ge-stell (“emplacement”), which changes the way the world is revealed."
+            "Correct: for Heidegger, technology is not a neutral tool but Ge-stell (\"emplacement\"), which changes the way the world is revealed."
           ],
           "source": {
             "module": 4,
@@ -1544,7 +2958,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "Философия өз тұжырымдарын негізінен эксперимент пен бақылау арқылы тексереді, сондықтан оған жеке ғылымдардағыдай верификация тәсілі тән.",
+          "prompt": "Аңыз бойынша, Пифагор өзін дана, яғни даналыққа әлдеқашан ие адам деп атаған.",
           "options": [
             "Дұрыс",
             "Қате"
@@ -1552,17 +2966,17 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Бұл дұрыс емес: философия рационалдық уәждеу, ұғымдарды логикалық талдау және ойша эксперимент арқылы жұмыс істейді; эксперимент пен бақылау арқылы эмпириялық тексеру — жеке ғылымдардың әдісі.",
+          "explanation": "Бұл дұрыс емес: аңыз бойынша Пифагор дана емес екенін, тек даналықты сүйіп, оған ұмтылатынын, бірақ оған ешқашан толық ие бола алмайтынын айтқан. «Философия» сөзі де осыдан — «даналыққа деген сүйіспеншілік».",
           "optionRationales": [
-            "Қате: философия өз негізгі тексеру тәсілі ретінде негізінен эксперимент пен бақылауға сүйенбейді.",
-            "Дұрыс: негізінен эксперименттік тексеру туралы тұжырым жеке ғылымдарға тән, философияға емес."
+            "Қате: аңыз бойынша Пифагор өзін дана деп атаудан бас тартқан — ол тек даналықты сүйіп, оған ұмтылады.",
+            "Дұрыс: аңыз бойынша Пифагор өзін дана емес, даналықты сүйетін адам деп атаған; «философия» — «даналыққа деген сүйіспеншілік» осыдан шыққан."
           ],
           "source": {
             "module": 0,
             "lecture": 0,
             "number": 1
           },
-          "sourceTimecode": "10:06",
+          "sourceTimecode": "01:28",
           "difficulty": "EASY"
         }
       ]
@@ -1834,7 +3248,7 @@
       "module": 1,
       "lectureOrder": 1,
       "title": "5. Қайта Өрлеу дәуірі және Жаңа заман философиясы",
-      "transcriptSha256": "be38be1e3e988e0e906b9732bd1a2e98ca10f3e342a6e13f35bffb7154a2eb6d",
+      "transcriptSha256": "ec97f910266d050ea6f7695885dc4f2b1f724330e015346e5044e8ed5ebe72e1",
       "items": [
         {
           "type": "SINGLE_CHOICE",
@@ -2007,8 +3421,8 @@
       "lecture": 7,
       "module": 2,
       "lectureOrder": 0,
-      "title": "7. ХІХ ғасырдың бейклассикалық философиясы",
-      "transcriptSha256": "432500a41852240ef2e0b9bf3fb4465fdc126136d8dacf5cb96135bc5d0f13b6",
+      "title": "7. XIX ғасырдың бейклассикалық философиясы",
+      "transcriptSha256": "fd898c6180d2079220d0e308fcd2757a2f0cd954a421f0f36a482efc91234487",
       "items": [
         {
           "type": "SINGLE_CHOICE",
@@ -2094,8 +3508,8 @@
       "lecture": 8,
       "module": 2,
       "lectureOrder": 1,
-      "title": "8. ХХ ғасыр философиясы: негізгі бағыттар",
-      "transcriptSha256": "fee81e747592eeb1af61e4c14c57fde9776da0721a357a8078c84e559edb9761",
+      "title": "8. XX ғасыр философиясы: негізгі бағыттар",
+      "transcriptSha256": "a8c944279fbe64c6b1e7600328d1cc7341ab90d04896d59ae565eb8f41ce59c2",
       "items": [
         {
           "type": "SINGLE_CHOICE",
@@ -2182,7 +3596,7 @@
       "module": 2,
       "lectureOrder": 2,
       "title": "9. Онтология: болмыс туралы ілім (1-бөлім)",
-      "transcriptSha256": "2413689ee370008b0b4bc1c756b45870a77337dc0ec8a4c4c6384a31a8a53a75",
+      "transcriptSha256": "79edf4f37d1a32477edb1ebe267ab905cdead086a2c27a8f7ee6d7fe43adaf1c",
       "items": [
         {
           "type": "SINGLE_CHOICE",
@@ -2501,7 +3915,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "Аристотель бойынша, дереу өлім қаупі астында әрекет ететін адам нәтижеге өз еркімен әрекет еткен адам сияқты толық жауап береді.",
+          "prompt": "Аристотель бойынша, еркінен тыс желдің лебі түрткен адам ерікті әрекет жасайды және оның нәтижесіне жауап береді.",
           "options": [
             "Дұрыс",
             "Қате"
@@ -2509,10 +3923,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Аристотель әрекет мақтауға немесе даттауға лайық болуы үшін оның ерікті болуын талап етті: ол адамның өзінен туындауы, жағдайды біле отырып орындалуы және сыртқы мәжбүрлеусіз жасалуы керек. Өлім қаупі астындағы әрекет жауапкершіліктен ішінара немесе толық босатады.",
+          "explanation": "Аристотель әрекет мақтауға немесе даттауға лайық болуы үшін оның ерікті болуын талап етті: ол адамның өзінен туындауы, жағдайды біле отырып орындалуы және сыртқы мәжбүрлеусіз жасалуы керек. Адамды желдің лебі түртсе, қозғалыстың қайнар көзі оның сыртында жатады және ол бұл қозғалысқа өзінен ештеңе қоспайды, — мұндай әрекет еріксіз, сондықтан ол нәтижеге жауап бермейді.",
           "optionRationales": [
-            "Қате: қауіппен мәжбүрлеу, Аристотель бойынша, жауапкершілікті азайтады немесе жояды.",
-            "Дұрыс: жауапкершілік еріктілікке сүйенеді, ал дереу өлім қаупі оны шектейді."
+            "Қате: желдің лебі түрткен адамда қозғалыстың қайнар көзі оның өзінен тыс жатыр, сондықтан Аристотель бойынша бұл әрекет еріксіз және айыптауға жатпайды.",
+            "Дұрыс: Аристотель қайнар көзі әрекет етушінің өзінде жатқан әрекетті ғана ерікті деп санайды, ал желдің лебі сияқты сыртқы мәжбүрлеуде бұл шарт жоқ."
           ],
           "source": {
             "module": 3,
@@ -2536,9 +3950,9 @@
           "type": "SINGLE_CHOICE",
           "prompt": "Қоғамда аурудың таралу қаупін азайту және адамдардың мүмкіндігінше көп бөлігінің денсаулығын сақтау үшін жеке жүріп-тұру еркіндігін уақытша шектейді. Мұнда қандай аксиологиялық логика көрініс табады?",
           "options": [
-            "Ләззатты ең жоғары құндылық деп тану",
-            "Құндылықтардың кез келген иерархиясынан бас тарту",
-            "Құндылықты мәдени әдетке дейін түсіру",
+            "Жағымдыны витальды құндылықтан жоғары қою",
+            "Автономияны витальды құндылықтан жоғары қою",
+            "Қасиеттінің құндылығын рухани құндылықтардан жоғары қою",
             "Витальды құндылықты автономиядан жоғары қою"
           ],
           "correctOptionIds": [
@@ -2546,10 +3960,10 @@
           ],
           "explanation": "Бұл жағдайда денсаулық пен өмір жеке жүріп-тұру еркіндігінен маңыздырақ деп қарастырылады. Мұндай таңдау аксиологиядағы құндылықтар иерархиясын талқылауға тікелей сәйкес келеді.",
           "optionRationales": [
-            "Қате: мұнда жағымды және жағымсыз туралы емес, денсаулық пен еркіндік туралы айтылып отыр.",
-            "Қате: өйткені мысалда құндылықтардың белгілі бір бағыну тәртібі қабылданып отыр.",
-            "Қате: өйткені мұнда құндылықты әдетке не дағдыға дейін төмендету емес, оның маңызын салыстыру жүріп отыр.",
-            "Дұрыс: бұл өмір мен денсаулықтың витальды құндылығы автономиядан жоғары қойылатын жағдайға тікелей сәйкес келеді."
+            "Қате: мысалда жағымды, яғни ләззат құндылықтары салыстырылмайды — сөз денсаулық пен жүріп-тұру еркіндігі туралы.",
+            "Қате: бұл кері таңдау — еркіндік үшін шектеулерден бас тарту; ал мысалда денсаулық үшін дәл автономия шектеледі.",
+            "Қате: қасиеттінің құндылығы — Шелер иерархиясының шыңы, бірақ мысалда ол қозғалмайды: денсаулық пен жүріп-тұру еркіндігі салыстырылады.",
+            "Дұрыс: денсаулық үшін жүріп-тұру еркіндігін шектей отырып, қоғам өмір мен денсаулықтың витальды құндылығын жеке автономиядан жоғары қояды."
           ],
           "source": {
             "module": 4,
@@ -2571,8 +3985,8 @@
           ],
           "explanation": "Бұл тұжырым дұрыс емес: парасаттылық этикасы қатаң жалпы ережені емес, қандай адам болу керектігін сұрайды. Мұнда назар мінезде, практикалық даналықта және парасаттарды дамытуда болады.",
           "optionRationales": [
-            "Қате: өйткені ешбір ерекшеліксіз жалпы ереже деонтологияға тән, ал парасаттылық этикасына емес.",
-            "Дұрыс: өйткені дәл осындай жалпы ереже арқылы тексеру деонтологияны, ал парасаттылық этикасын емес, сипаттайды."
+            "Қате: ешбір ерекшеліксіз жалпы ереже парасаттылық этикасына емес, деонтологияға тән.",
+            "Дұрыс: әрекетті жалпы ережемен тексеру деонтологияны сипаттайды, ал парасаттылық этикасы қандай адам болу керектігін сұрайды."
           ],
           "source": {
             "module": 4,
@@ -2849,7 +4263,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "Философия проверяет свои утверждения главным образом экспериментом и наблюдением, поэтому для неё характерен тот же способ верификации, что и для частных наук.",
+          "prompt": "По преданию, Пифагор называл себя мудрецом, то есть человеком, уже обладающим мудростью.",
           "options": [
             "Верно",
             "Неверно"
@@ -2857,17 +4271,17 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Это неверно: философия работает рациональной аргументацией, логическим анализом понятий и мысленным экспериментом; эмпирическая проверка экспериментом и наблюдением — метод частных наук.",
+          "explanation": "Это неверно: по легенде, Пифагор ответил, что он не мудрец, а лишь любит мудрость и стремится к ней, никогда полностью ею не обладая. Отсюда слово «философия» — «любовь к мудрости».",
           "optionRationales": [
-            "Неверно: философия не опирается главным образом на эксперимент и наблюдение как на свой основной способ проверки.",
-            "Верно: утверждение о преимущественно экспериментальной проверке относится к частным наукам, а не к философии."
+            "Неверно: по преданию, Пифагор отказался называть себя мудрецом — он лишь любит мудрость и стремится к ней.",
+            "Верно: по легенде, Пифагор назвал себя не мудрецом, а любящим мудрость; отсюда «философия» — «любовь к мудрости»."
           ],
           "source": {
             "module": 0,
             "lecture": 0,
             "number": 1
           },
-          "sourceTimecode": "10:54",
+          "sourceTimecode": "01:36",
           "difficulty": "EASY"
         }
       ]
@@ -3207,7 +4621,7 @@
           ],
           "explanation": "Юм именно так и критикует причинность: мы видим лишь привычную последовательность событий, а не саму необходимую связь. Поэтому уверенность в причинности он связывает с привычкой, а не с непосредственным наблюдением.",
           "optionRationales": [
-            "Верно: юм считает, что необходимая связь не дана в опыте и возникает как результат привычки.",
+            "Верно: Юм считает, что необходимая связь не дана в опыте и возникает как результат привычки.",
             "Неверно: это противоречит юмовскому анализу причинности, который как раз и отрицает наблюдаемую необходимость связи."
           ],
           "source": {
@@ -3503,10 +4917,10 @@
           ],
           "explanation": "Куайн связывает онтологию с тем, какие сущности необходимы для истинности наших теорий, а не с поиском скрытой метафизической основы. Это и выражено формулой о бытии как значении связанной переменной.",
           "optionRationales": [
-            "Неверно: лейбниц объясняет пространство, время и монады, но не формулирует этот лингвистический подход к онтологии.",
+            "Неверно: Лейбниц объясняет пространство, время и монады, но не формулирует этот лингвистический подход к онтологии.",
             "Верно: именно Куайн формулирует тезис о том, что быть — значит быть значением связанной переменной.",
-            "Неверно: хайдеггер критикует забвение бытия, но не сводит онтологию к анализу научных переменных.",
-            "Неверно: парменид утверждает неизменность и единство бытия, а не языковой критерий онтологического обязательства."
+            "Неверно: Хайдеггер критикует забвение бытия, но не сводит онтологию к анализу научных переменных.",
+            "Неверно: Парменид утверждает неизменность и единство бытия, а не языковой критерий онтологического обязательства."
           ],
           "source": {
             "module": 2,
@@ -3620,7 +5034,7 @@
             "Неверно: у Ньютона пространство мыслится как абсолютное вместилище, существующее независимо от тел.",
             "Неверно: теория относительности описывает физическую связь пространства и времени, а не их происхождение из познающего субъекта.",
             "Неверно: принцип Маха связывает вращение с совокупной массой далёких тел, а не с формами чувственности.",
-            "Верно: кант именно так объясняет пространство и время — как формы, которые субъект привносит в опыт."
+            "Верно: Кант именно так объясняет пространство и время — как формы, которые субъект привносит в опыт."
           ],
           "source": {
             "module": 3,
@@ -3806,7 +5220,7 @@
         },
         {
           "type": "TRUE_FALSE",
-          "prompt": "По Аристотелю, человек, действующий под угрозой немедленной смерти, отвечает за результат так же полно, как и тот, кто действует добровольно.",
+          "prompt": "По Аристотелю, человек, которого против его воли толкнул порыв ветра, совершает добровольный поступок и отвечает за его результат.",
           "options": [
             "Верно",
             "Неверно"
@@ -3814,10 +5228,10 @@
           "correctOptionIds": [
             1
           ],
-          "explanation": "Аристотель считал поступок подлежащим похвале или порицанию, если он добровольный: исходит от самого человека, совершается со знанием обстоятельств и без внешнего принуждения. Действие под угрозой смерти частично или полностью освобождает от ответственности.",
+          "explanation": "Аристотель считал поступок подлежащим похвале или порицанию, если он добровольный: исходит от самого человека, совершается со знанием обстоятельств и без внешнего принуждения. Когда человека толкает порыв ветра, источник движения лежит вне его и сам он ничего в это движение не привносит, — такое действие невольное, и за результат он не отвечает.",
           "optionRationales": [
-            "Неверно: принуждение угрозой, по Аристотелю, уменьшает или снимает ответственность.",
-            "Верно: ответственность предполагает добровольность, а угроза немедленной смерти её ограничивает."
+            "Неверно: у человека, которого толкнул ветер, источник движения лежит вне его самого, поэтому такое действие, по Аристотелю, невольное и порицанию не подлежит.",
+            "Верно: добровольным Аристотель считает действие, источник которого — в самом действующем, а при внешнем принуждении, как в случае с порывом ветра, этого условия нет."
           ],
           "source": {
             "module": 3,
@@ -3841,9 +5255,9 @@
           "type": "SINGLE_CHOICE",
           "prompt": "В обществе временно ограничивают личную свободу передвижения, чтобы снизить риск распространения болезни и сохранить здоровье как можно большего числа людей. Какая аксиологическая логика здесь проявляется?",
           "options": [
-            "Признание удовольствия высшей ценностью",
-            "Отказ от любой иерархии ценностей",
-            "Сведение ценности к культурной привычке",
+            "Помещение приятного выше витальной ценности",
+            "Помещение автономии выше витальной ценности",
+            "Помещение ценности святого выше духовных ценностей",
             "Помещение витальной ценности выше автономии"
           ],
           "correctOptionIds": [
@@ -3851,10 +5265,10 @@
           ],
           "explanation": "В этом случае здоровье и жизнь рассматриваются как более значимые, чем индивидуальная свобода передвижения. Такой выбор прямо соответствует обсуждению иерархии ценностей в аксиологии.",
           "optionRationales": [
-            "Неверно: речь идёт не о приятном и неприятном, а о здоровье и свободе.",
-            "Неверно: потому что в примере как раз принимается определённое соподчинение ценностей.",
-            "Неверно: потому что ценность здесь не сводят к обычаю или привычке, а именно сопоставляют по значимости.",
-            "Верно: это прямо соответствует ситуации, где витальная ценность жизни и здоровья ставится выше автономии."
+            "Неверно: ценности приятного, то есть удовольствия, в примере не сопоставляются — речь идёт о здоровье и свободе передвижения.",
+            "Неверно: это обратный выбор — отказаться от ограничений ради свободы; в примере же ради здоровья ограничивают именно автономию.",
+            "Неверно: ценности святого — вершина иерархии Шелера, но в примере они не затронуты: сопоставляются здоровье и свобода передвижения.",
+            "Верно: ограничивая свободу передвижения ради здоровья, общество ставит витальную ценность жизни и здоровья выше индивидуальной автономии."
           ],
           "source": {
             "module": 4,
@@ -3876,8 +5290,8 @@
           ],
           "explanation": "Это утверждение неверно: этика добродетели спрашивает не о строгом универсальном правиле, а о том, каким человеком следует быть. В центре здесь характер, практическая мудрость и развитие добродетелей.",
           "optionRationales": [
-            "Неверно: потому что универсальное правило без исключений характерно для деонтологии, а не для этики добродетели.",
-            "Верно: потому что именно такая проверка через универсальное правило описывает деонтологию, а не этику добродетели."
+            "Неверно: универсальное правило без исключений характерно для деонтологии, а не для этики добродетели.",
+            "Верно: проверка поступка универсальным правилом описывает деонтологию, а этика добродетели спрашивает, каким человеком следует быть."
           ],
           "source": {
             "module": 4,

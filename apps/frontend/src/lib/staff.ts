@@ -750,10 +750,21 @@ export function useReviewIssueMap(enabled: boolean, courseId?: string | null) {
   });
 }
 
-export function useIssueSummary(courseId?: string | null) {
+/**
+ * Счётчики открытых жалоб и отметок экспертной проверки — с теми же фильтрами, что у списка
+ * очереди (курс, язык, происхождение, тип объекта; статус — всегда «открыто»), чтобы числа в шапке
+ * и на вкладке совпадали со списком.
+ */
+export function useIssueSummary(filters: Omit<IssueFilters, 'status'> = {}) {
+  const qs = new URLSearchParams();
+  if (filters.courseId) qs.set('courseId', filters.courseId);
+  if (filters.language) qs.set('language', filters.language);
+  if (filters.origin) qs.set('origin', filters.origin);
+  if (filters.targetType) qs.set('targetType', filters.targetType);
+  const query = qs.toString();
   return useQuery({
-    queryKey: [...staffKeys.issues, 'summary', courseId ?? ''] as const,
-    queryFn: () => api.get<{ open: number; openSystem: number }>(`/content-issues/summary${courseId ? `?courseId=${encodeURIComponent(courseId)}` : ''}`),
+    queryKey: [...staffKeys.issues, 'summary', query] as const,
+    queryFn: () => api.get<{ open: number; openSystem: number }>(`/content-issues/summary${query ? `?${query}` : ''}`),
   });
 }
 

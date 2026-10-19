@@ -17,7 +17,9 @@
       "kk-05, kk-07, kk-08, kk-09: «Лекцияда» → «Дәрісте» (как в остальных kk и в самих лекциях)",
       "kk-06: «білімнің шектеулілігіне қарсы сындары» — в лекции такого нет; Дидро — материализм",
       "kk-12: слишком общее (236 симв.): добавлены мыслители лекции, как в ru/en",
-      "kk-14: длина 407 → ≤ 400"
+      "kk-14: длина 407 → ≤ 400",
+      "[2026-10-19] kk-07, kk-08, kk-09: римские цифры кириллицей «ХІХ», «ХХ» → латиница «XIX», «XX» (как в названиях разделов и вопросах); title строк kk-07/08 — так же; transcriptSha256 kk-05/07/08/09 — по расшифровкам после той же замены",
+      "[2026-10-19] en-03, en-04, en-06, en-07: типографика — “ ” ‘ ’ → прямые кавычки и апострофы, как в остальных en-материалах курса; на стенде, где краткие содержания уже записаны, — summaries --from … --apply --force (меняются только эти строки)"
     ],
     "reviewNotes": [
       "Проверены все 45 кратких содержаний (15 лекций × ru/kk/en) по расшифровкам своих лекций: 2–3 нейтральных предложения, ≤ 400 символов, язык лекции, термины — как в лекции (kk: дәріс, коперникандық төңкеріс, шеттелу, әдістемелік күмән; en: wuwei, ren).",
@@ -51,7 +53,7 @@
       "lectureOrder": 2,
       "title": "3. Ancient Philosophy: The Presocratics and the Classical Period",
       "transcriptSha256": "a0a3a2002189b1da6a0272ae797938c48f31bf073b242de979852ab197fda1f9",
-      "summary": "The lecture traces ancient Greek philosophy from the Milesians and Heraclitus through the Eleatic challenge, atomism, and the Sophists to Socrates, Plato, and Aristotle. It explains key problems of unity and change, being and non-being, relativism and objective knowledge, and presents Plato’s Forms and Aristotle’s account of form, matter, logic, and virtue ethics."
+      "summary": "The lecture traces ancient Greek philosophy from the Milesians and Heraclitus through the Eleatic challenge, atomism, and the Sophists to Socrates, Plato, and Aristotle. It explains key problems of unity and change, being and non-being, relativism and objective knowledge, and presents Plato's Forms and Aristotle's account of form, matter, logic, and virtue ethics."
     },
     {
       "lang": "en",
@@ -60,7 +62,7 @@
       "lectureOrder": 0,
       "title": "4. Hellenistic and Roman Philosophy. Medieval Philosophy",
       "transcriptSha256": "38b8454d7f67e698c4f1be547918a1e4d72a7dad45ddf50d8da50ade5d8d4a45",
-      "summary": "The lecture surveys Hellenistic and Roman philosophy through Stoicism, Epicureanism, and skepticism, focusing on their views of nature, freedom, knowledge, and inner peace. It then covers Neoplatonism, Augustine’s patristic thought, and Aquinas’s scholastic synthesis of faith and reason, ending with the medieval dispute over universals."
+      "summary": "The lecture surveys Hellenistic and Roman philosophy through Stoicism, Epicureanism, and skepticism, focusing on their views of nature, freedom, knowledge, and inner peace. It then covers Neoplatonism, Augustine's patristic thought, and Aquinas's scholastic synthesis of faith and reason, ending with the medieval dispute over universals."
     },
     {
       "lang": "en",
@@ -78,7 +80,7 @@
       "lectureOrder": 2,
       "title": "6. The Philosophy of Enlightenment and German Classical Philosophy",
       "transcriptSha256": "b8b91445f307f1446dbfcb2ec772546ef9c66e4becafac1ca8a1bb2bf81f3afc",
-      "summary": "The lecture examines the Enlightenment critique of religious and political authority through Voltaire, Diderot, and Rousseau, including tolerance, materialism, the social contract, and the general will. It then presents Kant’s theory of knowledge and moral law, Hegel’s dialectic and philosophy of history, and Feuerbach’s critique of religion as human self-projection."
+      "summary": "The lecture examines the Enlightenment critique of religious and political authority through Voltaire, Diderot, and Rousseau, including tolerance, materialism, the social contract, and the general will. It then presents Kant's theory of knowledge and moral law, Hegel's dialectic and philosophy of history, and Feuerbach's critique of religion as human self-projection."
     },
     {
       "lang": "en",
@@ -87,7 +89,7 @@
       "lectureOrder": 0,
       "title": "7. Non-Classical Philosophy of the Nineteenth Century",
       "transcriptSha256": "d4261c3d82057713a88ede400b7b3e5653e75128ebe11becfa8bd1547aafee15",
-      "summary": "The lecture examines nineteenth-century non-classical philosophy through Marxism, Schopenhauer and Nietzsche’s philosophy of life, and Comte’s positivism. It covers historical materialism, alienation, will, nihilism, the death of God, the law of three stages, and the critique of classical rationalism."
+      "summary": "The lecture examines nineteenth-century non-classical philosophy through Marxism, Schopenhauer and Nietzsche's philosophy of life, and Comte's positivism. It covers historical materialism, alienation, will, nihilism, the death of God, the law of three stages, and the critique of classical rationalism."
     },
     {
       "lang": "en",
@@ -203,7 +205,7 @@
       "module": 1,
       "lectureOrder": 1,
       "title": "5. Қайта Өрлеу дәуірі және Жаңа заман философиясы",
-      "transcriptSha256": "be38be1e3e988e0e906b9732bd1a2e98ca10f3e342a6e13f35bffb7154a2eb6d",
+      "transcriptSha256": "ec97f910266d050ea6f7695885dc4f2b1f724330e015346e5044e8ed5ebe72e1",
       "summary": "Дәрісте Қайта Өрлеу дәуіріндегі гуманизм мен натурфилософия, адамның мәртебесін қайта бағалау және әлемнің шексіздігі туралы түсініктер қарастырылады. Жаңа заман философиясында рационализм мен эмпиризмнің таным әдістері, Декарт, Спиноза, Лейбниц, Бэкон, Локк және Юм еңбектері арқылы салыстырылады. Сондай-ақ әдістемелік күмән, себептілік, индукция және білімнің негізі мәселелері талданады."
     },
     {
@@ -220,18 +222,18 @@
       "lecture": 7,
       "module": 2,
       "lectureOrder": 0,
-      "title": "7. ХІХ ғасырдың бейклассикалық философиясы",
-      "transcriptSha256": "432500a41852240ef2e0b9bf3fb4465fdc126136d8dacf5cb96135bc5d0f13b6",
-      "summary": "Дәрісте ХІХ ғасырдың бейклассикалық философиясы қарастырылады: Маркстің тарихи материализмі, жатсыну мен тауарлық фетишизм, Шопенгауэрдің әлемдік Ерік тұжырымы, Ницшенің құндылықтарды қайта бағалау, аса адам және нигилизм туралы ілімі, Конттың позитивизмі мен үш саты заңы талданады. Сондай-ақ классикалық ақыл-парасат дағдарысы мен иррационализмнің қалыптасуы түсіндіріледі."
+      "title": "7. XIX ғасырдың бейклассикалық философиясы",
+      "transcriptSha256": "fd898c6180d2079220d0e308fcd2757a2f0cd954a421f0f36a482efc91234487",
+      "summary": "Дәрісте XIX ғасырдың бейклассикалық философиясы қарастырылады: Маркстің тарихи материализмі, жатсыну мен тауарлық фетишизм, Шопенгауэрдің әлемдік Ерік тұжырымы, Ницшенің құндылықтарды қайта бағалау, аса адам және нигилизм туралы ілімі, Конттың позитивизмі мен үш саты заңы талданады. Сондай-ақ классикалық ақыл-парасат дағдарысы мен иррационализмнің қалыптасуы түсіндіріледі."
     },
     {
       "lang": "kk",
       "lecture": 8,
       "module": 2,
       "lectureOrder": 1,
-      "title": "8. ХХ ғасыр философиясы: негізгі бағыттар",
-      "transcriptSha256": "fee81e747592eeb1af61e4c14c57fde9776da0721a357a8078c84e559edb9761",
-      "summary": "Дәрісте ХХ ғасыр философиясының негізгі бағыттары: феноменология, экзистенциализм, аналитикалық философия және философиялық герменевтика қарастырылады. Гуссерль, Хайдеггер, Сартр, Камю, Рассел, Витгенштейн және Гадамер еңбектері арқылы интенционалдылық, Dasein, еркіндік, абсурд, тілдік ойын, верификация, жоралғы және көкжиектердің қосылуы ұғымдары түсіндіріледі."
+      "title": "8. XX ғасыр философиясы: негізгі бағыттар",
+      "transcriptSha256": "a8c944279fbe64c6b1e7600328d1cc7341ab90d04896d59ae565eb8f41ce59c2",
+      "summary": "Дәрісте XX ғасыр философиясының негізгі бағыттары: феноменология, экзистенциализм, аналитикалық философия және философиялық герменевтика қарастырылады. Гуссерль, Хайдеггер, Сартр, Камю, Рассел, Витгенштейн және Гадамер еңбектері арқылы интенционалдылық, Dasein, еркіндік, абсурд, тілдік ойын, верификация, жоралғы және көкжиектердің қосылуы ұғымдары түсіндіріледі."
     },
     {
       "lang": "kk",
@@ -239,8 +241,8 @@
       "module": 2,
       "lectureOrder": 2,
       "title": "9. Онтология: болмыс туралы ілім (1-бөлім)",
-      "transcriptSha256": "2413689ee370008b0b4bc1c756b45870a77337dc0ec8a4c4c6384a31a8a53a75",
-      "summary": "Дәрісте онтологиядағы болмыс категориясы, материя мен субстанция, кеңістік пен уақыт, детерминизм мен кездейсоқтық мәселелері қарастырылады. Парменид, Аристотель, Хайдеггер, Декарт, Спиноза, Лейбниц, Кант және ХХ ғасыр физикасы арқылы болмыс туралы түсініктердің даму жолы салыстырылады. Батыс және шығыс философиялық дәстүрлеріндегі болмыс пайымдары да талданады."
+      "transcriptSha256": "79edf4f37d1a32477edb1ebe267ab905cdead086a2c27a8f7ee6d7fe43adaf1c",
+      "summary": "Дәрісте онтологиядағы болмыс категориясы, материя мен субстанция, кеңістік пен уақыт, детерминизм мен кездейсоқтық мәселелері қарастырылады. Парменид, Аристотель, Хайдеггер, Декарт, Спиноза, Лейбниц, Кант және XX ғасыр физикасы арқылы болмыс туралы түсініктердің даму жолы салыстырылады. Батыс және шығыс философиялық дәстүрлеріндегі болмыс пайымдары да талданады."
     },
     {
       "lang": "kk",

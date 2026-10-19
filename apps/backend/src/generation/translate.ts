@@ -286,6 +286,17 @@ export interface TranslatedPracticalTask {
   warnings: string[];
 }
 
+/** Содержание практического задания для перевода (поля PracticalTask). */
+export interface PracticalTaskContent {
+  scenarioPrompt: string;
+  referenceSolution: string;
+  /** { key_points[], answer_reached_criteria, …прочие поля } */
+  rubricSpec: unknown;
+  /** string[] — план беседы (если задан). */
+  agenda: unknown;
+  introMessage: string | null;
+}
+
 /**
  * Перевод канонического практического задания (USER_DECISIONS §4: один сценарий
  * «Полисия» на все языки). Ключевые тезисы — 1:1 (то же число и порядок),
@@ -302,6 +313,19 @@ export async function translatePracticalTask(
   });
   if (!task) throw Errors.notFound('Практическое задание не найдено');
   const sourceLanguage = task.module.languageVersion.language as Language;
+  return translatePracticalContent(task, sourceLanguage, targetLanguage, { ...opts, logContext: { sourceTaskId } });
+}
+
+/**
+ * То же по содержанию задания, а не по строке БД: канон нового курса пишется автором прямо в
+ * артефакт контент-скрипта (canonical-practical), и kk/en переводятся с него ДО записи в БД.
+ */
+export async function translatePracticalContent(
+  task: PracticalTaskContent,
+  sourceLanguage: Language,
+  targetLanguage: Language,
+  opts: { glossary?: Glossary; onReport?: (r: DraftReport) => void; logContext?: Record<string, unknown> } = {},
+): Promise<TranslatedPracticalTask> {
   if (sourceLanguage === targetLanguage) throw Errors.badRequest('Язык оригинала совпадает с целевым');
   const rubricRaw = (task.rubricSpec ?? {}) as Record<string, unknown>;
   const rubric = practicalRubricSchema.parse(rubricRaw);
@@ -351,7 +375,7 @@ export async function translatePracticalTask(
     if (informal) warnings.push(`обращение на «сен»: ${[...new Set(informal.map((x) => x.trim()))].join(', ')}`);
     if (/ауызша/i.test(all)) warnings.push('слово «ауызша» (задание письменное)');
   }
-  if (warnings.length) logger.warn({ sourceTaskId, targetLanguage, warnings }, 'Перевод практического: предупреждения');
+  if (warnings.length) logger.warn({ ...opts.logContext, targetLanguage, warnings }, 'Перевод практического: предупреждения');
   opts.onReport?.(report);
 
   const { key_points: _kp, answer_reached_criteria: _arc, ...otherRubric } = rubricRaw;

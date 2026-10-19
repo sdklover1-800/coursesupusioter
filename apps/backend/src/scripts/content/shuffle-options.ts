@@ -11,7 +11,7 @@
  *  - оцениваемые вопросы пропускаются: новый банк перемешан при генерации (graded-bank).
  * Печатает гистограммы позиций ключа до/после по языкам.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/shuffle-options.ts [--apply --i-have-a-backup]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/shuffle-options.ts [--course "…"] [--apply --i-have-a-backup]
  */
 import type { Prisma } from '@prisma/client';
 import { keyPositionHistogram, seededShuffle } from '../../generation/drafts.js';

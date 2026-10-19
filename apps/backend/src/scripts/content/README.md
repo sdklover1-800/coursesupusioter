@@ -150,3 +150,23 @@ npx tsx --env-file-if-exists=../../.env src/scripts/content/descriptions.ts --dr
 Каждый черновик затем читается человеком (правки — прямо в JSON, записываются в `meta.reviewEdits`;
 проверенный артефакт повторный `--draft` не затирает — см. `--overwrite-reviewed`),
 и только потом применяется `--from`. Расход LLM копится в `content-data/politology/llm-spend.json`.
+
+## Курс «Введение в философию»: недостающие расшифровки (translate-transcripts)
+
+Расшифровок kk-04, en-04 и en-14 автор не прислал — по решению пользователя от 19.10 их переводим с
+ru сами. Артефакт — `content-data/philosophy/translations.v1.json` (каталог по профилю курса):
+
+```bash
+npx tsx --env-file-if-exists=../../.env src/scripts/content/translate-transcripts.ts --course "Введение в философию" --draft [--only kk-04]
+npx tsx --env-file-if-exists=../../.env src/scripts/content/translate-transcripts.ts --course "Введение в философию" --from translations.v1.json [--apply --i-have-a-backup] [--force]
+```
+
+- Черновик переводит ru-текст той же лекции по разделам (BE4 `translateTranscript`, effort medium,
+  глоссарий из параллельных лекций курса). Таймкоды — байт-в-байт как в ru; шапка «N-дәріс. …» /
+  «Lecture N. …», метки разделов («БӨЛІМ 1.» / «SECTION 1.»), регистр заголовков и заголовки
+  приложения («Негізгі ұғымдар», «Key Concepts», …) — детерминированно. Текст хранится построчно
+  (`lines`), правки рецензента — в `meta.reviewEdits`.
+- Применение пишет расшифровку только в пустую — или в записанную ранее этим скриптом и не правленную
+  после (так переносится исправленный артефакт); текст автора или правку менеджера — только с
+  `--force`. Длительность — конец последнего таймкода, если не задана вручную. На каждую лекцию —
+  отметка NATIVE_PROOFREAD (вычитка носителем). Журнал — `content:v1:philosophy:translate-transcripts:<код>`.

@@ -1,36 +1,40 @@
 /**
  * Фаза 2b (USER_DECISIONS §5): канонический банк оцениваемых тестов модулей I–IV.
+ * Курс — --course (по умолчанию политология; префикс canonicalKey и эксперт — из профиля курса).
  *
  * Черновик (--draft [--only M2,M4]):
  *  - ru: draftModuleQuiz(moduleId, {count 8, types {SINGLE_CHOICE: 8}, canonicalKeyPrefix
- *    'polit:M<i>', doNotReuse: тренировочные формулировки модуля}) — 8 вопросов × 4 варианта,
+ *    '<polit|phil>:M<i>', doNotReuse: тренировочные формулировки модуля}) — 8 вопросов × 4 варианта,
  *    перемешаны с равномерными позициями ключа, с обоснованиями и источником;
  *  - гейт: 8 вопросов по 4 варианта, один ключ; нет подсказки длиной; ни одна позиция ключа
  *    не выше 40% (по 32 вопросам и по модулю); testwiseScore < 0.7; нет повторов формулировок.
  *    Не прошёл — один повторный черновик; снова не прошёл — модуль в отчёте, без записи;
  *  - kk, en: translateQuestions(items, lang, {targetVersionId}) — те же вопросы, ключи, порядок
- *    вариантов и canonicalKey; проверяется совпадение и гейт на каждом языке;
- *  - артефакт content-data/politology/graded-bank.v1.json {ru:{M1:[…]}, kk:{…}, en:{…}}; источник
+ *    вариантов и canonicalKey; проверяется совпадение и гейт на каждом языке. Если у лекции-источника
+ *    в языке перевода ещё нет расшифровки (философия: kk/en-04, en-14), таймкод не переносится;
+ *  - артефакт content-data/<курс>/graded-bank.v1.json {ru:{M1:[…]}, kk:{…}, en:{…}}; источник
  *    вопроса — по позиции лекции (переносимо на прод).
  * Применение (--from graded-bank.v1.json [--apply --i-have-a-backup]):
  *  - отказ, если фаза A не выполнена или у заменяемого теста есть незавершённая попытка;
  *  - отказ без --force, если у студента незавершённая СЕРИЯ попыток на старом банке (попытка
  *    отправлена, финал не наступил): 2-я попытка шла бы по другому инструменту (правило BEST);
- *  - writeQuizQuestions(quizId, items, {mode: 'ARCHIVE_REPLACE', ledgerKey 'content:v1:graded-bank:<lang>:M<i>'}):
+ *  - у нового курса теста модуля ещё нет — он создаётся, как в конвейере генерации (MODULE_FINAL,
+ *    название localizedTitle, порог и попытки DEFAULTS; политику задаёт set-quiz-policy);
+ *  - writeQuizQuestions(quizId, items, {mode: 'ARCHIVE_REPLACE', ledgerKey 'content:v1:[<курс>:]graded-bank:<lang>:M<i>'}):
  *    старые вопросы АРХИВИРУЮТСЯ (не удаляются) — прошлые попытки сохраняют смысл;
- *  - отметки: ru — EXPERT_REVIEW (политолог), kk/en — NATIVE_PROOFREAD (перевод); системные
+ *  - отметки: ru — EXPERT_REVIEW (эксперт курса), kk/en — NATIVE_PROOFREAD (перевод); системные
  *    отметки с архивированных вопросов снимаются (DISMISSED);
  *  - правки рецензента после применения (meta.textFixes) переносятся на уже применённый банк по
  *    точным якорям (lib.applyTextFixes): текст, без порядка вариантов и ключа; правка по смыслу
  *    (substantive) откладывается, пока у студентов идёт попытка или серия попыток (без --force);
  *  - проверка: каждая прошлая попытка пересчитывается по своей presentation в сохранённый балл.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --draft [--overwrite-reviewed]
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts --from graded-bank.v1.json [--apply --i-have-a-backup] [--force]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts [--course "…"] --draft [--overwrite-reviewed]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/graded-bank.ts [--course "…"] --from graded-bank.v1.json [--apply --i-have-a-backup] [--force]
  */
 import { existsSync } from 'node:fs';
 import { join as _join } from 'node:path';
-import type { Language, ScoringRule } from '@edu/shared';
+import { DEFAULTS, type Language, type ScoringRule } from '@edu/shared';
 import {
   type DraftQuestion,
   type DraftReport,
@@ -39,28 +43,32 @@ import {
   keyPositionHistogram,
   lengthCue,
   lengthRatio,
+  localizedTitle,
   practicePromptsForModule,
   testwiseScore,
   translateQuestions,
   writeQuizQuestions,
 } from '../../generation/drafts.js';
 import {
+  type ModuleCtx,
   type PortableQuestion,
   Report,
   type VersionCtx,
   activeQuestions,
   applyTextFixes,
   assertPhaseA,
+  courseProfile,
   dismissSystemFlags,
   flagForReview,
   fromPortable,
-  gradedModules,
+  lectureByPos,
   ledgerGet,
   ledgerKey,
   loadCourse,
   parseArgs,
   printRescore,
   prisma,
+  quizModules,
   readArtifact,
   recordSpend,
   rescoreAttempts,
@@ -158,7 +166,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
   let failed = 0;
   const allRuPrompts = new Set(Object.values(art.ru).flat().map((q) => q.prompt.trim().toLowerCase()));
 
-  for (const m of gradedModules(ru)) {
+  for (const m of quizModules(ru)) {
     if (only && !only.includes(m.key)) continue;
     const i = Number(m.key.slice(1));
     const practice = await practicePromptsForModule(m.id);
@@ -173,7 +181,7 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
       items = await draftModuleQuiz(m.id, {
         count: 8,
         types: { SINGLE_CHOICE: 8 },
-        canonicalKeyPrefix: `polit:M${i}`,
+        canonicalKeyPrefix: `${courseProfile().keyPrefix}:M${i}`,
         doNotReuse: [...practice, ...otherGraded],
         onReport: (r: DraftReport) => warnings.push(...r.warnings.map((w) => `ru черновик ${attempt}: ${w}`)),
       });
@@ -204,6 +212,15 @@ async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
           onReport: (r) => warnings.push(...r.warnings.map((w) => `${lang} перевод ${attempt}: ${w}`)),
         });
         tr = out.map((d) => toPortable(v, d));
+        // Лекция-источник без расшифровки в языке перевода (ждём автора): таймкод перевода взят бы
+        // из ru-видео и указывал бы не туда — без таймкода разбор ведёт на начало лекции.
+        for (const q of tr) {
+          const target = q.source ? lectureByPos(v, q.source.module, q.source.lecture) : undefined;
+          if (target && !target.transcriptText.trim() && q.sourceTimecode) {
+            warnings.push(`${lang} ${q.canonicalKey}: у лекции ${target.number} нет расшифровки — таймкод ${q.sourceTimecode} не перенесён`);
+            q.sourceTimecode = null;
+          }
+        }
         tg = gate(tr);
         const struct = sameStructure(ruPortable, tr);
         if (struct.length) tg = { ...tg, ok: false, problems: [...tg.problems, ...struct] };
@@ -289,11 +306,12 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
   const course = await loadCourse();
   if (args.apply) await assertPhaseA();
 
-  // Целевые тесты и незавершённые попытки — проверка ДО любых записей.
-  const targets: { lang: Language; v: VersionCtx; key: string; quizId: string; items: PortableQuestion[] }[] = [];
+  // Целевые тесты и незавершённые попытки — проверка ДО любых записей. quizId null — у модуля нового
+  // курса теста ещё нет: он будет создан при применении (у нового теста нет ни попыток, ни серий).
+  const targets: { lang: Language; v: VersionCtx; key: string; module: ModuleCtx; quizId: string | null; items: PortableQuestion[] }[] = [];
   for (const lang of args.langs) {
     const v = version(course, lang);
-    for (const m of gradedModules(v)) {
+    for (const m of quizModules(v)) {
       const items = art[lang]?.[m.key];
       if (!items?.length) {
         report.line(`${lang}:${m.key}`, 'skip', 'нет в артефакте');
@@ -304,18 +322,24 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
         report.line(`${lang}:${m.key}`, 'error', `артефакт не проходит гейт: ${g.problems.join('; ')}`);
         continue;
       }
-      targets.push({ lang, v, key: m.key, quizId: m.quiz.id, items });
+      if (m.quiz && (!m.quiz.isGraded || m.quiz.kind !== 'MODULE_FINAL')) {
+        report.line(`${lang}:${m.key}`, 'error', `тест модуля «${m.quiz.title.slice(0, 60)}» не оцениваемый (${m.quiz.kind}) — разберите вручную`);
+        continue;
+      }
+      targets.push({ lang, v, key: m.key, module: m, quizId: m.quiz?.id ?? null, items });
     }
   }
   // Замена грозит только тестам, где банк ещё не применён (нет журнала и вопросы не совпадают).
   const pending: typeof targets = [];
   for (const t of targets) {
+    if (!t.quizId) continue;
     const current = await activeQuestions(prisma, t.quizId);
     const same = current.length === t.items.length && current.every((q, i) => q.canonicalKey === t.items[i]!.canonicalKey && q.prompt === t.items[i]!.prompt.trim());
     if (!(await ledgerGet(prisma, ledgerKey(SCRIPT, `${t.lang}:${t.key}`))) && !same) pending.push(t);
   }
+  const pendingIds = pending.map((t) => t.quizId!);
   const inProgress = await prisma.quizAttempt.findMany({
-    where: { quizId: { in: pending.map((t) => t.quizId) }, submittedAt: null },
+    where: { quizId: { in: pendingIds }, submittedAt: null },
     select: { id: true, quizId: true, startedAt: true, enrollment: { select: { user: { select: { email: true } } } } },
   });
   if (inProgress.length) {
@@ -325,7 +349,7 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
   }
   // Незавершённая серия: 1-я попытка отправлена на старом банке, финал не наступил — 2-я пошла бы
   // по новому банку, и BEST сравнил бы баллы разных инструментов. Отказ без --force.
-  const series = await seriesInProgress(pending.map((t) => t.quizId));
+  const series = await seriesInProgress(pendingIds);
   if (series.length) {
     console.log(`${args.force ? '⚠' : '✖'} У студентов НЕЗАВЕРШЁННАЯ серия попыток на старом банке (отправлена попытка, финал не наступил):`);
     for (const s of series) console.log(`   ${s.email} тест ${s.quizId} (${s.quizTitle.slice(0, 60)}) · попыток ${s.attempts}`);
@@ -335,12 +359,28 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     }
   }
 
+  const profile = courseProfile();
   for (const t of targets) {
     const unit = `${t.lang}:${t.key}`;
     const key = ledgerKey(SCRIPT, unit);
     const drafts = t.items.map((p) => fromPortable(t.v, p));
     const missingSource = drafts.filter((d) => !d.sourceLectureId).length;
-    const current = await activeQuestions(prisma, t.quizId);
+    const title = localizedTitle('MODULE_FINAL', t.lang, t.module.title);
+    if (!t.quizId) {
+      // Новый курс: теста модуля ещё нет — создаётся (как в generation/service.ts), затем банк.
+      if (!args.apply) {
+        report.line(unit, 'would-change', `создать тест «${title.slice(0, 70)}» + новые ${drafts.length} (${t.items.map((q) => q.canonicalKey).join(',')})${missingSource ? ` · без источника ${missingSource}` : ''}`);
+        continue;
+      }
+      const created = await prisma.quiz.create({
+        data: { moduleId: t.module.id, title, passThreshold: DEFAULTS.quizPassThreshold, maxAttempts: DEFAULTS.quizMaxAttempts },
+        select: { id: true },
+      });
+      t.quizId = created.id;
+      report.line(`${unit}:quiz`, 'changed', `создан тест «${title.slice(0, 70)}»`);
+    }
+    const quizId = t.quizId;
+    const current = await activeQuestions(prisma, quizId);
     const sameAsArtifact =
       current.length === t.items.length && current.every((q, i) => q.canonicalKey === t.items[i]!.canonicalKey && q.prompt === t.items[i]!.prompt.trim());
     if (await ledgerGet(prisma, key)) {
@@ -351,7 +391,7 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
       report.line(unit, 'would-change', `архив ${current.length} → новые ${drafts.length} (${t.items.map((q) => q.canonicalKey).join(',')})${missingSource ? ` · без источника ${missingSource}` : ''}`);
       continue;
     } else {
-      const ids = await writeQuizQuestions(t.quizId, drafts, {
+      const ids = await writeQuizQuestions(quizId, drafts, {
         mode: 'ARCHIVE_REPLACE',
         ledgerKey: key,
         ledgerDetail: { artifact: ARTIFACT, artifactSha256: artifactSha, archived: current.map((q) => q.id) },
@@ -361,10 +401,10 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
     }
     if (!args.apply) continue;
     // Отметки на проверку для действующих вопросов банка (идемпотентно по dedupeKey).
-    const active = await activeQuestions(prisma, t.quizId);
+    const active = await activeQuestions(prisma, quizId);
     let flagged = 0;
     await prisma.$transaction(async (tx) => {
-      for (const q of active.filter((x) => x.canonicalKey?.startsWith('polit:'))) {
+      for (const q of active.filter((x) => x.canonicalKey?.startsWith(`${profile.keyPrefix}:`))) {
         const created = await flagForReview(tx, {
           reason: t.lang === 'ru' ? 'EXPERT_REVIEW' : 'NATIVE_PROOFREAD',
           targetType: 'QUIZ_QUESTION',
@@ -373,7 +413,7 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
           languageVersionId: t.v.id,
           comment:
             t.lang === 'ru'
-              ? `политолог: единственный верный ответ, корректность дистракторов (${q.canonicalKey})`
+              ? `${profile.expert}: единственный верный ответ, корректность дистракторов (${q.canonicalKey})`
               : `проверка перевода (${q.canonicalKey}; оригинал — ru-банк)`,
         });
         if (created) flagged++;
@@ -403,11 +443,12 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
 
   if (args.apply) {
     // Проверка: прошлые попытки пересчитываются по своей presentation (архивные вопросы) в сохранённый балл.
-    const rows = await rescoreAttempts(prisma, { quizId: { in: targets.map((t) => t.quizId) } });
+    const rows = await rescoreAttempts(prisma, { quizId: { in: targets.flatMap((t) => (t.quizId ? [t.quizId] : [])) } });
     console.log(`\nПересчёт прошлых попыток целевых тестов (${rows.length}):`);
     printRescore(rows);
     if (rows.some((r) => !r.ok)) report.line('rescore', 'error', 'пересчёт прошлых попыток не совпал с сохранённым баллом');
     for (const t of targets) {
+      if (!t.quizId) continue;
       const n = (await activeQuestions(prisma, t.quizId)).length;
       if (n !== t.items.length) report.line(`${t.lang}:${t.key}:count`, 'error', `действующих вопросов ${n}, ожидалось ${t.items.length}`);
     }

@@ -5,8 +5,8 @@
  * без --force); текст расшифровки на момент черновика фиксируется хешем (предупреждение,
  * если расшифровка изменилась).
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/summaries.ts --draft [--lang kk]
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/summaries.ts --from summaries.v1.json [--apply --i-have-a-backup] [--force]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/summaries.ts [--course "…"] --draft [--lang kk]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/summaries.ts [--course "…"] --from summaries.v1.json [--apply --i-have-a-backup] [--force]
  */
 import type { Language } from '@edu/shared';
 import { draftLectureSummary, getDraftUsage } from '../../generation/drafts.js';
@@ -60,8 +60,16 @@ async function pool<T>(items: T[], n: number, fn: (x: T) => Promise<void>): Prom
 async function draft(args: ReturnType<typeof parseArgs>): Promise<number> {
   const course = await loadCourse();
   const todo: { lang: Language; l: LectureCtx }[] = [];
-  for (const lang of args.langs) for (const l of version(course, lang).lectures) if (!l.summary?.trim() || args.force) todo.push({ lang, l });
-  console.log(`Лекций без краткого содержания: ${todo.length}`);
+  const noTranscript: string[] = [];
+  for (const lang of args.langs) {
+    for (const l of version(course, lang).lectures) {
+      if (l.summary?.trim() && !args.force) continue;
+      // Без расшифровки краткое содержание не из чего писать (лекция ждёт автора) — пропуск.
+      if (!l.transcriptText.trim()) noTranscript.push(lectureCode(lang, l.number));
+      else todo.push({ lang, l });
+    }
+  }
+  console.log(`Лекций без краткого содержания: ${todo.length}${noTranscript.length ? ` (без расшифровки — пропущены: ${noTranscript.join(', ')})` : ''}`);
   const art: Artifact = { meta: { version: 1, createdAt: new Date().toISOString(), llm: getDraftUsage(), warnings: [] }, rows: [] };
   await pool(todo, CONCURRENCY, async ({ lang, l }) => {
     const code = lectureCode(lang, l.number);

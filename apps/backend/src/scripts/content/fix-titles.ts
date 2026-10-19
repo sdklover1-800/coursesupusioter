@@ -1,7 +1,7 @@
 /**
  * Фаза 1c: названия. Желаемое состояние вычисляется из данных (идемпотентно):
  *  - лекции: cleanLectureTitle (en L1/L3 — «шапка» .docx), kk «ретинде» → «ретінде»,
- *    L12 — метка семинара «(практическое занятие)» / «(практикалық сабақ)» / «(Practical Session)»;
+ *    семинары курса (политология: L12) — метка «(практическое занятие)» / «(практикалық сабақ)» / «(Practical Session)»;
  *  - мини-квизы: localizedTitle('LECTURE_MINI', язык, <название лекции>);
  *  - тесты модулей: localizedTitle('MODULE_FINAL', язык, <модуль>) — без русских «Тест:» в kk/en;
  *  - итоговый мини-квиз: localizedTitle('COURSE_FINAL', язык);
@@ -9,27 +9,27 @@
  * Каждое название проходит lectureTitleProblem. Если после применения название поменяли
  * вручную — скрипт его не трогает (без --force).
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/fix-titles.ts [--lang kk,en] [--apply --i-have-a-backup] [--force]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/fix-titles.ts [--course "…"] [--lang kk,en] [--apply --i-have-a-backup] [--force]
  */
 import type { Language } from '@edu/shared';
 import { localizedTitle } from '../../generation/drafts.js';
 import { cleanLectureTitle, lectureTitleProblem } from '../../modules/courses/lectureTitle.js';
-import { type Db, Report, applyKkLexicon, lectureCode, ledgerGet, ledgerKey, ledgerPut, loadCourse, parseArgs, prisma, run, writePreview } from './lib.js';
+import { type Db, Report, applyKkLexicon, courseProfile, lectureCode, ledgerGet, ledgerKey, ledgerPut, loadCourse, parseArgs, prisma, run, writePreview } from './lib.js';
 
 const SCRIPT = 'fix-titles';
 
-/** Метка семинара лекции 12 (в расшифровке: «Лекция 12 (практическое занятие)»). */
+/** Метка семинара (политология, лекция 12; в расшифровке: «Лекция 12 (практическое занятие)»). */
 const SEMINAR: Record<Language, string> = {
   ru: '(практическое занятие)',
   kk: '(практикалық сабақ)',
   en: '(Practical Session)',
 };
-const SEMINAR_LECTURES = new Set([12]);
 
 function lectureTitleFor(lang: Language, number: number, title: string): string {
   let t = cleanLectureTitle(title);
   if (lang === 'kk') t = applyKkLexicon(t).text;
-  if (SEMINAR_LECTURES.has(number) && !t.includes(SEMINAR[lang])) t = `${t} ${SEMINAR[lang]}`;
+  // Лекции-семинары курса — из профиля (--course): у политологии это лекция 12, у философии их нет.
+  if (courseProfile().seminarLectures.includes(number) && !t.includes(SEMINAR[lang])) t = `${t} ${SEMINAR[lang]}`;
   return t;
 }
 

@@ -5,7 +5,7 @@
  * (passThreshold 0.7) не меняется. Если после применения менеджер изменил тест — без --force
  * скрипт его не трогает.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/set-quiz-policy.ts [--apply --i-have-a-backup]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/set-quiz-policy.ts [--course "…"] [--apply --i-have-a-backup]
  */
 import { Report, gradedModules, ledgerGet, ledgerKey, ledgerPut, loadCourse, parseArgs, prisma, run, writePreview } from './lib.js';
 

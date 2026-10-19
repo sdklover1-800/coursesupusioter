@@ -1,16 +1,17 @@
 /**
- * Общая «сантехника» контент-скриптов курса «Введение в политологию» (CONTENT-repair;
- * USER_DECISIONS §1, §4, §5). Каждый скрипт:
+ * Общая «сантехника» контент-скриптов курсов (CONTENT-repair; USER_DECISIONS §1, §4, §5).
+ * Курс выбирается флагом `--course "<название ru-версии>"` (профиль курса — COURSE_PROFILES);
+ * без флага — «Введение в политологию», и для неё всё работает как прежде. Каждый скрипт:
  *  - по умолчанию — предпросмотр: печатает сводку/дифф и пишет JSON предпросмотра, в БД не пишет;
  *  - пишет только с `--apply --i-have-a-backup` (перед первым применением — pg_dump);
  *  - сопоставляет данные по СОДЕРЖАНИЮ (курс — по названию ru-версии, модули — по orderIndex,
  *    лекции — по (модуль, лекция), тексты — по точным якорям), а не по cuid: те же скрипты
  *    запускаются потом на проде, где id другие;
  *  - идемпотентен: единица работы проверяет текущее состояние и ключ журнала ContentMigration
- *    `content:v1:<скрипт>:<единица>`; повторный --apply меняет 0 строк;
+ *    `content:v1:[<курс>:]<скрипт>:<единица>`; повторный --apply меняет 0 строк;
  *  - одна транзакция Prisma на единицу работы и одна строка сводки на единицу.
  *
- * LLM-скрипты фазы 2 пишут проверенные JSON-артефакты в content-data/politology
+ * LLM-скрипты фазы 2 пишут проверенные JSON-артефакты в content-data/<курс>
  * (`--draft`), а применяют их без LLM (`--apply --from <файл>`) — на проде черновики
  * НЕ перегенерируются. Импорты — только относительные `.js` (скрипты работают и из dist).
  */
@@ -31,17 +32,112 @@ export { prisma };
 
 export type Db = Prisma.TransactionClient | typeof prisma;
 export const LANGS: readonly Language[] = ['ru', 'kk', 'en'];
-/** Курс ищется по названию русской версии (сопоставление по содержанию, не по id). */
+/** Курс ищется по названию русской версии (сопоставление по содержанию, не по id); курс по умолчанию. */
 export const COURSE_RU_TITLE = 'Введение в политологию';
 export const LEDGER_PREFIX = 'content:v1';
 /** Каталог apps/backend (скрипт лежит в src/scripts/content или dist/scripts/content). */
 export const BACKEND_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 export const DEFAULT_DATA_DIR = join(BACKEND_DIR, 'content-data', 'politology');
 
+/* ── Курсы (--course) ───────────────────────────────────────────── */
+
+/**
+ * Чем контент-скрипты разных курсов отличаются друг от друга. Профиль политологии воспроизводит
+ * прежние константы (ключи журнала без пространства курса, префикс polit:, «Полисия»), поэтому
+ * без --course скрипты ведут себя как до появления других курсов.
+ */
+export interface CourseProfile {
+  /** Название ru-версии — по нему ищется курс (--course). */
+  ruTitle: string;
+  /** Каталог артефактов по умолчанию: content-data/<dataDir>. */
+  dataDir: string;
+  /** Пространство журнала ContentMigration: `content:v1:<scope>:<скрипт>:<единица>`; '' — ключи без него (политология). */
+  ledgerScope: string;
+  /** Префикс canonicalKey оцениваемого банка: `<keyPrefix>:M<i>:Q<n>`. */
+  keyPrefix: string;
+  /** Канонический сценарий итогового практикума (USER_DECISIONS §4). */
+  canonicalRef: string;
+  /** Название сценария — для сообщений и отметок на проверку. */
+  canonicalName: string;
+  /** Проверка, что ru-текст — именно этот сценарий (по названию страны сценария). */
+  canonicalScenarioRe: RegExp;
+  /**
+   * Откуда ru-канон практикума в черновике (--draft): 'task' — уже существующее ru-задание курса
+   * (политология: «Полисия» сгенерирована раньше); 'artifact' — авторский ru-текст, вписанный в
+   * сам артефакт до черновика (kk/en переводятся с него).
+   */
+  canonicalSource: 'task' | 'artifact';
+  /** Число тезисов рубрики канонического практикума (критерий выхода аудита). */
+  canonicalKeyPoints: number;
+  /** Кто проверяет ru-банк по существу (комментарий отметки EXPERT_REVIEW). */
+  expert: string;
+  /** Лекции-семинары: метка «(практическое занятие)» в названии (fix-titles). */
+  seminarLectures: readonly number[];
+  /**
+   * Паритет таймкодов ru/kk/en (аудит): 'exact' — одинаковые таймкоды разделов (один сценарий видео
+   * на три языка); 'sections' — одинаковое число разделов (у видео каждого языка свой хронометраж).
+   */
+  timecodeParity: 'exact' | 'sections';
+  /** Документированные исключения паритета (номера лекций). */
+  parityExceptions: readonly number[];
+  /** Название курса строкой в конце расшифровки — «хвост» (аудит). */
+  trailerRe: RegExp;
+}
+
+export const COURSE_PROFILES: readonly CourseProfile[] = [
+  {
+    ruTitle: COURSE_RU_TITLE,
+    dataDir: 'politology',
+    ledgerScope: '',
+    keyPrefix: 'polit',
+    canonicalRef: 'polisia-v1',
+    canonicalName: 'Полисия',
+    canonicalScenarioRe: /Полиси/u,
+    canonicalSource: 'task',
+    canonicalKeyPoints: 9,
+    expert: 'политолог',
+    seminarLectures: [12],
+    timecodeParity: 'exact',
+    // Документированное расхождение: видео kk-15 смонтировано с другими таймкодами (проверка по видео — за носителем).
+    parityExceptions: [15],
+    trailerRe: /^\s*(INTRODUCTION TO POLITICAL SCIENCE|ВВЕДЕНИЕ В ПОЛИТОЛОГИЮ|САЯСАТТАНУҒА КІРІСПЕ)\s*$/u,
+  },
+  {
+    ruTitle: 'Введение в философию',
+    dataDir: 'philosophy',
+    ledgerScope: 'philosophy',
+    keyPrefix: 'phil',
+    canonicalRef: 'logosia-v1',
+    canonicalName: 'Логосия',
+    canonicalScenarioRe: /Логоси/u,
+    canonicalSource: 'artifact',
+    canonicalKeyPoints: 9,
+    expert: 'философ',
+    seminarLectures: [],
+    timecodeParity: 'sections',
+    parityExceptions: [],
+    trailerRe: /^\s*(INTRODUCTION TO PHILOSOPHY|ВВЕДЕНИЕ В ФИЛОСОФИЮ|ФИЛОСОФИЯҒА КІРІСПЕ)\s*$/u,
+  },
+];
+
+let activeCourse: CourseProfile = COURSE_PROFILES[0]!;
+
+/** Курс текущего запуска (parseArgs, --course); без флага — политология. */
+export const courseProfile = (): CourseProfile => activeCourse;
+
+/** Профиль курса по названию ru-версии; неизвестный курс — отказ со списком известных. */
+export function profileFor(ruTitle: string): CourseProfile {
+  const p = COURSE_PROFILES.find((x) => x.ruTitle === ruTitle.trim());
+  if (!p) fail(`Неизвестный курс «${ruTitle}» в --course. Известные: ${COURSE_PROFILES.map((x) => `«${x.ruTitle}»`).join(', ')}`);
+  return p;
+}
+
 /* ── Аргументы ──────────────────────────────────────────────────── */
 
 export interface ScriptArgs {
   script: string;
+  /** Курс запуска (--course); он же — courseProfile(). */
+  course: CourseProfile;
   apply: boolean;
   backup: boolean;
   draft: boolean;
@@ -62,7 +158,7 @@ export interface ParseOptions {
   readOnly?: boolean;
 }
 
-/** Разбор флагов (README): --apply, --i-have-a-backup, --data, --draft, --from, --lang, --force, --out. */
+/** Разбор флагов (README): --course, --apply, --i-have-a-backup, --data, --draft, --from, --lang, --force, --out. */
 export function parseArgs(script: string, opts: ParseOptions = {}): ScriptArgs {
   const argv = process.argv.slice(2);
   const get = (flag: string) => {
@@ -70,17 +166,22 @@ export function parseArgs(script: string, opts: ParseOptions = {}): ScriptArgs {
     return i >= 0 && i + 1 < argv.length && !argv[i + 1]!.startsWith('--') ? argv[i + 1] : undefined;
   };
   const has = (flag: string) => argv.includes(flag);
+  if (has('--course') && !get('--course')) fail('--course требует название ru-версии курса, например --course "Введение в философию"');
+  const courseArg = get('--course');
+  const course = courseArg ? profileFor(courseArg) : COURSE_PROFILES[0]!;
+  activeCourse = course;
   const langs = (get('--lang') ?? LANGS.join(','))
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
   for (const l of langs) if (!LANGS.includes(l as Language)) fail(`Неизвестный язык в --lang: ${l}`);
   const dataArg = get('--data');
-  const dataDir = dataArg ? (isAbsolute(dataArg) ? dataArg : resolve(process.cwd(), dataArg)) : DEFAULT_DATA_DIR;
+  const dataDir = dataArg ? (isAbsolute(dataArg) ? dataArg : resolve(process.cwd(), dataArg)) : join(BACKEND_DIR, 'content-data', course.dataDir);
   const fromArg = get('--from');
   const from = fromArg ? resolveArtifactPath(fromArg, dataDir) : null;
   const args: ScriptArgs = {
     script,
+    course,
     apply: has('--apply'),
     backup: has('--i-have-a-backup'),
     draft: has('--draft'),
@@ -175,8 +276,8 @@ export interface CourseCtx {
   versions: Partial<Record<Language, VersionCtx>>;
 }
 
-/** Курс «Введение в политологию» и все его языковые версии (по названию ru-версии). */
-export async function loadCourse(db: Db = prisma, ruTitle = COURSE_RU_TITLE): Promise<CourseCtx> {
+/** Курс запуска (по умолчанию — courseProfile(), см. --course) и все его языковые версии (по названию ru-версии). */
+export async function loadCourse(db: Db = prisma, ruTitle = courseProfile().ruTitle): Promise<CourseCtx> {
   const anchor = await db.courseLanguageVersion.findFirst({ where: { title: ruTitle, language: 'ru' }, select: { courseId: true } });
   if (!anchor) fail(`Курс с ru-версией «${ruTitle}» не найден`);
   const course = await db.course.findUniqueOrThrow({ where: { id: anchor.courseId }, select: { id: true, status: true } });
@@ -250,9 +351,23 @@ export function gradedModules(v: VersionCtx): (ModuleCtx & { key: string; quiz: 
     .map((m, i) => ({ ...m, key: `M${i + 1}`, quiz: m.quiz! }));
 }
 
+/**
+ * Модули с оцениваемым тестом по замыслу (assessmentType QUIZ): M1..M4 по порядку модулей; теста
+ * может ещё не быть (новый курс — его создаёт graded-bank). Когда тесты есть у всех таких модулей,
+ * ключи совпадают с gradedModules.
+ */
+export function quizModules(v: VersionCtx): (ModuleCtx & { key: string })[] {
+  return v.modules.filter((m) => m.assessmentType === 'QUIZ').map((m, i) => ({ ...m, key: `M${i + 1}` }));
+}
+
 /** Модуль итогового практикума (весь курс) — единственный с PracticalTask. */
 export function practicalModule(v: VersionCtx): ModuleCtx | undefined {
   return v.modules.find((m) => m.practicalTask) ?? undefined;
+}
+
+/** Модуль итогового практикума: с заданием, а у нового курса — PRACTICAL-модуль на весь курс (задание создаёт canonical-practical). */
+export function finalPracticalModule(v: VersionCtx): ModuleCtx | undefined {
+  return practicalModule(v) ?? v.modules.find((m) => m.assessmentType === 'PRACTICAL' && m.coversWholeCourse);
 }
 
 /* ── Переносимые ссылки (артефакты не хранят локальные cuid) ─────── */
@@ -290,9 +405,20 @@ export function lectureIdOf(v: VersionCtx, ref: LectureRef | null | undefined): 
 
 /* ── Журнал ContentMigration ────────────────────────────────────── */
 
-export const ledgerKey = (script: string, unit: string) => `${LEDGER_PREFIX}:${script}:${unit}`;
+/**
+ * Ключ журнала `content:v1:<скрипт>:<единица>`; у курса с собственным пространством журнала
+ * (CourseProfile.ledgerScope) — `content:v1:<курс>:<скрипт>:<единица>`, чтобы единицы разных
+ * курсов («ru:M1», «ru-07») не считались уже применёнными по чужой записи.
+ */
+export const ledgerKey = (script: string, unit: string) => {
+  const scope = courseProfile().ledgerScope;
+  return `${LEDGER_PREFIX}:${scope ? `${scope}:` : ''}${script}:${unit}`;
+};
 
-/** Ключ «фаза A выполнена» (snapshot-sessions) — его проверяют graded-bank и canonical-practical. */
+/**
+ * Ключ «фаза A выполнена» (snapshot-sessions) — его проверяют graded-bank и canonical-practical.
+ * Общий для всех курсов: фаза A снимает снимки со ВСЕХ попыток и сессий базы.
+ */
 export const PHASE_A_DONE_KEY = `${LEDGER_PREFIX}:snapshot-sessions:done`;
 
 /** Отказ записи, если фаза A не выполнена или появились новые попытки/сессии без снимка. */
@@ -948,10 +1074,12 @@ export function recordSpend(dataDir: string, row: SpendRow): void {
 
 /* ── Итоговый практикум (1f, 2c) ─────────────────────────────────── */
 
-/** Канонический сценарий итогового практикума (USER_DECISIONS §4). */
-export const CANONICAL_REF = 'polisia-v1';
+/* Канонический сценарий итогового практикума (USER_DECISIONS §4) — у каждого курса свой: CourseProfile.canonicalRef. */
 
-/** Настройки практикума по языкам: бюджет вмещает 24 реплики (калибровка BE3), план беседы виден студенту. */
+/**
+ * Настройки практикума по языкам — общие для всех курсов: бюджет вмещает 24 реплики (калибровка
+ * BE3), план беседы виден студенту.
+ */
 export const PRACTICAL_CONFIG: Record<Language, { tokenBudget: number; maxAiMessages: number; maxSessions: number; estimatedMinutes: number; agenda: string[] }> = {
   ru: { tokenBudget: 160000, maxAiMessages: 24, maxSessions: 2, estimatedMinutes: 25, agenda: ['Позиция', 'Аргументы из курса', 'Итоговый вывод'] },
   kk: { tokenBudget: 190000, maxAiMessages: 24, maxSessions: 2, estimatedMinutes: 25, agenda: ['Ұстаным', 'Курстан дәлелдер', 'Қорытынды тұжырым'] },

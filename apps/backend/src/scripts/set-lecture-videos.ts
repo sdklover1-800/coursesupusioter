@@ -91,6 +91,12 @@ async function main() {
       where: { module: { languageVersion: { courseId: version0.courseId } }, youtubeVideoId: 'PLACEHOLDER' },
     });
     console.log(`   Лекций всё ещё с заглушкой: ${left}`);
+    // Импорт оставляет youtubeVideoId пустым (import-lectures.ts) — такие лекции тоже без видео.
+    const empty = await prisma.lecture.findMany({
+      where: { module: { languageVersion: { courseId: version0.courseId } }, youtubeVideoId: '' },
+      select: { title: true, module: { select: { languageVersion: { select: { language: true } } } } },
+    });
+    if (empty.length) console.log(`   Лекций без видео: ${empty.length} — ${empty.map((l) => `[${l.module.languageVersion.language}] ${l.title.slice(0, 40)}`).join('; ')}`);
   }
 }
 

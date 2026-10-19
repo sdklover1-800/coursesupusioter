@@ -1,0 +1,1454 @@
+{
+  "meta": {
+    "version": 1,
+    "course": "Введение в философию",
+    "createdAt": "2026-10-19T09:29:54.590Z",
+    "model": "gpt-5.4-mini (BE4 translateTranscript, mode translate)",
+    "effort": "medium",
+    "sourceLanguage": "ru",
+    "glossaryEntries": {
+      "kk": 287,
+      "en": 303
+    },
+    "llm": {
+      "calls": 28,
+      "inputTokens": 236889,
+      "outputTokens": 41759,
+      "costUsd": 0.24635024999999997
+    },
+    "reviewNotes": [
+      "en-04, en-14: типографика как у английских лекций курса — прямые кавычки и апостроф (“ ” ’ → \" '), длинное тире с пробелами (X—Y → X — Y); строк изменено: en-04 15, en-14 18",
+      "Вычитка 19.10.2026 (редактор, не носитель): все три перевода прочитаны построчно рядом с ru-оригиналом; правки — в meta.reviewEdits (было → стало, причина). Отметка NATIVE_PROOFREAD при применении — на вычитку носителем kk/en.",
+      "kk-04, термины: Единое — «Біртұтас» (а не «Бір»: «Бірден», «Бірге» читаются как «сразу», «вместе»; ср. kk-03 «көптіктегі біртұтастық»), Ум — «Ақыл (нус)», бритва Оккама — «Оккам ұстарасы», универсалии — «универсалиялар», логика высказываний — «айтылымдар логикасы» (как «айтылым» в kk-10/kk-11), «Исповедь» — «Тәубе», Расписная Стоя — «Суретті Стоя», Катон Старший — «Үлкен Катон», Фома Аквинский, «Игілік идеясы» (как в kk-03), «справедливость» — «әділдік» (как в kk-14), «до н. э.» — полностью.",
+      "en-04, en-14, термины: мудрец — sage, идеи Платона — Forms / Form of the Good (как в en-03), спор об универсалиях — dispute over universals, early modern — строчными, американская орфография (skepticism), библиография «Surname, I. Title.» (как в en-05), у античных авторов — «Name. Title, Book N.» (как в en-03).",
+      "Источник ru-14 (раздел 2): абзац об Ибн Хальдуне по ошибке повторён в конце следующего абзаца («Важно также подчеркнуть…»); в en-14 не повторён (в kk-14 автора он тоже один). В самой ru-14 повтор остаётся — поправить у автора/в редакторе.",
+      "Источник ru-04: английская вставка «university-based debate» в разделе 6 и ссылки на «политологическую часть курса» / «политологический материал» (разделы 1 и 6) — в kk/en переданы по смыслу («часть курса по социальной и политической философии», л.14). Для эксперта (FACT_CHECK, переведено как в оригинале): фраза «не вещи тревожат людей, а их мнения о вещах» приписана Марку Аврелию (каноническая формулировка — Эпиктет, «Энхиридион», 5); связь с перводвигателем Аристотеля обычно проводят для первого пути Фомы (от движения), а не для пятого.",
+      "Источник ru-14 / kk-14: в заключении «в следующей лекции — философия культуры и философия религии», а лекция 15 — «Философия и глобальные проблемы современности»; в en-14 оставлено как у автора.",
+      "Таймкоды переводов — байт-в-байт ru (у видео этих языков своей разметки нет); длительность — конец последнего таймкода: kk-04 и en-04 20:54, en-14 21:51. Реальная длина роликов на YouTube: kk-04 (afbglmCk7_E) 22:58, en-04 (A2byOdzck8Q) 21:09, en-14 (OY0Pj4ie044) 20:56 — у en-14 номинальный конец на 55 с позже ролика (последний раздел начинается в 19:54, внутри ролика).",
+      "Пометки «ПРОВЕРКА» в items[].notes — автоматические проверки черновика, все разобраны: kk-04 «преамбула: нет казахских букв» — ложное срабатывание (строка тем из международных терминов); en-04 «кириллица» — русские слова «вполне», «прежде всего», исправлено."
+    ],
+    "reviewEdits": [
+      {
+        "code": "en-04",
+        "from": "In 323 BCE, Alexander the Great dies, and with his death not only the empire collapses, but the entire familiar horizon of Greek life as well. The polis, the self-sufficient city-state for which Socrates accepted death and which Plato and Aristotle used as the basis for their political utopias, ceases",
+        "to": "In 323 BCE Alexander the Great dies, and with his death it is not only an empire that collapses but the entire familiar horizon of Greek life. The polis, the self-sufficient city-state for whose sake Socrates accepted death and for which Plato and Aristotle built their political utopias, ceases",
+        "note": "порядок слов; «ради которого … строили утопии» — точнее по смыслу"
+      },
+      {
+        "code": "en-04",
+        "from": "Today we will go a long way",
+        "to": "Today we will travel a long road",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "the dispute about universals, which for many centuries",
+        "to": "the dispute over universals, which for many centuries",
+        "note": "единый термин «dispute over universals» (шапка, раздел 7, понятия, вопросы)"
+      },
+      {
+        "code": "en-04",
+        "from": "and the school got its name from the Painted Stoa, the portico where he held his discussions",
+        "to": "and the school took its name from the Painted Stoa, the portico where he held his conversations",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "and no separate event can happen otherwise than it does",
+        "to": "and no single event can happen otherwise than it does",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "the wise person must direct all their energy toward governing their own judgments, desires, and impulses, completely giving up anxiety about",
+        "to": "the sage must direct all his energy toward governing his own judgments, desires, and impulses, giving up entirely any anxiety about",
+        "note": "«мудрец» — sage (стоический термин; как в en-лекциях курса)"
+      },
+      {
+        "code": "en-04",
+        "from": "The highest state of the Stoic wise person is apatheia",
+        "to": "The highest state of the Stoic sage is apatheia",
+        "note": "sage"
+      },
+      {
+        "code": "en-04",
+        "from": "a phrase that, two millennia later, will almost verbatim become the basis of cognitive psychotherapy",
+        "to": "a phrase that two thousand years later would become, almost word for word, the foundation of cognitive psychotherapy",
+        "note": "время глагола, стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "The Stoic doctrine of logic, developed above all by Chrysippus, the third scholarch of the school, supplemented Aristotelian syllogistics",
+        "to": "Stoic logic, developed above all by Chrysippus, the third scholarch (head) of the school, supplemented Aristotelian syllogistic",
+        "note": "термин syllogistic; пояснение scholarch"
+      },
+      {
+        "code": "en-04",
+        "from": "to which we will return in the political section of the course.",
+        "to": "to which we will return in the part of the course devoted to social and political philosophy.",
+        "note": "«политологической части курса» — в этом курсе это социальная философия (л.14)"
+      },
+      {
+        "code": "en-04",
+        "from": "sensual pleasures — directly opposite to the original teaching",
+        "to": "sensual pleasures — the exact opposite of the original teaching",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-04",
+        "from": "the concept of clinamen, a random deviation of the atom from the straight-line trajectory of falling, determined by nothing in advance",
+        "to": "the concept of the clinamen, a random swerve of an atom from its straight downward path, predetermined by nothing",
+        "note": "термин swerve, стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "Three centuries later, the Roman poet and philosopher Lucretius will set out the entire system of Epicurus in the grand didactic poem On the Nature of Things, which became the main source through which atomistic physics reached the philosophers of the Early Modern period.",
+        "to": "Three centuries later the Roman poet and philosopher Lucretius would set out Epicurus's entire system in his grand didactic poem On the Nature of Things, which became the main channel through which atomistic physics reached the philosophers of the early modern period.",
+        "note": "время глагола; early modern — строчными, как в en-лекциях курса"
+      },
+      {
+        "code": "en-04",
+        "from": "the equal force of opposing judgments, isosthenia:",
+        "to": "the equal force of opposing judgments, isostheneia:",
+        "note": "транслитерация ἰσοσθένεια (как в «Ключевых понятиях»)"
+      },
+      {
+        "code": "en-04",
+        "from": "the wise person must refrain from final judgment, epoché, concerning the nature of things",
+        "to": "the sage must suspend final judgment, epoché, about the nature of things",
+        "note": "sage; suspend judgment — термин"
+      },
+      {
+        "code": "en-04",
+        "from": "and the wise person can вполне guide practical life by the degree of this plausibility",
+        "to": "and the sage may well be guided in practical life by the degree of this plausibility",
+        "note": "русское слово «вполне» в тексте; sage"
+      },
+      {
+        "code": "en-04",
+        "from": "Carneades became famous for having arrived as an envoy in Rome in 155 BCE and, on one day, delivered a brilliant speech in defense of justice, and on the next day — an equally brilliant speech proving its conditional and relative character,",
+        "to": "Carneades became famous when, having come to Rome as an envoy in 155 BCE, he delivered one day a brilliant speech in defense of justice and the next day an equally brilliant speech proving that it is conventional and relative,",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-04",
+        "from": "an episode that perfectly illustrates the rhetorical virtuosity inherited from Gorgias, which we spoke about in the previous lecture.",
+        "to": "an episode that perfectly illustrates the virtuosity of skeptical rhetoric inherited from Gorgias, which we discussed in the previous lecture.",
+        "note": "пропущено «скептической риторики»"
+      },
+      {
+        "code": "en-04",
+        "from": "ataraxia, calmness of soul in the face of a world",
+        "to": "ataraxia, the imperturbability of the soul in the face of a world",
+        "note": "термин"
+      },
+      {
+        "code": "en-04",
+        "from": "NEOPLATONISM: ASCENT TO THE ONE",
+        "to": "NEOPLATONISM: THE ASCENT TO THE ONE",
+        "note": "артикль"
+      },
+      {
+        "code": "en-04",
+        "from": "the Platonic hierarchy of Forms headed by the Idea of the Good",
+        "to": "the Platonic hierarchy of Forms headed by the Form of the Good",
+        "note": "термин как в en-03 (Form of the Good)"
+      },
+      {
+        "code": "en-04",
+        "from": "an even more radical vertical structure of reality",
+        "to": "an even more radical vertical hierarchy of reality",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "where the Platonic Ideas dwell",
+        "to": "where the Platonic Forms dwell",
+        "note": "Forms — как в en-03"
+      },
+      {
+        "code": "en-04",
+        "from": "where the light of intelligible good is almost completely exhausted",
+        "to": "where the light of the intelligible Good is almost completely exhausted",
+        "note": "термин"
+      },
+      {
+        "code": "en-04",
+        "from": "From the 4th century CE",
+        "to": "From the fourth century CE",
+        "note": "единообразие (third century, thirteenth century)"
+      },
+      {
+        "code": "en-04",
+        "from": "reaches its peak in the person of Augustine of Hippo, who lived from 354 to 430.",
+        "to": "reaches its peak in the person of Aurelius Augustine, Bishop of Hippo, who lived from 354 to 430.",
+        "note": "«Августина Аврелия, епископа Гиппонского» — полнее по оригиналу"
+      },
+      {
+        "code": "en-04",
+        "from": "after painful spiritual searching described by him in the autobiographical Confessions, comes to Christianity",
+        "to": "after an agonizing spiritual search described in his autobiographical Confessions, comes to Christianity",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "earlier: Confessions is written not as a treatise",
+        "to": "earlier: the Confessions is written not as a treatise",
+        "note": "артикль у названия"
+      },
+      {
+        "code": "en-04",
+        "from": "It is precisely in Confessions that Augustine",
+        "to": "It is precisely in the Confessions that Augustine",
+        "note": "артикль у названия"
+      },
+      {
+        "code": "en-04",
+        "from": "he notes that the past is no longer there, the future is not yet there, and the present slips away the moment we try to fix it",
+        "to": "he notes that the past no longer exists, the future does not yet exist, and the present slips elusively away the moment we try to fix it",
+        "note": "стиль; «неуловимо»"
+      },
+      {
+        "code": "en-04",
+        "from": "distensio animi",
+        "to": "distentio animi",
+        "note": "термин Августина — distentio animi (как в «Ключевых понятиях»)"
+      },
+      {
+        "code": "en-04",
+        "from": "vice was прежде всего a consequence of ignorance",
+        "to": "vice was above all a consequence of ignorance",
+        "note": "русские слова «прежде всего» в тексте"
+      },
+      {
+        "code": "en-04",
+        "from": "in the famous episode of stealing pears in his youth",
+        "to": "in the famous episode of the stolen pears from his youth",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "For our course, Augustine's later politico-philosophical work The City of God is especially important, written in response to",
+        "to": "Especially important for our course is Augustine's late politico-philosophical work The City of God, written in response to",
+        "note": "порядок слов"
+      },
+      {
+        "code": "en-04",
+        "from": "can be identified with the City of God and does not deserve absolute loyalty charged with religious intensity",
+        "to": "can be identified with the City of God, and none deserves an absolute loyalty of religious intensity",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-04",
+        "from": "a university-based debate conducted through the formulation of a thesis, the consideration of objections, and their successive refutation",
+        "to": "a form of university disputation that proceeds by stating a thesis, considering the objections to it, and refuting them one by one",
+        "note": "в ru-оригинале английская вставка «university-based debate» — передано по смыслу"
+      },
+      {
+        "code": "en-04",
+        "from": "a Dominican monk who taught at the University of Paris",
+        "to": "a Dominican friar who taught at the University of Paris",
+        "note": "доминиканцы — нищенствующий орден: friar"
+      },
+      {
+        "code": "en-04",
+        "from": "Pay attention to the direct connection of the fifth way, the argument from purposiveness, with the Aristotelian doctrine of the unmoved mover",
+        "to": "Note the direct connection between the fifth way, the argument from purposiveness, and the Aristotelian doctrine of the unmoved mover",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-04",
+        "from": "important for our subsequent political-science material",
+        "to": "important for the material on social and political philosophy later in the course",
+        "note": "«политологического материала» — в этом курсе это социальная философия (л.14)"
+      },
+      {
+        "code": "en-04",
+        "from": "SECTION 7. THE DEBATE OVER UNIVERSALS",
+        "to": "SECTION 7. THE DISPUTE OVER UNIVERSALS",
+        "note": "единый термин"
+      },
+      {
+        "code": "en-04",
+        "from": "Medieval philosophy over several centuries is permeated by a dispute",
+        "to": "For several centuries medieval philosophy is permeated by a dispute",
+        "note": "порядок слов"
+      },
+      {
+        "code": "en-04",
+        "from": "going back to the Platonic understanding of Ideas as independently existing entities",
+        "to": "going back to the Platonic understanding of Forms as independently existing entities",
+        "note": "Forms — как в en-03"
+      },
+      {
+        "code": "en-04",
+        "from": "takes the exact opposite extreme position: really only individual things exist, while universals are nothing more than names, nomina, convenient designations that the mind creates to group similar individual objects, but they have no independent reality, neither in things nor before things; general concepts have none.",
+        "to": "takes the diametrically opposite extreme position: only individual things really exist, while universals are nothing more than names, nomina, convenient labels that the mind creates to group similar individual objects; general concepts have no independent reality of their own, either in things or before them.",
+        "note": "сломанный конец фразы («…; general concepts have none»)"
+      },
+      {
+        "code": "en-04",
+        "from": "they are concepts, concepts that the mind really forms on the basis of real similarity between individual things",
+        "to": "they are concepts that the mind actually forms on the basis of a real similarity between individual things",
+        "note": "повтор «concepts, concepts»"
+      },
+      {
+        "code": "en-04",
+        "from": "the empiricism of the Early Modern period",
+        "to": "the empiricism of the early modern period",
+        "note": "early modern — строчными"
+      },
+      {
+        "code": "en-04",
+        "from": "to the threshold of the Early Modern period",
+        "to": "to the threshold of the early modern period",
+        "note": "early modern — строчными"
+      },
+      {
+        "code": "en-04",
+        "from": "constructed a mystical vertical ascent from matter through Intellect to the One",
+        "to": "built a mystical vertical of ascent from matter through Intellect to the One",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "the empirical revolution of the Early Modern period",
+        "to": "the empirical revolution of the early modern period",
+        "note": "early modern — строчными"
+      },
+      {
+        "code": "en-04",
+        "from": "In the next lecture, we will see how the humanists of the Renaissance rediscovered for themselves the dignity of the individual human being, and how the philosophers of the Early Modern period — Bacon, Descartes, Spinoza, Leibniz, Locke, and Hume — divided into two large camps",
+        "to": "In the next lecture we will see how the Renaissance humanists rediscover the dignity of the individual human being, and how the philosophers of the early modern period — Bacon, Descartes, Spinoza, Leibniz, Locke, and Hume — split into two great camps",
+        "note": "время глагола (будущее в оригинале), стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "Stoicism: logos, apatheia, the indifferent, cosmopolis",
+        "to": "Stoicism: logos, apatheia, indifferents, cosmopolis",
+        "note": "термин как в тексте (indifferents)"
+      },
+      {
+        "code": "en-04",
+        "from": "isostheneia, epochē, Pyrrhonism and Academic Skepticism",
+        "to": "isostheneia, epoché, Pyrrhonism and Academic skepticism",
+        "note": "единое написание epoché"
+      },
+      {
+        "code": "en-04",
+        "from": "How does clinamen solve",
+        "to": "How does the clinamen solve",
+        "note": "артикль"
+      },
+      {
+        "code": "en-04",
+        "from": "Compare Pyrrhonian and Academic Skepticism using Carneades' position as an example.",
+        "to": "Compare Pyrrhonian and Academic skepticism, taking the position of Carneades as an example.",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": " It is also worth mentioning the earlier concept of the Arab historian and philosopher Ibn Khaldun, in many ways anticipating these ideas, who proposed in the fourteenth century a theory of the cyclical succession of dynasties: according to Ibn Khaldun, the driving force of historical dynamics is \"asabiyya\" — group solidarity and cohesion, which allows young communities, not yet softened by luxury, to seize power from aging ruling dynasties, only then, as wealth accumulates and morals decline, to go through the same path of moral decay themselves and in turn give way to new, more cohesive contenders for power — a cycle that, in Ibn Khaldun's view, repeats regardless of the specific cultural context.",
+        "to": "",
+        "note": "в ru-14 абзац об Ибн Хальдуне по ошибке повторён в конце следующего абзаца (раздел 2) — в переводе не повторяем; в kk-14 автора он тоже один"
+      },
+      {
+        "code": "en-14",
+        "from": "and, finally, what is genuine freedom and justice, and are they in principle compatible with one another.",
+        "to": "and, finally, what genuine freedom and justice are, and whether they are compatible with one another in principle.",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-14",
+        "from": "the central theme of the political philosophy of the Early Modern and modern periods",
+        "to": "the central theme of modern and contemporary political philosophy",
+        "note": "«Нового и Новейшего времени»"
+      },
+      {
+        "code": "en-14",
+        "from": "Each of these themes has the most direct relevance to everyday life",
+        "to": "Each of these themes bears directly on everyday life",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "all of this is ultimately a dispute about the philosophy of history",
+        "to": "all of these are ultimately disputes about the philosophy of history",
+        "note": "число («споры»)"
+      },
+      {
+        "code": "en-14",
+        "from": "The intermediate position is occupied by the so-called methodological holism in a moderate form, which recognizes",
+        "to": "An intermediate position is taken by so-called moderate methodological holism, which recognizes",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "and even their self-understanding itself",
+        "to": "and even their very self-understanding",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "The third, more balanced approach was proposed",
+        "to": "A third, more balanced approach was proposed",
+        "note": "артикль"
+      },
+      {
+        "code": "en-14",
+        "from": "subsystems — the economic, political, legal, and cultural ones — each of which",
+        "to": "subsystems — economic, political, legal, and cultural — each of which",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "overlooking the role of conflict, struggle for resources, and power as the driving force of social change",
+        "to": "overlooking the role of conflict, of the struggle for resources and power, as the driving force of social change",
+        "note": "смысл: «борьбы за ресурсы и власть», а не перечень «конфликт, борьба, власть»"
+      },
+      {
+        "code": "en-14",
+        "from": "in a way that none of them separately intended to create",
+        "to": "in a way that none of them individually intended",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "Philosophy of history asks whether",
+        "to": "The philosophy of history asks whether",
+        "note": "артикль"
+      },
+      {
+        "code": "en-14",
+        "from": "ancient thought as a whole: Greeks and Romans were inclined",
+        "to": "ancient thought as a whole: the Greeks and Romans were inclined",
+        "note": "артикль"
+      },
+      {
+        "code": "en-14",
+        "from": "but turning his idealism into materialist terms",
+        "to": "but inverting his idealism in a materialist key",
+        "note": "«перевернувший его идеализм в материалистическом ключе»"
+      },
+      {
+        "code": "en-14",
+        "from": "pass through their own path of birth, flourishing, and inevitable decline, like living organisms, which makes meaningless any talk about a single, universal progress",
+        "to": "follow their own path of birth, flourishing, and inevitable decline, like living organisms — which renders meaningless any talk of a single, universal progress",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "It is also worth mentioning the earlier concept of the Arab historian and philosopher Ibn Khaldun, in many ways anticipating these ideas, who proposed in the fourteenth century a theory of the cyclical succession of dynasties: according to Ibn Khaldun,",
+        "to": "Also worth mentioning is the earlier conception of the Arab historian and philosopher Ibn Khaldun, which in many ways anticipated these ideas: in the fourteenth century he proposed a theory of the cyclical succession of dynasties. According to Ibn Khaldun,",
+        "note": "порядок слов"
+      },
+      {
+        "code": "en-14",
+        "from": "to go through the same path of moral decay themselves",
+        "to": "to travel the same road of moral decay themselves",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "then a much more reasonable strategy is not revolutionary racing ahead, but careful maintenance of institutional stability and gradual correction of specific shortcomings.",
+        "to": "then the far more reasonable strategy is not to race ahead in revolutionary fashion but to carefully maintain institutional stability and gradually correct specific shortcomings.",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "Fukuyama argued that liberal democracy and market economy represent",
+        "to": "Fukuyama argued that liberal democracy and the market economy represent",
+        "note": "артикль"
+      },
+      {
+        "code": "en-14",
+        "from": "gave civil society special importance as a space",
+        "to": "attached special importance to civil society as a space",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "in the name of the supposedly majority-expressed \"general will,\" which brings this concept close to the problem of positive freedom, which we will consider in the next section.",
+        "to": "in the name of a \"general will\" supposedly expressed by the majority, which brings this concept close to the problem of positive freedom that we will consider in the next section.",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "distinguished negative freedom",
+        "to": "distinguished between negative freedom",
+        "note": "грамматика"
+      },
+      {
+        "code": "en-14",
+        "from": "the ability to be master of one's own life and dispose of one's own capacities",
+        "to": "the ability to be master of one's own life and to make use of one's own capacities",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "in the foundational work A Theory of Justice",
+        "to": "in his foundational work A Theory of Justice",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "violates the rights of the individual to what she has honestly earned, comparing state redistribution with a form of forced labor",
+        "to": "violates the rights of individuals to what they have honestly earned, comparing state redistribution to a form of forced labor",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "the idea of society as a whole or as a sum of individuals sets the idea of the driving forces of history; the idea of whether objective laws of history exist or not sets our attitude toward the idea of progress and the permissible limits of social reform; and the idea of the balance between civil society and the state directly determines",
+        "to": "our idea of society as a whole or as a sum of individuals shapes our idea of the driving forces of history; our view of whether objective laws of history exist shapes our attitude toward the idea of progress and the permissible limits of social reform; and our view of the balance between civil society and the state directly determines",
+        "note": "стиль («задаёт представление»)"
+      },
+      {
+        "code": "en-14",
+        "from": "2. Philosophy of History",
+        "to": "2. The Philosophy of History",
+        "note": "артикль"
+      },
+      {
+        "code": "en-14",
+        "from": "Social holism and methodological individualism; Durkheim's 'social fact'",
+        "to": "Social holism and methodological individualism; Durkheim's \"social fact\"",
+        "note": "двойные кавычки — как в тексте лекции"
+      },
+      {
+        "code": "en-14",
+        "from": "Structural functionalism of T. Parsons; criticism by conflict theorists (R. Dahrendorf)",
+        "to": "T. Parsons's structural functionalism; the critique by conflict theorists (R. Dahrendorf)",
+        "note": "стиль"
+      },
+      {
+        "code": "en-14",
+        "from": "Weber's interpretive sociology; E. Giddens's theory of structuration",
+        "to": "M. Weber's \"interpretive sociology\"; A. Giddens's theory of structuration",
+        "note": "инициал: Э. Гидденс = Anthony Giddens (A.); кавычки и инициал Вебера как в оригинале"
+      },
+      {
+        "code": "en-14",
+        "from": "Hegel's linear-teleological history ('the cunning of reason')",
+        "to": "Hegel's linear-teleological history (\"the cunning of reason\")",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "K. Popper's 'open society'; F. Fukuyama's thesis of the 'end of history'",
+        "to": "K. Popper's \"open society\"; F. Fukuyama's thesis of the \"end of history\"",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "J.-J. Rousseau ('general will')",
+        "to": "J.-J. Rousseau (\"general will\")",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "(associations against the 'tyranny of the majority')",
+        "to": "(associations against the \"tyranny of the majority\")",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "The 'veil of ignorance' and J. Rawls's theory of justice",
+        "to": "The \"veil of ignorance\" and J. Rawls's theory of justice",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "Hobbes T. Leviathan.",
+        "to": "Hobbes, T. Leviathan.",
+        "note": "библиография — как в en-лекциях курса («Surname, I. Title.»)"
+      },
+      {
+        "code": "en-14",
+        "from": "Locke J. Two Treatises of Government.",
+        "to": "Locke, J. Two Treatises of Government.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Hegel G. W. F. Philosophy of History.",
+        "to": "Hegel, G. W. F. The Philosophy of History.",
+        "note": "библиография; английское название"
+      },
+      {
+        "code": "en-14",
+        "from": "Marx K. Critique of Political Economy (Preface).",
+        "to": "Marx, K. A Contribution to the Critique of Political Economy (Preface).",
+        "note": "библиография; английское название работы"
+      },
+      {
+        "code": "en-14",
+        "from": "Popper K. The Poverty of Historicism;",
+        "to": "Popper, K. The Poverty of Historicism;",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Tocqueville A. de. Democracy in America.",
+        "to": "Tocqueville, A. de. Democracy in America.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Berlin I. Two Concepts of Liberty.",
+        "to": "Berlin, I. Two Concepts of Liberty.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Rawls J. A Theory of Justice.",
+        "to": "Rawls, J. A Theory of Justice.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Nozick R. Anarchy, State, and Utopia.",
+        "to": "Nozick, R. Anarchy, State, and Utopia.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "Sen A. Development as Freedom.",
+        "to": "Sen, A. Development as Freedom.",
+        "note": "библиография"
+      },
+      {
+        "code": "en-14",
+        "from": "his concept of an 'open society'?",
+        "to": "his concept of an \"open society\"?",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-14",
+        "from": "the role of civil associations in protection against the 'tyranny of the majority'?",
+        "to": "the role of civil associations in protecting against the \"tyranny of the majority\"?",
+        "note": "кавычки, грамматика"
+      },
+      {
+        "code": "en-14",
+        "from": "thought experiment of the 'veil of ignorance' and the two principles",
+        "to": "thought experiment of the \"veil of ignorance\" and the two principles",
+        "note": "кавычки"
+      },
+      {
+        "code": "en-04",
+        "from": "Augustine. Confessions. Book XI (on time).",
+        "to": "Augustine. Confessions, Book XI (on time).",
+        "note": "библиография — как в en-03 («Plato. Republic, Book VII»)"
+      },
+      {
+        "code": "en-04",
+        "from": "Augustine. The City of God. Book XIV.",
+        "to": "Augustine. The City of God, Book XIV.",
+        "note": "библиография — как в en-03"
+      },
+      {
+        "code": "en-04",
+        "from": "Thomas Aquinas. Summa Theologiae. Part I, Question 2.",
+        "to": "Thomas Aquinas. Summa Theologiae, Part I, Question 2.",
+        "note": "библиография — как в en-03"
+      },
+      {
+        "code": "kk-04",
+        "from": "Біздің дәуірімізге дейінгі 323 жылы Ескендір Зұлқарнайын қайтыс болады",
+        "to": "Біздің дәуірімізге дейінгі 323 жылы Александр Македонский қайтыс болады",
+        "note": "имя — как в заключении лекции (Александр Македонский)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Сократ өлімді қабылдаған, ал Платон мен Аристотель өздерінің саяси утопияларын құрған полис — өз-өзіне жеткілікті қала-мемлекет — енді жеке адам үшін әлемнің орталығы болудан қалады: енді ол кең, бейтарап эллинистік монархияларда өмір сүреді, онда шешімдер одан алыс жерде қабылданады да, оның еркіне тікелей тәуелді нәрсе азая береді.",
+        "to": "Сократ жолында өлімге барған, ал Платон мен Аристотель саяси утопияларын соған арнап құрған полис — өзіне-өзі жеткілікті қала-мемлекет — енді жеке адам үшін әлемнің орталығы болудан қалады: енді ол алып, тұлғасыз эллинистік монархияларда өмір сүреді, онда шешімдер одан алыста қабылданады және оның еркіне тәуелді ештеңе дерлік қалмайды.",
+        "note": "«ради которого»; «безличных» — тұлғасыз (не «бейтарап»); «от его воли не зависят почти ничего»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Бұрын космостың құрылымы мен идеал мемлекет табиғаты туралы ұлы сұрақтармен айналысқан философия енді әлдеқайда өзекті әрі жеке сұраққа жауап беруге мәжбүр болады: жекелеген адам өзі бақыламайтын әлемде ішкі тыныштық пен абыройын қалай сақтайды?",
+        "to": "Кеше ғана космостың құрылымы мен идеал мемлекеттің табиғаты туралы ұлы сұрақтармен айналысқан философия енді әлдеқайда өзекті әрі жеке сұраққа жауап беруге мәжбүр болады: жеке адам енді өзі билемейтін әлемде ішкі тыныштығы мен қадір-қасиетін қалай сақтай алады?",
+        "note": "«ещё вчера»; «достоинство» — қадір-қасиет; «больше не контролирует»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Біз Августинді көреміз, ол үшін философия мойындауға айналады, және Фома",
+        "to": "Біз Августинді көреміз, ол үшін философия тәубеге айналады, және Фома",
+        "note": "«исповедь» — тәубе, как в названии книги и в разделе 5"
+      },
+      {
+        "code": "kk-04",
+        "from": "универсалийлер туралы дауды",
+        "to": "универсалиялар туралы дауды",
+        "note": "единая форма термина (универсалиялар)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоиктер мектебін Афинада б.з.д. шамамен 300 жылы Китиондық Зенон негіздеді; мектеп өз атауын ол әңгімелер жүргізген Бағаналы Стоядан, яғни портиктен алды.",
+        "to": "Стоиктер мектебін Афинада біздің дәуірімізге дейінгі шамамен 300 жылы Китиондық Зенон негіздеді; мектеп өз атауын ол әңгімелер жүргізген портиктен — Суретті Стоядан алды.",
+        "note": "Расписная Стоя (Stoa Poikile) — «Суретті», не «Бағаналы»; «до н. э.» полностью, как в лекциях автора"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоиктік физиканың негізінде космосты біртұтас, парасатпен ұйымдасқан, жан біткен тұтас ретінде қабылдау жатыр; ол логоспен сіңірілген, — бұл ұғым, бірінші дәрістен есіңізде болса, Гераклитке дейін барып тіреледі.",
+        "to": "Стоиктік физиканың негізінде космос — логос сіңген, парасатпен реттелген, жанды біртұтас бүтін деген түсінік жатыр; логос ұғымы, бірінші дәрістен есіңізде болар, Гераклиттен бастау алады.",
+        "note": "синтаксис фразы о логосе"
+      },
+      {
+        "code": "kk-04",
+        "from": "Егер әлемдегі барлық нәрсе парасатты құдіретті қамқорлықпен алдын ала айқындалса",
+        "to": "Егер әлемдегі барлық нәрсені парасатты құдайлық қамқорлық алдын ала айқындаса",
+        "note": "«разумным провидением»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоиктер егжей-тегжейлі дамытқан, бізге бағынышты нәрсе мен бізге бағынбайтын нәрсені ажырату туралы әйгілі ілімді кейінгі стоик Эпиктет жан-жақты тұжырымдады; оның практикалық қорытындысы мынадай: данышпан",
+        "to": "Кейінгі стоик Эпиктет егжей-тегжейлі әзірлеген, бізге тәуелді нәрсе мен бізге тәуелді емес нәрсені ажырататын әйгілі стоиктік айырым мынадай практикалық қорытындыға әкеледі: данышпан",
+        "note": "искажён смысл: различение детально разработал Эпиктет"
+      },
+      {
+        "code": "kk-04",
+        "from": "ал денсаулық, байлық, абырой, тіпті өз өмірі туралы алаңдаудан толық бас тартуға тиіс — стоик философтар «бейтарап» деп атаған нәрселерден, өйткені олар біздің еркімізге тәуелді емес.",
+        "to": "ал денсаулыққа, байлыққа, абыройға, тіпті өз өміріне қатысты алаңдаудан толық бас тартуға тиіс: стоик философтар бұларды «бейтарап нәрселер» деп атаған, өйткені олар біздің еркімізге тәуелді емес.",
+        "note": "синтаксис"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоиктік идеалды кейінгі рим стоигі, император Марк Аврелий өзін-өзіне арнап былай деп қысқа да нұсқа түйіндеді: адамдарды заттар емес, заттар туралы олардың пікірлері мазалайды, — бұл сөйлем екі мың жылдан кейін когнитивтік психотерапияның іргетасына дерлік сөзбе-сөз айналады.",
+        "to": "Стоиктік идеалды кейінгі римдік стоик, император Марк Аврелий тамаша түйіндеген, ол өзіне арнап былай деп жазған: адамдарды заттар емес, заттар туралы пікірлері мазалайды, — бұл сөз екі мың жылдан кейін дерлік сөзбе-сөз когнитивтік психотерапияның іргетасына қаланады.",
+        "note": "стиль"
+      },
+      {
+        "code": "kk-04",
+        "from": "Хрисипп, мектептің үшінші схолархы, ең алдымен дамытқан стоиктік логика ілімі Аристотельдің силлогистикасын пайымдаулар мен шартты ой қорытындылар теориясымен толықтырып, XX ғасырда Аристотельдің терминдер логикасынан айырмашылығы бар пайымдаулар логикасы деп аталатын ілімнің негізін қалады.",
+        "to": "Мектептің үшінші схолархы Хрисипп ең алдымен дамытқан стоиктік логика Аристотельдің силлогистикасын айтылымдар мен шартты ой қорытындылар теориясымен толықтырып, XX ғасырда Аристотельдің терминдер логикасынан өзгеше айтылымдар логикасы деп аталатын ілімнің негізін қалады.",
+        "note": "«логика высказываний» — айтылымдар логикасы («айтылым» — как в kk-10/kk-11)"
+      },
+      {
+        "code": "kk-04",
+        "from": "туралы ілімі: себебі логос, парасатты бастау, бүкіл космосты бойлап өтеді және",
+        "to": "туралы ілімі: логос, парасатты бастау, бүкіл космосты бойлап өтетіндіктен және",
+        "note": "грамматика (двойное причинное «себебі … -ғандықтан»)"
+      },
+      {
+        "code": "kk-04",
+        "from": "біз оларға курстың саяси ғылым бөлігінде қайта ораламыз.",
+        "to": "біз оларға курстың әлеуметтік және саяси философияға арналған бөлігінде қайта ораламыз.",
+        "note": "«политологической части курса» — в этом курсе это социальная философия (л.14)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Эпикур, Афиныда өз мектебін Зенонмен шамалас уақытта негіздеген, кейінгі дәстүр соншалықты бұрмалап жіберген бәсекелес жүйені ұсынды, нәтижесінде «эпикуршыл» сөзі сән-салтанат пен сезімдік ләззаттарға берілген гедонистің синониміне айналды, — бұл бастапқы ілімге тура қарама-қарсы нәрсе.",
+        "to": "Афиныда өз мектебін Зенонмен шамалас уақытта ашқан Эпикур бәсекелес жүйе ұсынды; кейінгі дәстүр оны соншалықты бұрмалағандықтан, «эпикурейші» сөзі сән-салтанат пен тәндік ләззатқа берілген гедонистің синониміне айналды — бұл бастапқы ілімге мүлде қарама-қайшы.",
+        "note": "синтаксис; «эпикурейші» — как «эпикурейшілер» в тексте"
+      },
+      {
+        "code": "kk-04",
+        "from": "Ол табиғи әрі қажетті, табиғи, бірақ қажетті емес, сондай-ақ табиғи емес әрі қажетсіз ләззаттарды ажыратты және: шынайы дана өмір ең қарапайым, табиғи әрі қажетті мұқтаждықтарды — қарапайым ас, баспана, достықты — қанағаттандыруға сүйенеді, өйткені дәл шектен тыс, табиғи емес тілектерге ұмтылу адам азабының негізгі бөлігін тудырады, деп табандады.",
+        "to": "Ол ләззаттардың табиғи әрі қажетті, табиғи, бірақ қажетсіз, және табиғи емес әрі қажетсіз түрлерін ажыратып, шынайы дана өмір ең қарапайым, табиғи әрі қажетті мұқтаждықтарды — қарапайым асты, баспананы, достықты — қанағаттандыруға негізделеді деп табандады, өйткені адам азабының басым бөлігін дәл шектен тыс, табиғи емес тілектерге құмарлық тудырады.",
+        "note": "синтаксис"
+      },
+      {
+        "code": "kk-04",
+        "from": "Эпикур материалистік бейне ішінде ерік бостандығына орын ашты",
+        "to": "Эпикур материалистік әлем бейнесінің ішінде ерік бостандығына орын ашты",
+        "note": "«материалистической картины»"
+      },
+      {
+        "code": "kk-04",
+        "from": "атақты эпикурлық афоризмге сәйкес",
+        "to": "эпикурейшілердің атақты афоризміне сәйкес",
+        "note": "единый термин"
+      },
+      {
+        "code": "kk-04",
+        "from": "Эпикурдың бүкіл жүйесін баяндайды, сол шығарма атомистік физика Жаңа заман философтарына жеткен негізгі дереккөзге айналды.",
+        "to": "Эпикурдың бүкіл жүйесін баяндайды; атомистік физика Жаңа заман философтарына негізінен осы поэма арқылы жетті.",
+        "note": "грамматика"
+      },
+      {
+        "code": "kk-04",
+        "from": "Эпикур философия тарихындағы алғашқы шарттық әділет теорияларының бірін де жасады: оның айтуынша, әділет Платондағыдай өз алдына дербес өмір сүрмейді",
+        "to": "Эпикур философия тарихындағы әділдіктің алғашқы шарттық теорияларының бірін де жасады: оның айтуынша, әділдік платондық идея сияқты өз алдына өмір сүрмейді",
+        "note": "«справедливость» — әділдік (как в kk-14); «как платоновская идея»"
+      },
+      {
+        "code": "kk-04",
+        "from": "мүмкіндігінің өзін күмәнға алды",
+        "to": "мүмкіндігінің өзіне күмән келтірді",
+        "note": "орфография/сочетаемость"
+      },
+      {
+        "code": "kk-04",
+        "from": "Олардың негізгі уәжі қарсы пікірлердің тең күші, исостения төңірегінде құрылды: заттардың табиғаты туралы кез келген сұраққа қарсы және жақтайтын бірдей нанымды дәлелдер табуға болады",
+        "to": "Олардың негізгі уәжі қарама-қарсы пайымдардың тең күштілігі — исостения төңірегінде құрылды: заттардың табиғаты туралы кез келген сұраққа жақтайтын да, қарсы да бірдей нанымды дәлелдер табуға болады",
+        "note": "стиль"
+      },
+      {
+        "code": "kk-04",
+        "from": "Скептиктердің практикалық қорытындысы парадоксты, әрі",
+        "to": "Скептиктердің практикалық қорытындысы парадоксалды әрі",
+        "note": "словоформа"
+      },
+      {
+        "code": "kk-04",
+        "from": "данышпан заттардың табиғаты туралы түпкілікті пікірден, эпохе, бас тартуға тиіс, — дәл осы бас тарту, ал оң білімге ие болу емес, жан тыныштығын, атараксияны әкеледі.",
+        "to": "данышпан заттардың табиғаты туралы түпкілікті пікір айтудан тыйылуға — эпохеге — тиіс, және жан тыныштығын, атараксияны оң білімге ие болу емес, дәл осы тыйылу әкеледі.",
+        "note": "«воздержание» — тыйылу (как в заголовке раздела)"
+      },
+      {
+        "code": "kk-04",
+        "from": "кесімді пікір білдіруден бас тартады, сол арқылы күнделікті өмірде",
+        "to": "кесімді пікір білдіруден бас тартады, бірақ бұл ретте күнделікті өмірде",
+        "note": "«продолжая при этом», а не «тем самым»"
+      },
+      {
+        "code": "kk-04",
+        "from": "пікір білдіруден толық, жаппай бас тартуды талап етті",
+        "to": "пікір білдіруден толық, жаппай тыйылуды талап етті",
+        "note": "термин"
+      },
+      {
+        "code": "kk-04",
+        "from": "академиялық скептицизм бұдан гөрі байыпты ұстанымда болды: толық сенімділік шынында да қолжетімсіз, бірақ кейбір пікірлер басқаларға қарағанда шынайырақ, және данышпан практикалық өмірде сол шынайылық дәрежесіне сүйене алады, бұл ретте абсолютті ақиқатқа үміт артпайды.",
+        "to": "академиялық скептицизм бұдан гөрі ұстамды ұстанымда болды: толық сенімділік шынында да қолжетімсіз, бірақ кейбір пікірлер басқаларына қарағанда шындыққа жақынырақ, және данышпан практикалық өмірде осы шындыққа жақындық дәрежесіне сүйене алады, бірақ абсолютті ақиқатқа дәмеленбейді.",
+        "note": "«более умеренную», «правдоподобны», «не претендуя»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Карнеад 155 жылы біздің дәуірімізге дейін Римге елші болып келгенде, бір күні әділеттілікті қорғаған тамаша сөз сөйлеп, келесі күні оның шарттылығы мен салыстырмалылығын дәлелдейтін сондай тамаша сөз айтты; бұл консервативті рим сенаторы Катон Ақсақалды қатты шошытты",
+        "to": "Карнеад мынадай оқиғамен даңққа бөленді: біздің дәуірімізге дейінгі 155 жылы Римге елші болып келіп, ол бір күні әділдікті қорғап тамаша сөз сөйлесе, келесі күні оның шартты және салыстырмалы екенін дәлелдейтін дәл сондай тамаша сөз сөйледі; бұл консервативті рим сенаторы Үлкен Катонды қатты шошытты",
+        "note": "пропущено «прославился тем»; Катон Старший — Үлкен Катон"
+      },
+      {
+        "code": "kk-04",
+        "from": "скептиктер — жалпы пікір айтудан бас тартудан табады",
+        "to": "скептиктер — пікір айтудан мүлде бас тартудан табады",
+        "note": "«вообще» — мүлде"
+      },
+      {
+        "code": "kk-04",
+        "from": "НЕОПЛАТОНИЗМ: БІРГЕ КӨТЕРІЛУ",
+        "to": "НЕОПЛАТОНИЗМ: БІРТҰТАСҚА ҚАРАЙ ӨРЛЕУ",
+        "note": "«Бірге» читается как «вместе»; Единое — Біртұтас (как в заключении и понятиях; ср. kk-03 «көптіктегі біртұтастық»)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Өткен дәрісте сөз еткеніміздей, ізгілік идеясы басында тұрған платондық идеялар иерархиясынан шыға отырып, Плотин шындықтың одан да радикалды вертикалін Бірдің басшылығымен құрады",
+        "to": "Өткен дәрісте сөз еткен, басында Игілік идеясы тұрған платондық идеялар иерархиясынан бастап, Плотин басында Біртұтас тұрған шындықтың одан да радикалды вертикалін құрады",
+        "note": "Игілік идеясы — как в kk-03; Единое — Біртұтас"
+      },
+      {
+        "code": "kk-04",
+        "from": "өйткені болмыс ұғымының өзі-ақ белгілі бір шектеу мен көптікті енгізеді",
+        "to": "өйткені бар болу ұғымының өзі-ақ белгілі бір шектеу мен көптікті енгізеді",
+        "note": "«существования»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Бірден қажетті, бірақ саналы емес төгілу, эманация арқылы Ум, нус, — таза ойлау саласы пайда болады, онда платондық идеялар мекендейді; Умнан Әлемдік жан, психе, эманацияланады, ал ол өз кезегінде материалдық әлемді өзінің ең төменгі, Бірден ең алыс шекарасы ретінде тудырады.",
+        "to": "Біртұтастан қажетті, бірақ саналы емес төгілу — эманация арқылы Ақыл, нус, — платондық идеялар мекендейтін таза ойлау саласы пайда болады; Ақылдан Әлемдік жан, психе, эманацияланады, ал ол өз кезегінде материалдық әлемді өзінің ең төменгі, Біртұтастан ең алыс шекарасы ретінде тудырады.",
+        "note": "«Ум» — русское слово → Ақыл; «Бірден» читается как «сразу» → Біртұтастан"
+      },
+      {
+        "code": "kk-04",
+        "from": "Плотинде материя дерлік зұлымдық пен болмыс еместікке теңестіріледі — бұл оның жын-шайтандық белсенділіктен екендігінен емес, қайта ол кемелді Бірден алыстаудың шегі, ең соңғы нүктесі болып табылатындықтан",
+        "to": "Плотинде материя зұлымдық пен жоқтыққа дерлік теңестіріледі — ол шайтандай белсенді болғандықтан емес, керісінше кемел Біртұтастан алыстаудың шегі, ең шеткі нүктесі болғандықтан",
+        "note": "«небытие» — жоқтық (как в kk-03); Біртұтас; стиль"
+      },
+      {
+        "code": "kk-04",
+        "from": "Материалдық әлемге тасталған адам жанының міндеті — кері жол, тазару, катарсис, және тамашалау арқылы Умға қарай, одан әрі өз-өзі Бірмен мистикалық бірлесуге дейін көтерілу",
+        "to": "Материалдық әлемге тасталған адам жанының міндеті — кері жол: тазару, катарсис, және тамашалау арқылы қайтадан Ақылға, одан әрі Біртұтастың өзімен мистикалық бірігуге дейін көтерілу",
+        "note": "Ақыл, Біртұтас"
+      },
+      {
+        "code": "kk-04",
+        "from": "Неоплатонизм христиандық ойға орасан зор ықпал етеді, ең алдымен Августин арқылы, ал қазір біз соған көшеміз, өйткені жанның төменнен жоғарыға, көптіктен бірлікке өрлеу құрылымы жанның Құдайға ұмтылуы туралы христиандық түсінікке өте жақсы үйлесті.",
+        "to": "Неоплатонизм христиандық ойға орасан зор ықпал етеді, ең алдымен біз қазір көшетін Августин арқылы, өйткені жанның төменнен жоғарыға, көптіктен бірлікке өрлеу құрылымының өзі жанның Құдайға апарар жолы туралы христиандық түсінікке керемет үйлесті.",
+        "note": "порядок слов; «о пути души к Богу»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Біздің заманымыздың IV ғасырынан бастап философия классикалық антикалық дәуір білмеген сын-қатердің алдында қалады — әлемді жоқтан жаратқан және әрбір жеке жанмен тікелей, сүйіспеншілікке толы қатынасқа түсетін біртұтас, дербес, құдіретті Құдайға деген сенімді ұғыну қажеттігінің алдында тұрады.",
+        "to": "Біздің дәуіріміздің IV ғасырынан бастап философия классикалық антика білмеген сын-қатерге тап болады: әлемді жоқтан жаратқан және әрбір жеке жанмен тікелей, сүйіспеншілікке толы қатынасқа түсетін жалғыз, жеке тұлғалы, құдіретті Құдайға деген сенімді ұғыну қажет болады.",
+        "note": "повтор «алдында»; «единого, личного» — жалғыз, жеке тұлғалы (біртұтас — термин Плотина); «дәуір» — как в разделе 4"
+      },
+      {
+        "code": "kk-04",
+        "from": "уақыт объективті субстанция ретінде емес, өткенді жадысында сақтайтын, осы шаққа назарды және болашақты күтуді ұстап тұратын жанның өз ішкі созылыңқылығы — дистенцио аними ретінде өмір сүретінін қорытындылайды.",
+        "to": "уақыт объективті субстанция ретінде емес, өзінде өткен туралы жадыны, осы шаққа зейінді және болашақты күтуді ұстап тұратын жанның өзінің созылуы — distentio animi ретінде өмір сүреді деп қорытындылайды.",
+        "note": "латинский термин — как в «Негізгі ұғымдар»; синтаксис перечня"
+      },
+      {
+        "code": "kk-04",
+        "from": "гректер үшін жамандық ең алдымен білмеудің салдары еді",
+        "to": "гректер үшін азғындық ең алдымен надандықтың салдары еді",
+        "note": "«порок», «незнание»"
+      },
+      {
+        "code": "kk-04",
+        "from": "танылған жақсылықтан ауытқуға еріктің осы қабілеті шынайы бостандық болып табылады",
+        "to": "еріктің танылған жақсылықтан ауытқудағы осы қабілеті шынайы еркіндік болып табылады",
+        "note": "порядок слов; «свобода» — еркіндік (как в kk-14)"
+      },
+      {
+        "code": "kk-04",
+        "from": "ол біздің заманымыздың 410 жылы Римді готтардың тонауына",
+        "to": "ол біздің дәуіріміздің 410 жылы готтардың Римді тонауына",
+        "note": "единообразие «дәуір»; порядок слов"
+      },
+      {
+        "code": "kk-04",
+        "from": "жер қаласы, civitas terrena, Құдайды менсінбеуге дейін өзіңді сүюге жетелейтін адамдарды біріктіреді, ал Құдай қаласы, civitas Dei, — өзіңді менсінбеуге дейін Құдайды сүюге жетелейтін адамдарды біріктіреді.",
+        "to": "жер қаласы, civitas terrena, Құдайды менсінбеуге дейін жеткен өзін-өзі сүю жетелеген адамдарды біріктіреді, ал Құдай қаласы, civitas Dei, — өзін менсінбеуге дейін жеткен Құдайға деген сүйіспеншілік жетелеген адамдарды біріктіреді.",
+        "note": "искажён смысл («движимых любовью к себе вплоть до презрения к Богу»)"
+      },
+      {
+        "code": "kk-04",
+        "from": "және діни қызуы жоғары адалдыққа лайық емес",
+        "to": "және абсолютті, діни деңгейдегі адалдыққа лайық емес",
+        "note": "пропущено «абсолютной»"
+      },
+      {
+        "code": "kk-04",
+        "from": "саяси заңдылық теорияларын талдағанда",
+        "to": "саяси легитимділік теорияларын талдағанда",
+        "note": "«легитимности» — легитимділік (заңдылық — законность)"
+      },
+      {
+        "code": "kk-04",
+        "from": "СХОЛАСТИКА: ФОМА АКВИНАТ ЖӘНЕ ИМАН МЕН АҚЫЛДЫҢ СИНТЕЗІ",
+        "to": "СХОЛАСТИКА: ФОМА АКВИНСКИЙ ЖӘНЕ СЕНІМ МЕН АҚЫЛДЫҢ СИНТЕЗІ",
+        "note": "имя — как в шапке и kk-01/kk-03; «вера» — сенім (как во введении)"
+      },
+      {
+        "code": "kk-04",
+        "from": "доминикандық монах Фома Аквинаттың шығармашылығы айналады",
+        "to": "доминикандық монах Фома Аквинскийдің шығармашылығы айналады",
+        "note": "имя"
+      },
+      {
+        "code": "kk-04",
+        "from": "Оның басты еңбегі — «Теологияның жиынтығы» — бұл Батыс үшін араб түсіндірмешілері, соның ішінде бірінші дәрісте біз атап өткен Ибн Рушд арқылы қайтадан ашылған аристотельдік философияның құралдарымен",
+        "to": "Оның басты еңбегі — «Теология жиынтығы» — Батыс үшін жаңа ғана, көбіне араб түсіндірмешілері, мысалы, бірінші дәрісте біз атап өткен Ибн Рушд арқылы қайта ашылған аристотельдік философияның құралдарымен",
+        "note": "«только что», «во многом через»; название — как в списке литературы"
+      },
+      {
+        "code": "kk-04",
+        "from": "Августиннен айырмашылығы, онда ақыл ең алдымен иманның ішінде және рақымның жарығында әрекет етсе, Фома Аристотельге ілесе отырып",
+        "to": "Ақыл ең алдымен сенімнің ішінде және рақымның нұрында әрекет ететін Августиннен айырмашылығы, Фома Аристотельге ілесе отырып",
+        "note": "синтаксис; сенім"
+      },
+      {
+        "code": "kk-04",
+        "from": "Фома сонымен бірге біздің кейінгі саяси-танымдық материалымыз үшін маңызды заңдардың тұтас иерархиясын құрады: мәңгілік заң — ғарыштық болмысты басқарудың Құдайдың ақылға қонымды жоспары; табиғи заң — ешқандай аянсыз-ақ табиғи ақыл арқылы танылатын, адамның ақылға қонымды табиғатындағы мәңгілік заңның көрінісі;",
+        "to": "Фома сонымен бірге курстың кейінгі әлеуметтік және саяси философияға арналған материалы үшін маңызды заңдардың тұтас иерархиясын құрады: мәңгілік заң — әлемді басқарудың парасатты құдайлық жоспары; табиғи заң — ешқандай аянсыз-ақ табиғи ақыл арқылы танылатын, адамның парасатты табиғатындағы мәңгілік заңның көрінісі;",
+        "note": "«политологического материала» — социальная философия (л.14); «разумный» — парасатты (ақылға қонымды — «разумный» в бытовом смысле)"
+      },
+      {
+        "code": "kk-04",
+        "from": "бұл схоластиканың догматтық пән ретіндегі беделіне қарамастан, мәнінде терең полемикалық, диалогтық кәсіп болғанының дәлелі.",
+        "to": "бұл схоластиканың догматтық пән деген атағына қарамастан, мәні жағынан терең полемикалық, диалогтық іс болғанының дәлелі.",
+        "note": "«репутации», «предприятием»"
+      },
+      {
+        "code": "kk-04",
+        "from": "БӨЛІМ 7. УНИВЕРСАЛИЯЛАР ДАУЫ",
+        "to": "БӨЛІМ 7. УНИВЕРСАЛИЯЛАР ТУРАЛЫ ДАУ",
+        "note": "как в шапке и «Негізгі ұғымдар»"
+      },
+      {
+        "code": "kk-04",
+        "from": "«жалпы адам», «жалпы ақтық», «жалпы әділет» сияқты",
+        "to": "«адам атаулы», «ақтық атаулы», «әділдік атаулы» сияқты",
+        "note": "«вообще» — атаулы"
+      },
+      {
+        "code": "kk-04",
+        "from": "тектер мен түрлер, дара нәрселер мен адам ойлауынан тәуелсіз түрде, шынайы өмір сүре ме, әлде олар тек жекелеген заттардың арасындағы ұқсастықты білдіретін атаулар ғана ма",
+        "to": "тектер мен түрлер жекелеген заттар мен адам ойлауынан тәуелсіз түрде шын мәнінде өмір сүре ме, әлде олар біз жекелеген заттардың ұқсастығын белгілейтін атаулар, сөздер ғана ма",
+        "note": "«имена, слова, которыми мы обозначаем»; единый термин"
+      },
+      {
+        "code": "kk-04",
+        "from": "Крайний реализм, Платонның идеяларды өздігінен өмір сүретін мәндер ретінде түсінуіне барып тірелетін бағыт, мынаны айтады: универсалиялар шын мәнінде бар, заттарға дейін бар, олардың мәңгілік бастапқы үлгілері ретінде өмір сүреді.",
+        "to": "Платонның идеяларды өздігінен өмір сүретін мәндер ретінде түсінуінен бастау алатын шеткі реализм былай дейді: универсалиялар шын мәнінде, заттардан бұрын, олардың мәңгілік түпнұсқа үлгілері ретінде өмір сүреді.",
+        "note": "«Крайний реализм» оставлен по-русски → шеткі реализм"
+      },
+      {
+        "code": "kk-04",
+        "from": "Фома Аквинский Аристотельден кейін дамытқан орташа реализм",
+        "to": "Фома Аквинский Аристотельге ілесе дамытқан ұстамды реализм",
+        "note": "«вслед за Аристотелем» — ілесе (не «после»); умеренный — ұстамды"
+      },
+      {
+        "code": "kk-04",
+        "from": "XIV ғасырда Уильям Оккам айқын түрде ұсынған номинализм",
+        "to": "XIV ғасырда Уильям Оккам ең айқын түрде ұсынған номинализм",
+        "note": "«наиболее ярко»"
+      },
+      {
+        "code": "kk-04",
+        "from": "яғни ой ұқсас жекелеген заттарды топтастыру үшін жасайтын ыңғайлы белгілеулер, бірақ олардың ешқандай дербес шындығы жоқ, әрі заттардың ішінде де, заттарға дейін де жалпы ұғымдардың өз алдына өмірі болмайды.",
+        "to": "яғни ақыл ұқсас жекелеген заттарды топтастыру үшін жасайтын ыңғайлы белгілеулер; жалпы ұғымдардың заттардың ішінде де, заттардан бұрын да ешқандай дербес шындығы жоқ.",
+        "note": "повтор в конце фразы"
+      },
+      {
+        "code": "kk-04",
+        "from": "Крайний реализм мен номинализм арасындағы мәселенің шешімін",
+        "to": "Шеткі реализм мен номинализм арасындағы өз шешімін",
+        "note": "русские слова «Крайний реализм»; «своё решение»"
+      },
+      {
+        "code": "kk-04",
+        "from": "стоицизм, эпикурейлік және скептицизм",
+        "to": "стоицизм, эпикурейшілдік және скептицизм",
+        "note": "единый термин (как во введении)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Плотиннің неоплатонизмі материядан Ум арқылы Біртұтасқа көтерілуінің мистикалық вертикалін құрып, грек философиясының христиандық уахимен кездесуі үшін ұғымдық аппаратты әзірледі.",
+        "to": "Плотиннің неоплатонизмі материядан Ақыл арқылы Біртұтасқа өрлеудің мистикалық вертикалін құрып, грек философиясының христиандық аянмен кездесуі үшін ұғымдық аппаратты әзірледі.",
+        "note": "«Ум» → Ақыл; «уахи» → аян (как в тексте)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Августин философияны ғибратты әңгімеге айналдырып, тұлғаның ішкі, еріктік өмірінің тереңдігін және уақыттың жанның созылысы ретіндегі табиғатын ашты.",
+        "to": "Августин философияны тәубеге айналдырып, тұлғаның ішкі, еріктік өмірінің тереңдігін және уақыттың жанның созылуы ретіндегі табиғатын ашты.",
+        "note": "«исповедь» — тәубе (не «назидательный рассказ»)"
+      },
+      {
+        "code": "kk-04",
+        "from": "Ал әмбебаптар туралы реалистер мен номиналистер арасындағы дау, Оккам қырына дейін жетіп, Жаңа заманның эмпириялық төңкерісіне негіз қалады.",
+        "to": "Ал реалистер мен номиналистердің Оккам ұстарасымен аяқталған универсалиялар туралы дауы Жаңа заманның эмпириялық төңкерісіне негіз қалады.",
+        "note": "«Оккам қыры» → Оккам ұстарасы; «әмбебаптар» → универсалиялар"
+      },
+      {
+        "code": "kk-04",
+        "from": "Келесі дәрісте біз Қайта Өрлеу дәуірінің гуманистері жекелеген адамның қадір-қасиетін қалайша қайта ашқанын, ал Жаңа заман философтары — Бэкон, Декарт, Спиноза, Лейбниц, Локк және Юм — сенімді білімге жетудің жаңа, әлдеқайда қатаң әдісін іздеу барысында эмпириктер мен рационалистер деген екі үлкен лагерьге бөлінетінін көреміз; бұл ізденіс схоластикалық та, таза созермелі антикалық дәстүрдің де орнына қойылатын еді.",
+        "to": "Келесі дәрісте біз Қайта Өрлеу дәуірінің гуманистері жеке адамның қадір-қасиетін қалай қайта ашатынын, ал Жаңа заман философтары — Бэкон, Декарт, Спиноза, Лейбниц, Локк және Юм — схоластикалық дәстүрді де, таза ой-толғамдық антикалық дәстүрді де алмастыратын, сенімді білімге жетудің жаңа, әлдеқайда қатаң әдісін іздеп, эмпириктер мен рационалистер деген екі үлкен лагерьге қалай бөлінетінін көреміз.",
+        "note": "«созермелі» — калька; время глагола"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоицизм: логос, апатия, бейтарап, космополис",
+        "to": "Стоицизм: логос, апатия, бейтарап нәрселер, космополис",
+        "note": "как в тексте"
+      },
+      {
+        "code": "kk-04",
+        "from": "әділеттің шарттық теориясы",
+        "to": "әділдіктің шарттық теориясы",
+        "note": "әділдік"
+      },
+      {
+        "code": "kk-04",
+        "from": "Неоплатонизм: Біртұтас, эманация, Ум (нус), Әлемдік жан (Плотин)",
+        "to": "Неоплатонизм: Біртұтас, эманация, Ақыл (нус), Әлемдік жан (Плотин)",
+        "note": "Ум → Ақыл"
+      },
+      {
+        "code": "kk-04",
+        "from": "ерік және күнәға құлау",
+        "to": "ерік және күнәға бату",
+        "note": "«грехопадение» — күнәға бату"
+      },
+      {
+        "code": "kk-04",
+        "from": "концептуализм, Оккам қыры",
+        "to": "концептуализм, Оккам ұстарасы",
+        "note": "термин"
+      },
+      {
+        "code": "kk-04",
+        "from": "Марк Аврелий. Өз-өзімен.",
+        "to": "Марк Аврелий. Өзіммен оңаша.",
+        "note": "«Наедине с собой»"
+      },
+      {
+        "code": "kk-04",
+        "from": "Фома Аквинский. Теология соммасы. 1-бөлік, 2-сұрақ.",
+        "to": "Фома Аквинский. Теология жиынтығы. 1-бөлік, 2-сұрақ.",
+        "note": "название — как в тексте"
+      },
+      {
+        "code": "kk-04",
+        "from": "Стоицизмдегі бізге байланысты нәрсе мен бізге байланысты емес нәрсенің айырмасы неде, және ол апатия ұғымымен қалай байланысты?",
+        "to": "Бізге тәуелді нәрсе мен бізге тәуелді емес нәрсені стоиктік ажырату неде және ол апатия ұғымымен қалай байланысты?",
+        "note": "термины — как в тексте раздела 1"
+      },
+      {
+        "code": "kk-04",
+        "from": "(Біртұтас — Ум — Әлемдік жан)",
+        "to": "(Біртұтас — Ақыл — Әлемдік жан)",
+        "note": "Ум → Ақыл"
+      },
+      {
+        "code": "kk-04",
+        "from": "Сократтың ұстанымы мен Августиннің ұстанымы арасында мінез-құлық кемшілігі мен ерік бостандығы мәселесіндегі айырмашылық неде?",
+        "to": "Азғындықтың табиғаты мен ерік бостандығы мәселесінде Сократтың ұстанымы мен Августиннің ұстанымы арасындағы айырмашылық неде?",
+        "note": "«порок» — азғындық (как в тексте)"
+      },
+      {
+        "code": "kk-04",
+        "from": "даулардың бірін — универсалиялар туралы дауды — аяқтаймыз",
+        "to": "даулардың бірімен — универсалиялар туралы даумен — аяқтаймыз",
+        "note": "«завершим спором» — даумен аяқтаймыз (не «завершим спор»)"
+      },
+      {
+        "code": "kk-04",
+        "from": "жеке, құдіреті шексіз Құдай идеясы",
+        "to": "жеке тұлғалы, құдіреті шексіз Құдай идеясы",
+        "note": "«личного» — жеке тұлғалы (как в разделе 5)"
+      },
+      {
+        "code": "kk-04",
+        "from": "бас тартуға тиіс: стоик философтар бұларды",
+        "to": "бас тартуға тиіс — стоик философтар бұларды",
+        "note": "два двоеточия в одной фразе"
+      },
+      {
+        "code": "kk-04",
+        "from": "бас тартады, бірақ бұл ретте күнделікті өмірде",
+        "to": "бас тартады, ал күнделікті өмірде",
+        "note": "повтор «бірақ»"
+      },
+      {
+        "code": "en-04",
+        "from": "now he lives in huge, impersonal Hellenistic monarchies",
+        "to": "now he lives in vast, impersonal Hellenistic monarchies",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "recognizes for natural reason a significant independent sphere of competence, accessible to human beings regardless of revelation",
+        "to": "grants natural reason a considerable sphere of competence of its own, accessible to human beings independently of revelation",
+        "note": "стиль"
+      },
+      {
+        "code": "en-04",
+        "from": "maintains that universals exist really, before things",
+        "to": "maintains that universals really exist, before things",
+        "note": "порядок слов"
+      },
+      {
+        "code": "en-14",
+        "from": "the notion that human history is moving in the direction of improving living conditions, expanding knowledge, and increasing morality and justice",
+        "to": "the notion that human history moves toward better living conditions, wider knowledge, and growing morality and justice",
+        "note": "стиль"
+      }
+    ],
+    "reviewedAt": "2026-10-19"
+  },
+  "items": [
+    {
+      "code": "en-04",
+      "lang": "en",
+      "lecture": 4,
+      "module": 1,
+      "lectureOrder": 0,
+      "title": "4. Hellenistic and Roman Philosophy. Medieval Philosophy",
+      "source": {
+        "code": "ru-04",
+        "title": "4. Эллинистическая и римская философия. Средневековая философия",
+        "sha256": "f1d9e150be51593421cf81c9a53e7a84854ae74d70868d9d48977c6586e1dff7",
+        "chars": 24265
+      },
+      "timecodes": [
+        "00:00–01:27",
+        "01:27–04:08",
+        "04:08–06:54",
+        "06:54–09:41",
+        "09:41–11:20",
+        "11:20–14:29",
+        "14:29–17:08",
+        "17:08–19:41",
+        "19:41–20:54"
+      ],
+      "durationSec": 1254,
+      "lines": [
+        "Lecture 4. Hellenistic and Roman Philosophy. Medieval Philosophy",
+        "Stoicism, Epicureanism, skepticism, Neoplatonism; patristics (Augustine); scholasticism (Thomas Aquinas); the dispute over universals.",
+        "[00:00–01:27] INTRODUCTION",
+        "In 323 BCE Alexander the Great dies, and with his death it is not only an empire that collapses but the entire familiar horizon of Greek life. The polis, the self-sufficient city-state for whose sake Socrates accepted death and for which Plato and Aristotle built their political utopias, ceases to be the center of the universe for the individual human being: now he lives in vast, impersonal Hellenistic monarchies, where decisions are made far away from him and almost nothing depends on his will. Philosophy, which only yesterday was occupied with grand questions about the structure of the cosmos and the nature of the ideal state, is forced to answer a much more urgent and personal question: how can an individual preserve inner calm and dignity in a world he no longer controls?",
+        "Today we will travel a long road — from the Hellenistic schools of practical wisdom, Stoicism, Epicureanism, and Skepticism, through the mystical synthesis of Neoplatonism, to the moment when Greek philosophy meets Christianity and is forced to rethink all its concepts in the light of the idea of a personal, almighty God. We will see Augustine, for whom philosophy becomes a confession, and Thomas Aquinas, who eight centuries later will try to reconcile faith and reason by means of Aristotelian logic, and we will conclude with one of the longest and most productive philosophical disputes in history — the dispute over universals, which for many centuries will determine how European thought understands the relation between general concepts and particular things.",
+        "[01:27–04:08] SECTION 1. STOICISM: FREEDOM THROUGH AGREEMENT WITH NATURE",
+        "The Stoic school was founded in Athens around 300 BCE by Zeno of Citium, and the school took its name from the Painted Stoa, the portico where he held his conversations. The basis of Stoic physics is the idea of the cosmos as a single, rationally ordered, ensouled whole, permeated by logos — a concept that, as you remember from the first lecture, goes back to Heraclitus. Everything that happens in the world is subject to a strict chain of causes, to fate, to destiny, and no single event can happen otherwise than it does.",
+        "From this physics, the Stoics derive the ethics that became the school's most influential legacy. If everything in the world is predetermined by rational providence, then the only thing that is truly within our power is not external circumstances, but our own judgment about them, our agreement or disagreement with what is happening. The famous Stoic distinction between what depends on us and what does not depend on us, worked out in detail by the later Stoic Epictetus, leads to a practical conclusion: the sage must direct all his energy toward governing his own judgments, desires, and impulses, giving up entirely any anxiety about health, wealth, reputation, or even one's own life — things which the Stoic philosophers called \"indifferents,\" since they do not depend on our will. The highest state of the Stoic sage is apatheia, literally \"passionlessness,\" freedom from destructive affects, fear, anger, envy, achieved not by suppressing feelings, but by a correct, rational judgment about what is truly valuable and what is not. The Stoic ideal is beautifully summed up by the later Roman Stoic, Emperor Marcus Aurelius, who wrote for himself: it is not things that trouble people, but their opinions about things — a phrase that two thousand years later would become, almost word for word, the foundation of cognitive psychotherapy.",
+        "Stoic logic, developed above all by Chrysippus, the third scholarch (head) of the school, supplemented Aristotelian syllogistic with a theory of propositions and conditional inferences, laying the foundations of what in the twentieth century would be called propositional logic, as distinct from Aristotelian term logic. No less important for our course is the Stoic doctrine of the cosmopolis, the world city: since logos, the rational principle, permeates the entire cosmos and is present in every human being regardless of origin, citizenship, or social status, all people, according to the Stoics, are citizens of a single world state, bound by the bonds of rational nature before the bonds of the polis or the tribe. This idea of universal human brotherhood, radically new for Greek thought, which was tied to the polis, will have a profound influence on Roman law and, through it, on later concepts of natural law and human rights, to which we will return in the part of the course devoted to social and political philosophy.",
+        "[04:08–06:54] SECTION 2. EPICUREANISM: PLEASURE AS THE ABSENCE OF ANXIETY",
+        "Epicurus, who founded his school in Athens around the same time as Zeno, proposed a competing system which the later tradition distorted so much that the word \"Epicurean\" became a synonym for a hedonist obsessed with luxury and sensual pleasures — the exact opposite of the original teaching. Epicurus did indeed proclaim pleasure as the highest good, but by this he meant above all the absence of bodily suffering and, more importantly, the absence of mental anxiety, ataraxia, rather than the accumulation of intense pleasures. He distinguished between natural and necessary pleasures, natural but unnecessary pleasures, and unnatural and unnecessary pleasures, and insisted that a truly wise life is built on the satisfaction of the simplest, natural, and necessary needs — modest food, a roof over one's head, friendship — since it is precisely the pursuit of excessive, unnatural desires that produces the greater part of human suffering.",
+        "Epicurus's physics was based on Democritus's atomism, which we discussed in the previous lecture, but it introduced a fundamental innovation: the concept of the clinamen, a random swerve of an atom from its straight downward path, predetermined by nothing. Democritus's world was rigidly determined by necessity, and Epicurus saw in this a threat to human freedom — if even our thoughts and decisions are completely predetermined by the mechanical movement of atoms, then there can be no question of moral responsibility. By introducing an element of chance into the very physical basis of the world, Epicurus created space for free will within a materialist picture of reality. The practical aim of Epicurean philosophy is to free a person from the two main sources of anxiety: fear of the gods and fear of death. The gods, he argued, do indeed exist, but they remain in a state of perfect blessedness and do not interfere in human affairs in any way, so fearing their anger is pointless; and death, according to the famous Epicurean aphorism, has nothing to do with us at all, since while we exist, death is not yet here, and when death comes, we are no longer here — and therefore it cannot be an object of rational fear.",
+        "Three centuries later the Roman poet and philosopher Lucretius would set out Epicurus's entire system in his grand didactic poem On the Nature of Things, which became the main channel through which atomistic physics reached the philosophers of the early modern period. Epicurus also developed one of the first social-contract theories of justice in the history of philosophy: justice, he argued, does not exist in itself, like a Platonic idea, but arises from the mutual agreement of people neither to inflict harm on one another nor to suffer harm from one another — a convention useful for living together safely, not a reflection of an eternal cosmic order. This seemingly modest idea stands at the origins of the entire later contractualist tradition in political philosophy, to which we will return when discussing Hobbes, Locke, and Rousseau in the relevant lectures of the course.",
+        "[06:54–09:41] SECTION 3. SKEPTICISM: WISDOM AS WITHHOLDING JUDGMENT",
+        "The third great Hellenistic school, skepticism, goes back to Pyrrho of Elis and receives systematic development in the works of Sextus Empiricus at the end of antiquity. If the Stoics and Epicureans offered positive teachings about the nature of the world and the highest good, the skeptics called into question the very possibility of attaining reliable knowledge about anything at all. Their main argument was built around the equal force of opposing judgments, isostheneia: on any question about the nature of things, one can find equally convincing arguments for and against, and reason has no reliable criterion by which to give preference to one side of the dispute.",
+        "The practical conclusion of the skeptics is paradoxical and in this sense echoes the Jain anekantavada that we discussed in the second lecture: since reliable knowledge is unattainable, the sage must suspend final judgment, epoché, about the nature of things — and it is precisely this withholding, and not the attainment of positive knowledge, that brings peace of mind, ataraxia. The skeptic does not deny the existence of the world and does not affirm its absence — he simply refuses to render a categorical judgment one way or the other, while continuing to act in everyday life in accordance with appearances and accepted customs, without granting them the status of ultimate truth.",
+        "It is worth distinguishing two historical currents of skepticism: Pyrrhonism, going directly back to Pyrrho and systematized by Sextus Empiricus, demanded complete, universal withholding of judgment on every question without exception, including the very thesis about the impossibility of knowledge — otherwise skepticism would contradict itself. Academic skepticism, developed by Arcesilaus and Carneades within the walls of Plato's Academy, took a more moderate position: complete certainty is indeed unattainable, but some judgments are more plausible than others, and the sage may well be guided in practical life by the degree of this plausibility, while not claiming absolute truth. Carneades became famous when, having come to Rome as an envoy in 155 BCE, he delivered one day a brilliant speech in defense of justice and the next day an equally brilliant speech proving that it is conventional and relative, to the horror of the conservative Roman senator Cato the Elder, who saw in this a danger to public morality — an episode that perfectly illustrates the virtuosity of skeptical rhetoric inherited from Gorgias, which we discussed in the previous lecture.",
+        "Notice the overall logic of all three Hellenistic schools, despite all the differences in their metaphysical premises: the Stoics find peace in agreement with the rational order of the world, the Epicureans — in the satisfaction of the simplest needs and freedom from fear, the skeptics — in the refusal to judge at all, but the final goal is the same for all of them — ataraxia, the imperturbability of the soul in the face of a world that the individual no longer controls.",
+        "[09:41–11:20] SECTION 4. NEOPLATONISM: THE ASCENT TO THE ONE",
+        "In the third century CE, Plotinus creates a system that will become the final and most influential synthesis of pagan ancient philosophy — Neoplatonism. Starting from the Platonic hierarchy of Forms headed by the Form of the Good, which we spoke about in the previous lecture, Plotinus builds an even more radical vertical hierarchy of reality headed by the One — a principle so simple and so superior to any possible definition that, strictly speaking, one cannot even say of it that it \"exists,\" since the very concept of existence already introduces some limitation and multiplicity.",
+        "From the One, through a necessary but not conscious outpouring, emanation, arises Intellect, nous — the sphere of pure thought, where the Platonic Forms dwell; from Intellect emanates the World Soul, psyche, which in turn brings forth the material world as its lowest boundary, the one most removed from the One. Matter in Plotinus turns out to be almost identical with evil and non-being — not because it is demonically active, but because it represents the limit, the extreme point of removal from the perfection of the One, where the light of the intelligible Good is almost completely exhausted. The task of the human soul, cast into the material world, is the return path, an ascent through purification, catharsis, and contemplation back to Intellect and further to mystical union with the One itself, which is attained no longer by reasoning, but by a special supra-rational ecstasy. Neoplatonism will exert a colossal influence on Christian thought, above all through Augustine, to whom we now turn, since the very structure of the soul's ascent from the lower to the higher, from multiplicity to unity, fit perfectly with the Christian understanding of the soul's path to God.",
+        "[11:20–14:29] SECTION 5. PATRISTICS: AUGUSTINE AND PHILOSOPHY AS CONFESSION",
+        "From the fourth century CE, philosophy finds itself faced with a challenge unknown to classical antiquity — the need to make sense of belief in one personal, omnipotent God, who created the world out of nothing and enters into direct, loving relations with each individual soul. Patristics — the collective work of the Church Fathers, who tried to express the content of Christian revelation in the language of Greek philosophy — reaches its peak in the person of Aurelius Augustine, Bishop of Hippo, who lived from 354 to 430.",
+        "Augustine, who in his youth was drawn to Manichaeism and to the Neoplatonism of Plotinus, whom we have just discussed, after an agonizing spiritual search described in his autobiographical Confessions, comes to Christianity and creates a philosophy that is fundamentally different in its very genre from everything we have analyzed earlier: the Confessions is written not as a treatise proving theses to an impartial reader, but as a prayerful address to God, in which the philosophical analysis of memory, time, and will is inseparably intertwined with personal repentance. It is precisely in the Confessions that Augustine formulates one of the deepest philosophical investigations into the nature of time in the history of thought: he notes that the past no longer exists, the future does not yet exist, and the present slips elusively away the moment we try to fix it — and he concludes that time exists not as an objective substance, but as the stretching of the soul itself, distentio animi, which holds within itself memory of the past, attention to the present, and expectation of the future.",
+        "Augustine's key philosophical innovation is the doctrine of the will as an independent capacity of the soul, not reducible either to reason or to desire: Greek philosophy, as we saw in the example of Socrates, held that a person who has known the good will automatically begin to strive for it — for the Greeks, vice was above all a consequence of ignorance. Augustine, starting from his own painful experience described in the famous episode of the stolen pears from his youth, insists: a human being can clearly see the good and consciously choose evil — this capacity of the will to deviate from the known good is true freedom, but at the same time also the source of sin, which, according to Augustine, is rooted in the original sin of Adam, because of which the will of all humanity becomes damaged and unable to turn to the good without the assistance of divine grace.",
+        "Especially important for our course is Augustine's late politico-philosophical work The City of God, written in response to the sack of Rome by the Goths in 410 CE and to the accusations of pagans that the cause of the catastrophe was the empire's rejection of the old gods. Augustine puts forward the concept of two cities intertwined in earthly history, but fundamentally different in their ultimate aim: the earthly city, civitas terrena, unites people driven by love of self to the point of contempt for God, while the City of God, civitas Dei, unites people driven by love of God to the point of contempt for self. No earthly state, including Rome itself, can be identified with the City of God, and none deserves an absolute loyalty of religious intensity — an important thesis limiting the claims of any political power to a sacred status, to which we will return when examining theories of political legitimacy in the relevant lectures of the course.",
+        "[14:29–17:08] SECTION 6. SCHOLASTICISM: THOMAS AQUINAS AND THE SYNTHESIS OF FAITH AND REASON",
+        "Eight centuries after Augustine, in the thirteenth century, scholasticism takes shape in the universities of Western Europe — a method of philosophizing built on the systematic application of Aristotelian logic to theological questions, a form of university disputation that proceeds by stating a thesis, considering the objections to it, and refuting them one by one. The culmination of scholasticism is the work of Thomas Aquinas, a Dominican friar who taught at the University of Paris, whose main work, the Summa Theologiae, is a grand attempt to systematize all Christian theology by means of the Aristotelian philosophy that had only just been rediscovered for the West, largely through Arab commentators such as Ibn Rushd, whom we mentioned in the first lecture.",
+        "Unlike Augustine, for whom reason acts primarily within faith and in the light of grace, Thomas, following Aristotle, grants natural reason a considerable sphere of competence of its own, accessible to human beings independently of revelation. Hence the famous five proofs of the existence of God, the five ways, each of which starts from some obvious fact of sense experience — the existence of motion, causal chains, contingent and necessary things, degrees of perfection, purposiveness in nature — and rises from it to the necessity of a first cause, which Thomas identifies with God. Note the direct connection between the fifth way, the argument from purposiveness, and the Aristotelian doctrine of the unmoved mover, which we analyzed in the previous lecture: Thomas in effect Christianizes Aristotelian metaphysics, identifying the philosophical unmoved mover, pure thought thinking itself, with the personal God of biblical revelation.",
+        "Thomas also constructs a complete hierarchy of laws, important for the material on social and political philosophy later in the course: eternal law, the rational divine plan for governing the universe; natural law, the reflection of eternal law in the rational nature of the human being, accessible to knowledge by natural reason without any revelation; and human, positive law, the concrete enactments of individual states, which acquire moral binding force only insofar as they do not contradict natural law. This concept will become one of the most important sources of the later theory of natural rights, to which we will turn in our discussion of the political philosophy of the early modern period.",
+        "The characteristic form of scholastic thinking itself is the quaestio disputata, the disputed question: the teacher formulates a thesis, listens to and records all possible objections to it, however numerous they may be, and then successively, point by point, answers each of them before confirming the original thesis in a more precise form. This method, which requires that the strongest version of the opposing position be presented honestly before it is refuted, clearly continues that same tradition of rational argument and openness to counterargument that we trace throughout the course starting with the Milesian school — proof that scholasticism, despite its reputation as a dogmatic discipline, was in essence a deeply polemical, dialogical undertaking.",
+        "[17:08–19:41] SECTION 7. THE DISPUTE OVER UNIVERSALS",
+        "For several centuries medieval philosophy is permeated by a dispute, going back to the disagreement between Plato and Aristotle, about the status of general concepts, universals — such as \"human being in general,\" \"whiteness in general,\" \"justice in general.\" The question is formulated in the sharpest possible way: do genera and species exist in reality, independently of individual things and human thinking, or are they only names, words by which we designate similarity between individual things, while in reality only these individual things exist?",
+        "Extreme realism, going back to the Platonic understanding of Forms as independently existing entities, maintains that universals really exist, before things, as their eternal prototypes. Moderate realism, developed by Thomas Aquinas following Aristotle, takes an intermediate position: universals exist in things, as their form, but also in the human mind, as a concept abstracted from the perception of many similar individual things — that is, the universal is real, but does not exist separately from individual things and the thinking mind. Nominalism, most vividly represented in the fourteenth century by William of Ockham, takes the diametrically opposite extreme position: only individual things really exist, while universals are nothing more than names, nomina, convenient labels that the mind creates to group similar individual objects; general concepts have no independent reality of their own, either in things or before them.",
+        "Ockham formulated the famous methodological principle that entered history as Ockham's razor: one should not multiply entities beyond necessity — if individual things are enough to explain a phenomenon, there is no need to additionally postulate the existence of universals as separate realities. Between extreme realism and nominalism, Pierre Abelard in the twelfth century proposed his own solution, developing a position known as conceptualism: universals do not exist as separate things either before things or after them, but they are not empty words either — they are concepts that the mind actually forms on the basis of a real similarity between individual things, and therefore have a kind of intermediate status, real as a cognitive operation, but not as an independently existing entity. This dispute, which may seem like a purely abstract scholastic game, in fact had colossal consequences for the later history of philosophy and science: the nominalist attitude that only individual, empirically observable facts are real, while general concepts are only convenient tools of the mind, became one of the most important philosophical premises of the empiricism of the early modern period, which we will examine in detail in the fifth lecture of the course in connection with Bacon and Locke.",
+        "[19:41–20:54] CONCLUSION",
+        "Let us summarize the long journey from the death of Alexander the Great to the threshold of the early modern period. The three Hellenistic schools — Stoicism, Epicureanism, and Skepticism — despite the differences in their physical and metaphysical premises, converged on one practical goal: to attain peace of mind, ataraxia, in a world that had ceased to be commensurate with the individual human being. Plotinus's Neoplatonism built a mystical vertical of ascent from matter through Intellect to the One, preparing the conceptual apparatus for the encounter between Greek philosophy and Christian revelation. Augustine turned philosophy into confession, opening up the depth of the inner, volitional life of the person and the nature of time as the stretching out of the soul. Thomas Aquinas synthesized Aristotelian logic with Christian theology, building a hierarchy of eternal, natural, and human law. And the dispute between realists and nominalists over universals, which ended with Ockham's razor, prepared the ground for the empirical revolution of the early modern period.",
+        "In the next lecture we will see how the Renaissance humanists rediscover the dignity of the individual human being, and how the philosophers of the early modern period — Bacon, Descartes, Spinoza, Leibniz, Locke, and Hume — split into two great camps, empiricists and rationalists, in search of a new, much more rigorous method for attaining reliable knowledge, in place of both the scholastic and the purely contemplative ancient tradition.",
+        "MATERIALS FOR REINFORCEMENT",
+        "Key Concepts",
+        "Stoicism: logos, apatheia, indifferents, cosmopolis (Zeno, Epictetus, Marcus Aurelius)",
+        "Epicureanism: ataraxia, clinamen, atomism, the contract theory of justice",
+        "Skepticism: isostheneia, epoché, Pyrrhonism and Academic skepticism (Pyrrho, Carneades)",
+        "Neoplatonism: the One, emanation, Intellect (nous), World Soul (Plotinus)",
+        "Patristics: time as distentio animi, will and the Fall, the two cities (Augustine)",
+        "Scholasticism: the five ways, eternal/natural/human law, quaestio disputata (Thomas Aquinas)",
+        "The dispute over universals: realism, nominalism, conceptualism, Ockham's razor",
+        "Recommended Reading",
+        "Marcus Aurelius. Meditations.",
+        "Augustine. Confessions, Book XI (on time).",
+        "Augustine. The City of God, Book XIV.",
+        "Thomas Aquinas. Summa Theologiae, Part I, Question 2.",
+        "Self-Check Questions",
+        "What is the Stoic distinction between what depends on us and what does not depend on us, and how is it connected to the concept of apatheia?",
+        "How does the clinamen solve the problem of free will in Epicurus's atomistic physics?",
+        "Compare Pyrrhonian and Academic skepticism, taking the position of Carneades as an example.",
+        "How did the structure of emanation in Plotinus's Neoplatonism (the One — Intellect — World Soul) prepare the conceptual apparatus for Christian thought?",
+        "What is the difference between Socrates' position and Augustine's position on the nature of vice and free will?",
+        "Formulate the three positions in the dispute over universals (realism, nominalism, conceptualism) and name their representatives."
+      ],
+      "notes": [
+        "[01:27–04:08]: \"Painted Stoa\" translates Расписная Стоя.",
+        "[01:27–04:08]: apatheia is rendered as \"passionlessness.\"",
+        "[01:27–04:08]: cosmopolis is kept as \"cosmopolis\"; it also means \"world city.\"",
+        "[04:08–06:54]: clinamen — kept in Latin as the standard philosophical term for the atomic “swerve.”",
+        "[04:08–06:54]: ataraxia — translated as “absence of mental anxiety” in context.",
+        "[06:54–09:41]: isosthenia — the equal force of opposing arguments/judgments; epoché — technical term for withholding/suspension of judgment; ataraxia — tranquility, peace of mind; anekantavada — Jain doctrine of manifold aspects of truth.",
+        "ПРОВЕРКА [06:54–09:41]: кириллица в английском тексте",
+        "[09:41–11:20]: нус — nous; психе — psyche.",
+        "[11:20–14:29]: distensio animi is left in Latin as Augustine's term for the stretching or distension of the soul.",
+        "[11:20–14:29]: civitas terrena and civitas Dei are kept in Latin as technical terms.",
+        "ПРОВЕРКА [11:20–14:29]: кириллица в английском тексте",
+        "[14:29–17:08]: Summa Theologiae and quaestio disputata are kept in Latin as technical terms.",
+        "[19:41–20:54]: distentio animi — kept in Latin as in the source.",
+        "[19:41–20:54]: схоластическая и чисто созерцательная античная традиция → rendered as scholastic and purely contemplative ancient tradition."
+      ]
+    },
+    {
+      "code": "en-14",
+      "lang": "en",
+      "lecture": 14,
+      "module": 4,
+      "lectureOrder": 1,
+      "title": "14. Social Philosophy",
+      "source": {
+        "code": "ru-14",
+        "title": "14. Социальная философия",
+        "sha256": "594271799fa4c435c2c956faee0d32acc85c4e1a1ffbff1fac4202c7cbeb8eb4",
+        "chars": 27133
+      },
+      "timecodes": [
+        "00:00–02:33",
+        "02:33–06:33",
+        "06:33–10:51",
+        "10:51–13:53",
+        "13:53–16:53",
+        "16:53–19:54",
+        "19:54–21:51"
+      ],
+      "durationSec": 1311,
+      "lines": [
+        "Lecture 14. Social Philosophy",
+        "Society as a system; philosophy of history; concepts of social progress; civil society and the state; the problem of freedom and justice",
+        "[00:00–02:33] Introduction",
+        "When we speak of \"society,\" we usually do not stop to think about what lies behind this word: is it merely the sum of separate individuals living side by side, or is it something greater — a whole that possesses its own laws of existence, which cannot be reduced to the psychology of any single person? It is precisely this question — what society is and how it is organized — that opens the field of philosophical knowledge called social philosophy. Unlike sociology, which empirically studies specific social structures and processes, social philosophy asks more fundamental questions: does society exist as an independent reality, or is it merely a convenient abstraction for describing the interactions of individuals; does the history of humankind have a direction and meaning, or is it a chaotic sequence of chance events; what are we entitled to call social progress, and does it exist at all; how are civil society and the state related; and, finally, what genuine freedom and justice are, and whether they are compatible with one another in principle.",
+        "Today's lecture will examine these five themes in sequence. We will begin with the question of society as a system — with the classic dispute between social holism and social individualism. Then we will turn to the philosophy of history, analyzing linear and cyclical models of the historical process. Next we will consider concepts of social progress and the famous critique of historicism. After that we will move on to the distinction between civil society and the state, beginning with theories of the social contract. We will conclude the lecture with an analysis of the problem of freedom and justice — the central theme of modern and contemporary political philosophy. Each of these themes bears directly on everyday life: when we argue about whether the state should regulate the economy, intervene in the private lives of citizens, or reduce inequality, we are, often without realizing it, relying on certain philosophical assumptions about the nature of society, the direction of history, and the relation of freedom to justice — and the ability to identify these assumptions makes our political judgments much better grounded.",
+        "It should also be added that all five themes of today's lecture are not isolated academic puzzles, but the very hidden axioms on which real political programs are built: the dispute between liberals and socialists, the dispute between supporters of traditional institutions and radical reformers, the dispute over the permissible limits of state intervention in the economy — all of these are ultimately disputes about the philosophy of history, the nature of society, and the relation between freedom and justice, even if the participants in these disputes rarely formulate their disagreements in such terms.",
+        "[02:33–06:33] 1. Society as a System",
+        "The first fundamental question of social philosophy is the question of the ontological status of society: does society exist as a reality irreducible to the individuals that compose it, or is society merely a convenient label for the totality of interacting people? The position affirming the first is commonly called social holism (from Greek ὅλος, \"whole\"): according to this view, society is a system possessing emergent properties — that is, properties that cannot be explained by studying individual persons separately, just as the properties of water cannot be derived from studying a single atom of hydrogen or oxygen. A classical representative of holism is the French sociologist and philosopher Émile Durkheim, who introduced the concept of the \"social fact\" — ways of acting, thinking, and feeling that exist outside the individual and exert coercive force upon them; the language we speak, the legal norms to which we submit, the religious ideas inherited from our ancestors — all of this, for Durkheim, existed before the birth of every particular person and will exist after their death, and therefore constitutes a reality of a special, supra-individual order.",
+        "The opposite position is social (methodological) individualism, according to which any explanation of social phenomena must ultimately be reduced to the actions, intentions, and beliefs of individual persons; society, from this point of view, has no will or consciousness of its own, and talk about how \"society wants\" or \"society demands\" is nothing more than a convenient metaphor concealing a set of individual decisions. The Austrian economist and philosopher Friedrich Hayek and his teacher Ludwig von Mises insisted precisely on this position, warning about the danger of what they called \"collectivist fictions\" — the idea of society, class, or nation as a single acting subject capable of having its own goals, which, in their view, opens the way to totalitarian political projects that sacrifice the individual to an abstract \"whole.\"",
+        "An intermediate position is taken by so-called moderate methodological holism, which recognizes that social structures exert a real causal influence on individuals — shaping their beliefs, opportunities, and even their very self-understanding — but insists at the same time that these structures themselves are reproduced and changed exclusively through the actions and interactions of living people, and therefore do not exist as something completely independent of individual activity; this position, developed in particular by the British sociologist Anthony Giddens in his \"theory of structuration,\" seeks to overcome the rigid dichotomy of holism and individualism by showing that structure and agency stand in a relation of mutual, rather than one-sided, conditioning.",
+        "A third, more balanced approach was proposed by the American sociologist Talcott Parsons within the framework of structural functionalism: society is understood as a system of interconnected subsystems — economic, political, legal, and cultural — each of which performs a definite function necessary for preserving the integrity and stability of the system as a whole, just as the organs of a biological organism perform specialized functions that ensure the organism's survival. Critics of functionalism, among them the German philosopher and sociologist Ralf Dahrendorf, pointed out that this model places excessive emphasis on equilibrium and stability, overlooking the role of conflict, of the struggle for resources and power, as the driving force of social change — which brings us directly to the next topic, the philosophy of history, where the question of the character of historical dynamics comes to the fore.",
+        "It is also worth mentioning the position of the German sociologist Max Weber, who proposed a kind of compromise between holism and individualism through the method of \"interpretive sociology\" (verstehende Soziologie): according to Weber, social phenomena must be explained through the reconstruction of the subjective meaning that individuals themselves attach to their actions, but at the same time the result of many individual actions is regularly the emergence of supra-individual structures — such as Weber's concept of the \"iron cage\" of rationalization, an impersonal bureaucratic system which, once it arises from the totality of rational individual decisions, begins to dominate the individuals themselves and limit their freedom in a way that none of them individually intended.",
+        "[06:33–10:51] 2. The Philosophy of History",
+        "The philosophy of history asks whether the historical process has an inner logic, direction, and meaning, or whether history is merely a sequence of unrelated events. One of the first philosophical models of history was proposed by the Italian thinker Giambattista Vico at the beginning of the eighteenth century. He developed a cyclical theory according to which all peoples pass through the same stages — the \"Age of Gods,\" the \"Age of Heroes,\" and the \"Age of Men\" — after which the cycle repeats in the form of the so-called \"return,\" ricorso. The cyclical model of history was also characteristic of ancient thought as a whole: the Greeks and Romans were inclined to see history as a cycle of the birth, flourishing, and decline of civilizations rather than as a progressive movement toward some goal.",
+        "A fundamentally different, linear and teleological model of history was proposed by the Christian worldview, and then in secularized form by German classical philosophy, above all Georg Wilhelm Friedrich Hegel. For Hegel, world history is a process of the gradual self-disclosure of absolute spirit through dialectical development — the famous triad of thesis, antithesis, and synthesis — and each historical epoch makes its necessary contribution to this movement toward the final goal, which Hegel defined as spirit becoming aware of its own freedom. History, for Hegel, is a \"progress in the consciousness of freedom,\" and world events, however tragic they may seem to individual participants, contribute to this movement — an idea expressed in his famous image of the \"cunning of reason\" (List der Vernunft), according to which the individual passions and ambitions of historical actors unconsciously serve the realization of a broader rational design.",
+        "Karl Marx, strongly influenced by Hegel but inverting his idealism in a materialist key, proposed his own teleological scheme: history is driven not by ideas and not by the world spirit, but by the material productive forces and relations of production, and the succession of socio-economic formations — from the primitive communal system through slavery, feudalism, and capitalism to communism — is a lawful, objective process conditioned by the internal contradictions of each formation. A substantially different position was taken by thinkers who denied the very existence of a single historical process: the German philosopher Oswald Spengler and the British historian Arnold Toynbee proposed cyclical models according to which not humanity as a whole, but separate local civilizations, follow their own path of birth, flourishing, and inevitable decline, like living organisms — which renders meaningless any talk of a single, universal progress of humanity as such.",
+        "Also worth mentioning is the earlier conception of the Arab historian and philosopher Ibn Khaldun, which in many ways anticipated these ideas: in the fourteenth century he proposed a theory of the cyclical succession of dynasties. According to Ibn Khaldun, the driving force of historical dynamics is \"asabiyya\" — group solidarity and cohesion, which allows young communities, not yet softened by luxury, to seize power from aging ruling dynasties, only then, as wealth accumulates and morals decline, to travel the same road of moral decay themselves and in turn give way to new, more cohesive contenders for power — a cycle that, in Ibn Khaldun's view, repeats regardless of the specific cultural context.",
+        "It is also important to emphasize that the difference between linear and cyclical models of history is not merely a matter of theoretical curiosity, but a matter that has direct practical consequences: if history really moves toward a definite goal, then political action is justified in accelerating this movement, sometimes at the cost of significant sacrifices; if history is cyclical or lacks direction altogether, then the far more reasonable strategy is not to race ahead in revolutionary fashion but to carefully maintain institutional stability and gradually correct specific shortcomings.",
+        "[10:51–13:53] 3. Concepts of Social Progress",
+        "The idea of social progress — the notion that human history moves toward better living conditions, wider knowledge, and growing morality and justice — flourished in the Enlightenment. The French philosopher and mathematician Nicolas de Condorcet, who wrote his famous Sketch for a Historical Picture of the Progress of the Human Mind in prison, on the eve of his execution, was convinced that the development of science, the spread of education, and the improvement of political institutions inevitably lead humankind to a state of ever greater well-being, equality, and freedom from prejudice. Optimistic faith in progress permeated a significant part of European philosophical and political thought in the nineteenth century, finding expression both in liberal theories of social development and in the Marxist concept of the inevitable transition to a classless society.",
+        "However, the twentieth century, with its two world wars, totalitarian regimes, and the practice of mass extermination of people, subjected the idea of linear progress to radical doubt. The Austrian-British philosopher Karl Popper, in his work The Poverty of Historicism, criticized the very methodological stance that he called historicism — the belief that history is governed by objective laws that make it possible to predict its future course scientifically. Popper argued that such predictions are logically untenable, since the course of history depends crucially on the growth of human knowledge, and the growth of knowledge is fundamentally unpredictable: if we could predict the content of a future scientific discovery, we would already have made that discovery today.",
+        "Moreover, Popper pointed to the dangerous political cost of historicist thinking: the conviction that one knows the laws of history easily turns into a justification of violence in the name of an \"inevitable\" future, and those who disagree with the official version of historical regularity are declared enemies of progress, to be eliminated — that is precisely how, in Popper's view, historicist ideas legitimized the practice of the totalitarian regimes of the twentieth century. In place of historicism, Popper proposed the concept of an \"open society\" — a society that renounces the claim to know history's final goal and instead is built on the principles of gradual, testable, and reversible social reform, critical rationalism, and tolerance of diverse opinions.",
+        "Contemporary discussions of progress try to avoid both the naive optimism of the Enlightenment and complete relativism: most philosophers today agree that one can speak of progress in individual, limited areas — for example, in the spread of medical knowledge, the reduction of violent deaths, or the expansion of human rights — without claiming at the same time that history as a whole is moving toward any predetermined final goal. A striking example of the danger of premature claims about the end of historical development is the much-discussed thesis of the American political scientist Francis Fukuyama about the \"end of history,\" put forward after the end of the Cold War: Fukuyama argued that liberal democracy and the market economy represent the final form of human social organization, one without any reasonable alternative, and that all countries of the world will sooner or later arrive at it — a thesis that came under severe criticism as the following decades demonstrated the resilience of authoritarian alternatives and new forms of political instability, once again confirming Popper's caution with respect to any claims to knowledge of the final point of historical movement.",
+        "[13:53–16:53] 4. Civil Society and the State",
+        "The distinction between civil society and the state is one of the central themes of modern political philosophy, rooted in the theories of the social contract of the seventeenth and eighteenth centuries. The English philosopher Thomas Hobbes, in his treatise Leviathan, described the pre-state \"state of nature\" as a \"war of all against all,\" in which human life, in his famous formulation, is \"solitary, poor, nasty, brutish, and short\"; to avoid this state of mutual destruction, people enter into a social contract, voluntarily giving up part of their natural freedom in favor of the sovereign — the state — which in return ensures security and order. John Locke, unlike Hobbes, believed the state of nature to be not so catastrophic, but unstable because of the absence of an independent arbiter in disputes over property and justice; for Locke, the state is created first and foremost to protect natural human rights — to life, liberty, and property — and if the government systematically violates these rights, the people retain the right to rebellion.",
+        "It was precisely the Lockean tradition that formed the basis of the liberal concept of the limited state and the separation of powers. Civil society in the modern philosophical sense is the sphere of voluntary associations independent of state control: professional associations, religious communities, charitable organizations, independent mass media — a sphere that lies between the private life of the individual and the formal institutions of state power. Hegel, and after him Alexis de Tocqueville, attached special importance to civil society as a space in which individuals learn cooperation, compromise, and collective action without waiting for instructions from above; Tocqueville, in his famous work on American democracy, noted that it is precisely the numerous voluntary associations of citizens that serve as the main protection against the danger both of minority despotism and of the \"tyranny of the majority,\" which he considered one of the main threats to democratic society.",
+        "The Italian Marxist theorist Antonio Gramsci proposed a more critical understanding of civil society as a space in which the ruling class establishes its cultural and ideological dominance — hegemony — securing the consent of the governed not so much through coercion as through shaping the idea that the existing order of things is natural and inevitable. The relationship between a strong civil society and a moderate, limited state is today regarded by many philosophers as the most important condition for a stable democracy: where civil society is weak or suppressed, the state tends to degenerate either into an authoritarian or into a paternalistic system, deprived of mechanisms of independent public control.",
+        "It is also worth recalling the position of Jean-Jacques Rousseau, whose concept of the \"general will\" (volonté générale) occupies a special, in many respects ambiguous place in this tradition: for Rousseau, true freedom consists not in the absence of any subordination, but in obedience to a law that citizens establish for themselves as participants in a political community — an idea that inspired the democratic tradition of popular sovereignty, but at the same time, according to Rousseau's critics, contains the danger of justifying coercion of the minority in the name of a \"general will\" supposedly expressed by the majority, which brings this concept close to the problem of positive freedom that we will consider in the next section.",
+        "[16:53–19:54] 5. The Problem of Freedom and Justice",
+        "The concluding theme of today's lecture is the relationship between freedom and justice, two concepts that in political philosophy often enter into a tense relationship with each other. The British philosopher Isaiah Berlin, in his famous lecture \"Two Concepts of Liberty,\" distinguished between negative freedom — freedom \"from\" external interference, that is, the absence of coercion by other people or the state — and positive freedom — freedom \"for\" self-realization, that is, the ability to be master of one's own life and to make use of one's own capacities. Berlin warned that the concept of positive freedom was historically often used to justify authoritarian intervention in people's lives under the slogan of liberating their \"true\" or \"higher\" \"self\" from their own supposedly irrational desires — a mechanism that lay at the basis of many totalitarian ideologies of the twentieth century.",
+        "The American philosopher John Rawls, in his foundational work A Theory of Justice, proposed an influential concept of justice as fairness, based on the thought experiment of the \"veil of ignorance\": let us imagine that the participants in the social contract choose the principles for organizing society without knowing in advance what position in that society they themselves will occupy — whether they will be rich or poor, gifted or not, members of the majority or of a minority. Rawls argued that under such conditions rational people would choose two principles: first, the broadest possible and equal system of basic liberties for all; second, the so-called difference principle, which allows social and economic inequality only to the extent that it brings the greatest benefit to the least advantaged members of society.",
+        "Rawls's theory provoked a strong response and criticism from both sides of the political spectrum: the American libertarian philosopher Robert Nozick, in Anarchy, State, and Utopia, argued that compulsory redistribution of property in the name of greater equality violates the rights of individuals to what they have honestly earned, comparing state redistribution to a form of forced labor; communitarian critics, including Michael Sandel and Alasdair MacIntyre, pointed out that the abstract \"participant\" in Rawls's veil of ignorance is a fiction, since real people are always embedded in concrete communities, traditions, and relationships that cannot be bracketed out when discussing justice. The dispute between supporters of the libertarian, liberal egalitarian, and communitarian traditions remains unresolved to this day, reflecting a deeper contradiction between the value of individual freedom of choice and the value of collective responsibility for the well-being of all members of society.",
+        "The Indian economist and philosopher Amartya Sen proposed an alternative approach that in many respects reconciles both sides of the dispute, known as the \"capability approach\": instead of measuring a person's well-being through income or the resources at their disposal, Sen proposed assessing their real capabilities — what a person is able to do and what they are able to be — since the same income may mean a completely different degree of actual freedom depending on health, education, social status, or the discrimination a person faces, and therefore a just society is obliged to care not only about formal equality of rights, but also about real equality of opportunity to use them.",
+        "[19:54–21:51] Conclusion",
+        "In summary, let us note that all five themes discussed today are linked by a single logic: how we understand the nature of society — as an organic whole or as a collection of individuals — determines how we understand the driving forces of history; whether we believe in objective laws of historical progress or reject historicism in favor of an open, gradually reformable society determines our attitude toward state intervention in citizens' lives; and how we draw the line between civil society and the state is directly tied to the question of balance between negative freedom as noninterference and positive justice as redistribution. A useful image to remember is a pair of scales with two pans: on one pan lies the individual's freedom to dispose of their life and property without outside interference, on the other lies justice as society's care for its least protected members, and the pointer of these scales has throughout the history of political philosophy swung now one way, now the other, never settling permanently at either pole.",
+        "In the next lecture we will turn to the philosophy of culture and the philosophy of religion, where we will see how the categories of society, history, and justice discussed today relate to broader questions about the meaning of human existence, cultural identity, and the place of the sacred in social life — that is, we will see how social philosophy is connected to more fundamental layers of philosophical knowledge about the human being. An image of a single chain of questions will help you remember today's material: our idea of society as a whole or as a sum of individuals shapes our idea of the driving forces of history; our view of whether objective laws of history exist shapes our attitude toward the idea of progress and the permissible limits of social reform; and our view of the balance between civil society and the state directly determines how we answer the final question of the lecture — the question of the fragile equilibrium between individual freedom and justice toward society as a whole.",
+        "Key Concepts",
+        "Social holism and methodological individualism; Durkheim's \"social fact\"",
+        "T. Parsons's structural functionalism; the critique by conflict theorists (R. Dahrendorf)",
+        "M. Weber's \"interpretive sociology\"; A. Giddens's theory of structuration",
+        "Cyclical models of history (G. Vico, Ibn Khaldun, O. Spengler, A. Toynbee)",
+        "Hegel's linear-teleological history (\"the cunning of reason\"); K. Marx's materialist history",
+        "The Enlightenment idea of progress (Condorcet); historicism and K. Popper's critique of it",
+        "K. Popper's \"open society\"; F. Fukuyama's thesis of the \"end of history\"",
+        "Theories of the social contract: T. Hobbes, J. Locke, J.-J. Rousseau (\"general will\")",
+        "Civil society: A. de Tocqueville (associations against the \"tyranny of the majority\"); A. Gramsci (hegemony)",
+        "Negative and positive freedom (I. Berlin)",
+        "The \"veil of ignorance\" and J. Rawls's theory of justice; the difference principle",
+        "Libertarian critique by R. Nozick; communitarian critique (M. Sandel, A. MacIntyre)",
+        "A. Sen's capability approach",
+        "Recommended Reading",
+        "Hobbes, T. Leviathan.",
+        "Locke, J. Two Treatises of Government.",
+        "Hegel, G. W. F. The Philosophy of History.",
+        "Marx, K. A Contribution to the Critique of Political Economy (Preface).",
+        "Popper, K. The Poverty of Historicism; The Open Society and Its Enemies.",
+        "Tocqueville, A. de. Democracy in America.",
+        "Berlin, I. Two Concepts of Liberty.",
+        "Rawls, J. A Theory of Justice.",
+        "Nozick, R. Anarchy, State, and Utopia.",
+        "Sen, A. Development as Freedom.",
+        "Self-Check Questions",
+        "What is the difference between social holism and methodological individualism? Present arguments for each side.",
+        "Compare cyclical models of history (Vico, Ibn Khaldun, Spengler) with linear-teleological models (Hegel, Marx).",
+        "What is Karl Popper's critique of historicism, and why is it connected to his concept of an \"open society\"?",
+        "Compare Hobbes's and Locke's theories of the social contract: how does each describe the state of nature and the role of the state?",
+        "How did Alexis de Tocqueville explain the role of civil associations in protecting against the \"tyranny of the majority\"?",
+        "What is the difference between negative and positive freedom according to Isaiah Berlin?",
+        "Describe John Rawls's thought experiment of the \"veil of ignorance\" and the two principles of justice that follow from it.",
+        "On what grounds does Robert Nozick criticize Rawls's redistributive conception of justice?"
+      ],
+      "notes": [
+        "[02:33–06:33]: verstehende Soziologie: rendered here as “interpretive sociology”",
+        "[06:33–10:51]: ricorso — Vico's term for cyclical return; List der Vernunft — Hegel's \"cunning of reason\"; asabiyya — Ibn Khaldun's term for group solidarity/cohesion.",
+        "[10:51–13:53]: “Нищета историцизма” rendered as The Poverty of Historicism; “historicism” is used in Popper’s sense.",
+        "[10:51–13:53]: “конец истории” rendered as “the end of history.”",
+        "[16:53–19:54]: capability approach — standard term retained in English as the name of Amartya Sen’s approach."
+      ]
+    },
+    {
+      "code": "kk-04",
+      "lang": "kk",
+      "lecture": 4,
+      "module": 1,
+      "lectureOrder": 0,
+      "title": "4. Эллинистік және Рим философиясы. Ортағасырлық философия",
+      "source": {
+        "code": "ru-04",
+        "title": "4. Эллинистическая и римская философия. Средневековая философия",
+        "sha256": "f1d9e150be51593421cf81c9a53e7a84854ae74d70868d9d48977c6586e1dff7",
+        "chars": 24265
+      },
+      "timecodes": [
+        "00:00–01:27",
+        "01:27–04:08",
+        "04:08–06:54",
+        "06:54–09:41",
+        "09:41–11:20",
+        "11:20–14:29",
+        "14:29–17:08",
+        "17:08–19:41",
+        "19:41–20:54"
+      ],
+      "durationSec": 1254,
+      "lines": [
+        "4-дәріс. Эллинистік және Рим философиясы. Ортағасырлық философия",
+        "Стоицизм, эпикуреизм, скептицизм, неоплатонизм; патристика (Августин); схоластика (Фома Аквинский); универсалиялар туралы дау.",
+        "[00:00–01:27] КІРІСПЕ",
+        "Біздің дәуірімізге дейінгі 323 жылы Александр Македонский қайтыс болады, ал оның өлімімен бірге тек империя ғана емес, бүкіл грек өмірінің қалыптасқан көкжиегі де күйрейді. Сократ жолында өлімге барған, ал Платон мен Аристотель саяси утопияларын соған арнап құрған полис — өзіне-өзі жеткілікті қала-мемлекет — енді жеке адам үшін әлемнің орталығы болудан қалады: енді ол алып, тұлғасыз эллинистік монархияларда өмір сүреді, онда шешімдер одан алыста қабылданады және оның еркіне тәуелді ештеңе дерлік қалмайды. Кеше ғана космостың құрылымы мен идеал мемлекеттің табиғаты туралы ұлы сұрақтармен айналысқан философия енді әлдеқайда өзекті әрі жеке сұраққа жауап беруге мәжбүр болады: жеке адам енді өзі билемейтін әлемде ішкі тыныштығы мен қадір-қасиетін қалай сақтай алады?",
+        "Бүгін біз ұзақ жолдан өтеміз — практикалық даналықтың эллинистік мектептерінен, стоицизмнен, эпикурейшілдіктен және скептицизмнен бастап, неоплатонизмнің мистикалық синтезі арқылы, грек философиясы христиандықпен кездесіп, жеке тұлғалы, құдіреті шексіз Құдай идеясы тұрғысынан өзінің барлық ұғымдарын қайта ойлауға мәжбүр болатын сәтке дейін барамыз. Біз Августинді көреміз, ол үшін философия тәубеге айналады, және Фома Аквинскийді көреміз, ол сегіз ғасырдан кейін сенім мен ақылды аристотельдік логика құралдарымен бітістіруге тырысады, ал соңында тарихтағы ең ұзақ әрі өнімді философиялық даулардың бірімен — универсалиялар туралы даумен — аяқтаймыз; бұл дау бірнеше ғасыр бойы еуропалық ойдың жалпы ұғымдар мен дара заттардың арақатынасын қалай түсінетінін айқындайды.",
+        "[01:27–04:08] БӨЛІМ 1. СТОИЦИЗМ: ТАБИҒАТПЕН КЕЛІСІМ АРҚЫЛЫ ЕРКІНДІК",
+        "Стоиктер мектебін Афинада біздің дәуірімізге дейінгі шамамен 300 жылы Китиондық Зенон негіздеді; мектеп өз атауын ол әңгімелер жүргізген портиктен — Суретті Стоядан алды. Стоиктік физиканың негізінде космос — логос сіңген, парасатпен реттелген, жанды біртұтас бүтін деген түсінік жатыр; логос ұғымы, бірінші дәрістен есіңізде болар, Гераклиттен бастау алады. Әлемде болып жатқанның бәрі себептердің қатаң тізбегіне, тағдырға, жазмышқа бағынады, және жекелеген бірде-бір оқиға ол болып жатқаннан өзге түрде бола алмайды.",
+        "Осы физикадан стоиктер мектептің ең ықпалды мұрасына айналған этиканы шығарады. Егер әлемдегі барлық нәрсені парасатты құдайлық қамқорлық алдын ала айқындаса, онда шын мәнінде біздің билігімізде бар жалғыз нәрсе — сыртқы жағдайлар емес, соларға қатысты өз пайымымыз, болып жатқанға келісуіміз немесе келіспеуіміз. Кейінгі стоик Эпиктет егжей-тегжейлі әзірлеген, бізге тәуелді нәрсе мен бізге тәуелді емес нәрсені ажырататын әйгілі стоиктік айырым мынадай практикалық қорытындыға әкеледі: данышпан өзінің бүкіл қуатын өз пайымдарын, қалауларын және түрткілерін басқаруға бағыттауы керек, ал денсаулыққа, байлыққа, абыройға, тіпті өз өміріне қатысты алаңдаудан толық бас тартуға тиіс — стоик философтар бұларды «бейтарап нәрселер» деп атаған, өйткені олар біздің еркімізге тәуелді емес. Стоик данышпанның ең жоғары күйі — апатия, тура мағынасында «құмарлықсыздық», бұзушы аффектілерден, қорқыныштан, ашудан, күншілдіктен азат болу, — оған сезімді басу арқылы емес, шынымен бағалы нәрсе мен бағасыз нәрсе туралы дұрыс, парасатты пайым арқылы қол жеткізіледі. Стоиктік идеалды кейінгі римдік стоик, император Марк Аврелий тамаша түйіндеген, ол өзіне арнап былай деп жазған: адамдарды заттар емес, заттар туралы пікірлері мазалайды, — бұл сөз екі мың жылдан кейін дерлік сөзбе-сөз когнитивтік психотерапияның іргетасына қаланады.",
+        "Мектептің үшінші схолархы Хрисипп ең алдымен дамытқан стоиктік логика Аристотельдің силлогистикасын айтылымдар мен шартты ой қорытындылар теориясымен толықтырып, XX ғасырда Аристотельдің терминдер логикасынан өзгеше айтылымдар логикасы деп аталатын ілімнің негізін қалады. Біздің курс үшін одан кем емес маңыздысы — стоиктердің космополис, яғни әлемдік қала туралы ілімі: логос, парасатты бастау, бүкіл космосты бойлап өтетіндіктен және әрбір адамда оның шыққан тегіне, азаматтығына немесе әлеуметтік мәртебесіне қарамастан бар болғандықтан, стоиктер бойынша барлық адам — біртұтас әлемдік мемлекеттің азаматтары, оларды полис не ру-тайпа байланыстарынан бұрын парасатты табиғаттың байланыстары біріктіреді. Полиске байланған грек ойы үшін түбегейлі жаңа болған осы жалпыадамзаттық бауырластық идеясы Рим құқығына терең ықпал етті және сол арқылы табиғи құқық пен адам құқықтарының кейінгі тұжырымдамаларына әсер етті; біз оларға курстың әлеуметтік және саяси философияға арналған бөлігінде қайта ораламыз.",
+        "[04:08–06:54] БӨЛІМ 2. ЭПИКУРЕИЗМ: ЛӘЗЗАТ — МАЗАСЫЗДЫҚТЫҢ БОЛМАУЫ",
+        "Афиныда өз мектебін Зенонмен шамалас уақытта ашқан Эпикур бәсекелес жүйе ұсынды; кейінгі дәстүр оны соншалықты бұрмалағандықтан, «эпикурейші» сөзі сән-салтанат пен тәндік ләззатқа берілген гедонистің синониміне айналды — бұл бастапқы ілімге мүлде қарама-қайшы. Эпикур шынында да ләззатты ең жоғарғы игілік деп жариялады, бірақ оны ең алдымен тән азабының болмауы және, одан да маңыздысы, жан күйзелісінің болмауы, яғни атараксия деп түсінді, қарқынды ләззаттарды жинақтау емес. Ол ләззаттардың табиғи әрі қажетті, табиғи, бірақ қажетсіз, және табиғи емес әрі қажетсіз түрлерін ажыратып, шынайы дана өмір ең қарапайым, табиғи әрі қажетті мұқтаждықтарды — қарапайым асты, баспананы, достықты — қанағаттандыруға негізделеді деп табандады, өйткені адам азабының басым бөлігін дәл шектен тыс, табиғи емес тілектерге құмарлық тудырады.",
+        "Эпикурдың физикасы біз өткен дәрісте қарастырған Демокриттің атомизміне сүйенді, бірақ оған түбегейлі жаңалық қосты: клинамен ұғымын, атомның түсуінің түзу сызықты траекториясынан кездейсоқ, ештеңемен алдын ала айқындалмаған ауытқуын. Демокриттік әлем қажеттілікпен қатаң детерминделген еді, ал Эпикур мұнда адам бостандығына қауіп көрді — егер тіпті біздің ойларымыз бен шешімдеріміз де атомдардың механикалық қозғалысымен толық алдын ала айқындалса, моральдық жауапкершілік туралы әңгіме де болмайды. Әлемнің физикалық негізінің өзіне кездейсоқтық элементін енгізу арқылы Эпикур материалистік әлем бейнесінің ішінде ерік бостандығына орын ашты. Эпикур философиясының практикалық мақсаты — адамды мазасыздықтың екі негізгі көзінен арылту: құдайлардан қорқу және өлімнен қорқу. Оның айтуынша, құдайлар шынында бар, бірақ кемел бақыт күйінде болады және адамдар ісіне ешқашан араласпайды, демек олардың қаһарынан қорқу — мәнсіз; ал өлім, эпикурейшілердің атақты афоризміне сәйкес, бізге мүлде қатысы жоқ, өйткені біз өмір сүріп тұрғанда өлім әлі жоқ, ал өлім келгенде біз жоқпыз, — сондықтан ол ақылға қонымды қорқыныштың нысаны бола алмайды.",
+        "Үш ғасырдан кейін римдік ақын әрі философ Лукреций Кар «Заттардың табиғаты туралы» атты ұлы дидактикалық поэмасында Эпикурдың бүкіл жүйесін баяндайды; атомистік физика Жаңа заман философтарына негізінен осы поэма арқылы жетті. Эпикур философия тарихындағы әділдіктің алғашқы шарттық теорияларының бірін де жасады: оның айтуынша, әділдік платондық идея сияқты өз алдына өмір сүрмейді, керісінше адамдардың бір-біріне зиян келтірмеуге және бір-бірінен зиян шекпеуге өзара келісімінен пайда болады, — бірлескен қауіпсіз өмір үшін пайдалы келісім, мәңгілік ғарыштық тәртіптің көрінісі емес. Бұл сырттай қарағанда қарапайым ой саяси философиядағы кейінгі контрактуалистік дәстүрдің бастауында тұр, оған біз курстың тиісті дәрістерінде Гоббс, Локк және Руссоны талдағанда қайта ораламыз.",
+        "[06:54–09:41] БӨЛІМ 3. СКЕПТИЦИЗМ: ПІКІР БІЛДІРУДЕН ТЫЙЫЛУ РЕТІНДЕГІ ДАНАЛЫҚ",
+        "Үшінші ірі эллинистік мектеп — скептицизм — Элидалық Пирроннан бастау алады және антикалық дәуірдің соңында Секст Эмпирик еңбектерінде жүйелі түрде дамытылады. Стоиктер мен эпикурейшілер әлемнің табиғаты мен ең жоғарғы игілік туралы оң ілімдер ұсынса, скептиктер кез келген нәрсе туралы сенімді білімге қол жеткізу мүмкіндігінің өзіне күмән келтірді. Олардың негізгі уәжі қарама-қарсы пайымдардың тең күштілігі — исостения төңірегінде құрылды: заттардың табиғаты туралы кез келген сұраққа жақтайтын да, қарсы да бірдей нанымды дәлелдер табуға болады, ал ақыл даудың бір жағын екіншісінен артық қоюға мүмкіндік беретін ешқандай сенімді өлшемге ие емес.",
+        "Скептиктердің практикалық қорытындысы парадоксалды әрі осы мағынада біз екінші дәрісте талдаған джайнизмнің анэкантавадасымен үндеседі: сенімді білімге қол жеткізу мүмкін болмағандықтан, данышпан заттардың табиғаты туралы түпкілікті пікір айтудан тыйылуға — эпохеге — тиіс, және жан тыныштығын, атараксияны оң білімге ие болу емес, дәл осы тыйылу әкеледі. Скептик дүниенің бар екенін де жоққа шығармайды және оның жоқ екенін де айтпайды — ол тек бір жаққа да, екінші жаққа да кесімді пікір білдіруден бас тартады, ал күнделікті өмірде көріністер мен жалпыға ортақ әдет-ғұрыптарға сай әрекет ете береді, бірақ оларға түпкі ақиқат мәртебесін бермейді.",
+        "Скептицизмнің екі тарихи бағытын ажырату қажет: Пирронға тікелей барып тірелетін және Секст Эмпирик жүйелеген пирронизм кез келген сұрақ бойынша, ешбір ерекшеліксіз, пікір білдіруден толық, жаппай тыйылуды талап етті, соның ішінде білімнің мүмкін еместігі туралы тезистің өзін де қоса, — әйтпесе скептицизм өзіне-өзі қайшы келер еді. Платон Академиясының қабырғасында Аркесилай мен Карнеад дамытқан академиялық скептицизм бұдан гөрі ұстамды ұстанымда болды: толық сенімділік шынында да қолжетімсіз, бірақ кейбір пікірлер басқаларына қарағанда шындыққа жақынырақ, және данышпан практикалық өмірде осы шындыққа жақындық дәрежесіне сүйене алады, бірақ абсолютті ақиқатқа дәмеленбейді. Карнеад мынадай оқиғамен даңққа бөленді: біздің дәуірімізге дейінгі 155 жылы Римге елші болып келіп, ол бір күні әділдікті қорғап тамаша сөз сөйлесе, келесі күні оның шартты және салыстырмалы екенін дәлелдейтін дәл сондай тамаша сөз сөйледі; бұл консервативті рим сенаторы Үлкен Катонды қатты шошытты, өйткені ол мұны қоғамдық мораль үшін қауіпті деп санады. Бұл эпизод Горгийден мұраға қалған скептикалық риториканың шеберлігін тамаша көрсетеді, бұл туралы біз өткен дәрісте айтқан едік.",
+        "Үш эллинистік мектептің метафизикалық алғышарттары қаншалықты әртүрлі болғанымен, олардың барлығының ортақ логикасына назар аударыңыз: стоиктер тыныштықты әлемнің парасатты тәртібімен үйлесуден табады, эпикурейшілер — ең қарапайым қажеттіліктерді қанағаттандыру мен қорқыныштан арылудан, скептиктер — пікір айтудан мүлде бас тартудан табады, бірақ бәрінің түпкі мақсаты біреу-ақ — атараксия, яғни жекелеген адамның енді бақылауында емес әлем алдында жанның сабырлылығы.",
+        "[09:41–11:20] БӨЛІМ 4. НЕОПЛАТОНИЗМ: БІРТҰТАСҚА ҚАРАЙ ӨРЛЕУ",
+        "Біздің дәуіріміздің III ғасырында Плотин антикалық пұтқа табынушылық философиясының соңғы әрі ең ықпалды синтезіне айналған жүйені — неоплатонизмді — жасайды. Өткен дәрісте сөз еткен, басында Игілік идеясы тұрған платондық идеялар иерархиясынан бастап, Плотин басында Біртұтас тұрған шындықтың одан да радикалды вертикалін құрады — бұл бастау соншалықты қарапайым әрі кез келген мүмкін анықтамадан соншалықты жоғары тұрады, тіпті ол туралы, қатаң айтқанда, «бар» деп те айтуға болмайды, өйткені бар болу ұғымының өзі-ақ белгілі бір шектеу мен көптікті енгізеді.",
+        "Біртұтастан қажетті, бірақ саналы емес төгілу — эманация арқылы Ақыл, нус, — платондық идеялар мекендейтін таза ойлау саласы пайда болады; Ақылдан Әлемдік жан, психе, эманацияланады, ал ол өз кезегінде материалдық әлемді өзінің ең төменгі, Біртұтастан ең алыс шекарасы ретінде тудырады. Плотинде материя зұлымдық пен жоқтыққа дерлік теңестіріледі — ол шайтандай белсенді болғандықтан емес, керісінше кемел Біртұтастан алыстаудың шегі, ең шеткі нүктесі болғандықтан, мұнда ақылмен ұғынылатын игіліктің нұры дерлік толық сарқылады. Материалдық әлемге тасталған адам жанының міндеті — кері жол: тазару, катарсис, және тамашалау арқылы қайтадан Ақылға, одан әрі Біртұтастың өзімен мистикалық бірігуге дейін көтерілу; бұл деңгейге енді пайыммен емес, ақылдан жоғары ерекше экстаз арқылы жетеді. Неоплатонизм христиандық ойға орасан зор ықпал етеді, ең алдымен біз қазір көшетін Августин арқылы, өйткені жанның төменнен жоғарыға, көптіктен бірлікке өрлеу құрылымының өзі жанның Құдайға апарар жолы туралы христиандық түсінікке керемет үйлесті.",
+        "[11:20–14:29] БӨЛІМ 5. ПАТРИСТИКА: АВГУСТИН ЖӘНЕ ФИЛОСОФИЯ ТӘУБЕ РЕТІНДЕ",
+        "Біздің дәуіріміздің IV ғасырынан бастап философия классикалық антика білмеген сын-қатерге тап болады: әлемді жоқтан жаратқан және әрбір жеке жанмен тікелей, сүйіспеншілікке толы қатынасқа түсетін жалғыз, жеке тұлғалы, құдіретті Құдайға деген сенімді ұғыну қажет болады. Патристика — грек философиясының тілінде христиандық аянның мазмұнын жеткізуге ұмтылған шіркеу әкелерінің жиынтық шығармашылығы — 354–430 жылдары өмір сүрген Гиппон епископы Аврелий Августин тұлғасында шарықтау шегіне жетеді.",
+        "Августин жас кезінде манихейшілдікке және біз енді ғана сөз еткен Плотиннің неоплатонизміне әуестенген еді, ал өмірбаяндық «Тәубесінде» суреттелген азапты рухани ізденістерден кейін христиандыққа келеді де, біз бұған дейін талдағандардың бәрінен өзінің жанры жағынан түбегейлі өзгеше философия жасайды: «Тәубе» бейтарап оқырманға тезистерді дәлелдейтін трактат ретінде емес, Құдайға бағытталған дұғалық үндеу ретінде жазылған, онда жады, уақыт және ерікке қатысты философиялық талдау жеке тәубемен ажырағысыз өріліп жатыр. Дәл осы «Тәубеде» Августин ой тарихындағы уақыт табиғаты туралы ең терең философиялық зерттеулердің бірін тұжырымдайды: ол өткеннің қазір жоқ екенін, болашақтың әлі жоқ екенін, ал осы шақ оны бекітуге тырысқан сәттің өзінде-ақ қолға түспей сусып кететінін байқайды да, уақыт объективті субстанция ретінде емес, өзінде өткен туралы жадыны, осы шаққа зейінді және болашақты күтуді ұстап тұратын жанның өзінің созылуы — distentio animi ретінде өмір сүреді деп қорытындылайды.",
+        "Августиннің басты философиялық жаңалығы — жанның ақылға да, тілекке де келіп тірелмейтін дербес қабілеті ретінде ерік туралы ілім: грек философиясы, Сократ мысалында көргеніміздей, жақсылықты таныған адам автоматты түрде соған ұмтылады деп есептеді, — гректер үшін азғындық ең алдымен надандықтың салдары еді. Августин, жастық шағындағы алмұрт ұрлау жөніндегі әйгілі эпизодта сипатталған өз азапты тәжірибесіне сүйене отырып, былай дейді: адам жақсылықты анық көріп тұрып, саналы түрде жамандықты таңдауға қабілетті — еріктің танылған жақсылықтан ауытқудағы осы қабілеті шынайы еркіндік болып табылады, бірақ сонымен бірге күнәнің де көзі, ал Августин бойынша ол Адамның бастапқы күнәсіне тамыр жайған, сол күнәнің салдарынан бүкіл адамзаттың еркі бұзылып, Құдайдың рақымының жәрдемінсіз игілікке бет бұра алмай қалады.",
+        "Біздің курс үшін Августиннің кейінгі саяси-философиялық «Құдай қаласы туралы» еңбегі ерекше маңызды; ол біздің дәуіріміздің 410 жылы готтардың Римді тонауына және пұтқа табынушылардың апатқа империяның ескі құдайлардан бас тартуы себеп болды деген айыптарына жауап ретінде жазылған. Августин жердегі тарихта өзара астасқан, бірақ түпкі мақсаты жағынан түбегейлі әртүрлі екі қала тұжырымдамасын ұсынады: жер қаласы, civitas terrena, Құдайды менсінбеуге дейін жеткен өзін-өзі сүю жетелеген адамдарды біріктіреді, ал Құдай қаласы, civitas Dei, — өзін менсінбеуге дейін жеткен Құдайға деген сүйіспеншілік жетелеген адамдарды біріктіреді. Жердегі ешбір мемлекет, соның ішінде Римнің өзі де, Құдай қаласымен теңдестіріле алмайды және абсолютті, діни деңгейдегі адалдыққа лайық емес — бұл кез келген саяси биліктің киелі мәртебеге деген талаптарын шектейтін аса маңызды тезис, оған біз курстың тиісті дәрістерінде саяси легитимділік теорияларын талдағанда қайта ораламыз.",
+        "[14:29–17:08] БӨЛІМ 6. СХОЛАСТИКА: ФОМА АКВИНСКИЙ ЖӘНЕ СЕНІМ МЕН АҚЫЛДЫҢ СИНТЕЗІ",
+        "Августиннен кейін сегіз ғасыр өткен соң, XIII ғасырда, Батыс Еуропа университеттерінде схоластика қалыптасады — аристотельдік логиканы теологиялық мәселелерге жүйелі түрде қолдануға негізделген философиялау әдісі; онда тезис ұсыну, қарсылықтарды қарастыру және оларды дәйекті түрде теріске шығару арқылы университеттік пікірталас жүргізіледі. Схоластиканың шарықтау шыңына Париж университетінде дәріс берген доминикандық монах Фома Аквинскийдің шығармашылығы айналады. Оның басты еңбегі — «Теология жиынтығы» — Батыс үшін жаңа ғана, көбіне араб түсіндірмешілері, мысалы, бірінші дәрісте біз атап өткен Ибн Рушд арқылы қайта ашылған аристотельдік философияның құралдарымен бүкіл христиандық теологияны жүйелеуге жасалған аса зор талпыныс.",
+        "Ақыл ең алдымен сенімнің ішінде және рақымның нұрында әрекет ететін Августиннен айырмашылығы, Фома Аристотельге ілесе отырып, табиғи ақылға аяннан тәуелсіз адамның қолы жететін елеулі дербес құзырет саласын мойындайды. Осыдан Құдайдың бар екендігінің әйгілі бес дәлелі, бес жол туындайды: олардың әрқайсысы сезімдік тәжірибенің белгілі бір айқын фактісінен — қозғалыстың, себеп-салдар тізбектерінің, кездейсоқ және қажетті нәрселердің, кемелдік дәрежелерінің, табиғаттағы мақсаттылықтың бар болуынан — басталып, одан Фома Құдаймен теңестіретін бірінші себептің қажеттілігіне көтеріледі. Бесінші жолдың, яғни мақсаттылықтан келетін дәлелдің, өткен дәрісте біз талдаған аристотельдік алғашқы қозғаушы туралы іліммен тікелей байланысына назар аударыңыз: Фома іс жүзінде философиялық алғашқы қозғаушыны, өзін-өзі ойлайтын таза ойды, Киелі кітаптық аянның жеке Құдайымен сәйкестендіру арқылы Аристотельдің метафизикасын христиандандырады.",
+        "Фома сонымен бірге курстың кейінгі әлеуметтік және саяси философияға арналған материалы үшін маңызды заңдардың тұтас иерархиясын құрады: мәңгілік заң — әлемді басқарудың парасатты құдайлық жоспары; табиғи заң — ешқандай аянсыз-ақ табиғи ақыл арқылы танылатын, адамның парасатты табиғатындағы мәңгілік заңның көрінісі; және адамдық, позитивті заң — жекелеген мемлекеттердің нақты ережелері, олар тек табиғи заңға қайшы келмеген жағдайда ғана моральдық міндеттілікке ие болады. Бұл тұжырымдама кейінгі табиғи құқықтар теориясының ең маңызды қайнар көздерінің біріне айналады, оған біз Жаңа заманның саяси философиясын талдағанда қайта ораламыз.",
+        "Схоластикалық ойлаудың өзіне тән формасы — quaestio disputata, яғни талқыланатын мәселе: оқытушы тезис тұжырымдайды, оған қарсы барлық мүмкін қарсылықтарды, қанша көп болса да, тыңдап, тіркеп алады, содан кейін әрқайсысына рет-ретімен, тармақ бойынша жауап береді де, тек содан кейін ғана бастапқы тезисті нақтыланған түрде бекітеді. Қарсы ұстанымның ең күшті нұсқасын теріске шығармас бұрын оны адал түрде баяндауды талап ететін бұл әдіс рационалдық дәлелдеу мен қарсы уәжге ашықтықтың дәл сол дәстүрін көрнекі түрде жалғастырады; біз оны бүкіл курс бойы, Милет мектебінен бастап, қадағалап келеміз — бұл схоластиканың догматтық пән деген атағына қарамастан, мәні жағынан терең полемикалық, диалогтық іс болғанының дәлелі.",
+        "[17:08–19:41] БӨЛІМ 7. УНИВЕРСАЛИЯЛАР ТУРАЛЫ ДАУ",
+        "Ортағасырлық философияны бірнеше ғасыр бойы Платон мен Аристотель арасындағы келіспеушілікке барып тірелетін, жалпы ұғымдардың, универсалиялардың мәртебесі туралы дау — «адам атаулы», «ақтық атаулы», «әділдік атаулы» сияқты ұғымдар жөніндегі дау — бойлай өтеді. Мәселе барынша өткір қойылады: тектер мен түрлер жекелеген заттар мен адам ойлауынан тәуелсіз түрде шын мәнінде өмір сүре ме, әлде олар біз жекелеген заттардың ұқсастығын белгілейтін атаулар, сөздер ғана ма, ал шын мәнінде тек сол жекелеген заттардың өздері ғана бар ма?",
+        "Платонның идеяларды өздігінен өмір сүретін мәндер ретінде түсінуінен бастау алатын шеткі реализм былай дейді: универсалиялар шын мәнінде, заттардан бұрын, олардың мәңгілік түпнұсқа үлгілері ретінде өмір сүреді. Фома Аквинский Аристотельге ілесе дамытқан ұстамды реализм аралық ұстанымды алады: универсалиялар заттардың ішінде олардың формасы ретінде де, сондай-ақ адам санасында, көп ұқсас жекелеген заттарды қабылдаудан абстракцияланған ұғым ретінде де өмір сүреді, — яғни универсалия шынайы, бірақ жекелеген заттардан және ойлайтын санадан бөлек өмір сүрмейді. XIV ғасырда Уильям Оккам ең айқын түрде ұсынған номинализм бұған мүлде қарама-қарсы шеткі ұстанымды алады: шын мәнінде тек жекелеген заттар ғана өмір сүреді, ал универсалиялар — бұл жай ғана атаулар, nomina, яғни ақыл ұқсас жекелеген заттарды топтастыру үшін жасайтын ыңғайлы белгілеулер; жалпы ұғымдардың заттардың ішінде де, заттардан бұрын да ешқандай дербес шындығы жоқ.",
+        "Оккам тарихқа Оккам ұстарасы деген атпен енген әйгілі әдіснамалық принципті тұжырымдады: қажеттіліктен тыс мәндерді көбейтуге болмайды, — егер құбылысты түсіндіру үшін жекелеген заттардың өзі жеткілікті болса, онда қосымша түрде универсалиялардың дербес шындықтар ретінде бар болуын да постулаттаудың қажеті жоқ. Шеткі реализм мен номинализм арасындағы өз шешімін XII ғасырда Пьер Абеляр ұсынды, ол концептуализм деген атпен белгілі ұстанымды дамытты: универсалиялар заттарға дейін де, заттардан кейін де жеке нәрселер ретінде өмір сүрмейді, бірақ бос сөздер де емес — бұл ұғымдар, концепттер, оларды адам санасы жекелеген заттардың арасындағы нақты ұқсастық негізінде қалыптастырады, сондықтан олардың аралық мәртебесі бар: танымдық операция ретінде шынайы, алайда дербес өмір сүретін мән ретінде емес. Сырттай қарағанда тым дерексіз схоластикалық ойын сияқты көрінетін бұл дау, шын мәнінде, кейінгі философия мен ғылым тарихы үшін орасан зор салдарға ие болды: жекелеген, эмпириялық бақыланатын фактілер ғана шынайы, ал жалпы ұғымдар — тек ақылдың ыңғайлы құралдары деген номиналистік ұстаным Жаңа заман эмпиризмінің ең маңызды философиялық алғышарттарының біріне айналды, оны біз курстың бесінші дәрісінде Бэкон мен Локкқа байланысты егжей-тегжейлі талдаймыз.",
+        "[19:41–20:54] ҚОРЫТЫНДЫ",
+        "Александр Македонскийдің өлімінен Жаңа заманның табалдырығына дейінгі ұзақ жолды қорытындылап өтейік. Үш эллинистік мектеп — стоицизм, эпикурейшілдік және скептицизм — физикалық әрі метафизикалық алғышарттары әртүрлі болғанына қарамастан, бір практикалық мақсатта тоғысты: жекелеген адамға өлшемдес болудан қалған әлемде жан тыныштығына, атараксияға қол жеткізу. Плотиннің неоплатонизмі материядан Ақыл арқылы Біртұтасқа өрлеудің мистикалық вертикалін құрып, грек философиясының христиандық аянмен кездесуі үшін ұғымдық аппаратты әзірледі. Августин философияны тәубеге айналдырып, тұлғаның ішкі, еріктік өмірінің тереңдігін және уақыттың жанның созылуы ретіндегі табиғатын ашты. Фома Аквинский аристотельдік логиканы христиандық теологиямен синтездеп, мәңгілік, табиғи және адамдық заңның иерархиясын құрды. Ал реалистер мен номиналистердің Оккам ұстарасымен аяқталған универсалиялар туралы дауы Жаңа заманның эмпириялық төңкерісіне негіз қалады.",
+        "Келесі дәрісте біз Қайта Өрлеу дәуірінің гуманистері жеке адамның қадір-қасиетін қалай қайта ашатынын, ал Жаңа заман философтары — Бэкон, Декарт, Спиноза, Лейбниц, Локк және Юм — схоластикалық дәстүрді де, таза ой-толғамдық антикалық дәстүрді де алмастыратын, сенімді білімге жетудің жаңа, әлдеқайда қатаң әдісін іздеп, эмпириктер мен рационалистер деген екі үлкен лагерьге қалай бөлінетінін көреміз.",
+        "БЕКІТУГЕ АРНАЛҒАН МАТЕРИАЛДАР",
+        "Негізгі ұғымдар",
+        "Стоицизм: логос, апатия, бейтарап нәрселер, космополис (Зенон, Эпиктет, Марк Аврелий)",
+        "Эпикуреизм: атараксия, клинамен, атомизм, әділдіктің шарттық теориясы",
+        "Скептицизм: исостения, эпохе, пирронизм және академиялық скептицизм (Пиррон, Карнеад)",
+        "Неоплатонизм: Біртұтас, эманация, Ақыл (нус), Әлемдік жан (Плотин)",
+        "Патристика: уақыт distentio animi ретінде, ерік және күнәға бату, екі қала (Августин)",
+        "Схоластика: бес жол, мәңгілік/табиғи/адамдық заң, quaestio disputata (Фома Аквинский)",
+        "Универсалиялар туралы дау: реализм, номинализм, концептуализм, Оккам ұстарасы",
+        "Ұсынылатын әдебиет",
+        "Марк Аврелий. Өзіммен оңаша.",
+        "Августин. Тәубе. XI кітап (уақыт туралы).",
+        "Августин. Құдай қаласы туралы. XIV кітап.",
+        "Фома Аквинский. Теология жиынтығы. 1-бөлік, 2-сұрақ.",
+        "Өзін-өзі тексеру сұрақтары",
+        "Бізге тәуелді нәрсе мен бізге тәуелді емес нәрсені стоиктік ажырату неде және ол апатия ұғымымен қалай байланысты?",
+        "Клинамен Эпикурдың атомистік физикасындағы ерік бостандығы мәселесін қалай шешеді?",
+        "Карнеадтың ұстанымы мысалында пиррондық және академиялық скептицизмді салыстырыңыз.",
+        "Плотиннің неоплатонизміндегі эманация құрылымы (Біртұтас — Ақыл — Әлемдік жан) христиандық ой үшін ұғымдық аппаратты қалай әзірледі?",
+        "Азғындықтың табиғаты мен ерік бостандығы мәселесінде Сократтың ұстанымы мен Августиннің ұстанымы арасындағы айырмашылық неде?",
+        "Универсалиялар туралы даудағы үш ұстанымды (реализм, номинализм, концептуализм) тұжырымдап, олардың өкілдерін атаңыз."
+      ],
+      "notes": [
+        "ПРОВЕРКА преамбула: нет казахских букв — похоже на русский",
+        "[06:54–09:41]: исостения — қарама-қарсы пікірлердің тең салмағы",
+        "[06:54–09:41]: эпохе — пікір білдіруді тоқтата тұру",
+        "[06:54–09:41]: атараксия — жан тыныштығы, сабырлылық",
+        "[06:54–09:41]: анэкантавада — джайнизмдегі көпқырлылық қағидасы",
+        "[09:41–11:20]: нус — грекше noûs ұғымы, қазақша мәтінде транскрипциямен берілді",
+        "[09:41–11:20]: эманация — философиялық термин ретінде сақталды",
+        "[11:20–14:29]: «Исповедь» — Августиннің автобиографиялық еңбегі; мәтінде ол «Тәубе» деп берілді.",
+        "[11:20–14:29]: distensio animi — Августиндегі уақыт туралы ұғым, «жанның созылыңқылығы».",
+        "[11:20–14:29]: civitas terrena, civitas Dei — латынша атаулар сақталды.",
+        "[14:29–17:08]: quaestio disputata — схоластикадағы диспут формасы",
+        "[14:29–17:08]: перводвигатель — аристотельдік алғашқы қозғаушы",
+        "[19:41–20:54]: distentio animi, quaestio disputata, исостения, космополис — түпнұсқа терминдер сақталды; «Оккам қыры» — Оккамның қыры (бритва) ұғымының қысқартылған атауы."
+      ]
+    }
+  ]
+}

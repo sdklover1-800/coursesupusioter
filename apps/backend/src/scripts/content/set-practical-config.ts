@@ -5,7 +5,7 @@
  * Уже идущие/завершённые сессии не меняются: у каждой свой снимок задания (фаза A) и
  * снимок лимита реплик.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/set-practical-config.ts [--apply --i-have-a-backup] [--force]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/set-practical-config.ts [--course "…"] [--apply --i-have-a-backup] [--force]
  */
 import { PRACTICAL_CONFIG as CONFIG, Report, ledgerGet, ledgerKey, ledgerPut, loadCourse, parseArgs, practicalModule, prisma, run, writePreview } from './lib.js';
 

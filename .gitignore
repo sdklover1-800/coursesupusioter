@@ -71,6 +71,8 @@ appendonlydir/
 /lectures.json
 /lectures-*.json
 docs/media/lectures*.json
+# расшифровки других курсов (scripts/extract_philosophy.py → docs/media/philosophy15.json)
+docs/media/*.json
 lectures-src/
 *.docx
 *.doc

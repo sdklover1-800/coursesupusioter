@@ -1,12 +1,14 @@
 /**
- * Фаза 0 (и после каждой фазы): аудит контента курса «Введение в политологию» —
- * ТОЛЬКО чтение. Печатает отчёт, пишет JSON (--out) и, с --baseline <прошлый JSON>,
+ * Фаза 0 (и после каждой фазы): аудит контента курса (--course, по умолчанию «Введение в
+ * политологию») — ТОЛЬКО чтение. Печатает отчёт, пишет JSON (--out) и, с --baseline <прошлый JSON>,
  * дифф ключевых метрик. Критерии выхода CONTENT-repair считаются здесь же (exit).
  *
  * Что проверяется:
  *  - расшифровки: строки чат-ассистента/сессии перевода, дубли абзацев и разделов,
- *    паритет таймкодов ru/kk/en, доля «і» к «и» и опечатки лексикона в kk, метаданные
- *    до первого таймкода, хвосты «End of Lecture», «предложение на строку», «Бинтроу»;
+ *    паритет таймкодов ru/kk/en (по профилю курса: те же таймкоды или то же число разделов),
+ *    доля «і» к «и» и опечатки лексикона в kk, метаданные до первого таймкода, хвосты
+ *    «End of Lecture», «предложение на строку», «Бинтроу»; лекции без расшифровки (ждут автора)
+ *    перечисляются отдельно (lecturesAwaitingTranscript) и не считаются в критериях покрытия;
  *  - оцениваемые тесты по языкам: гистограмма позиций ключа, доля «ключ — самый длинный»,
  *    доля «верно» у TRUE_FALSE, testwiseScore (A12), подсказка длиной, число неархивных
  *    вопросов, паритет canonicalKey между языками;
@@ -19,7 +21,7 @@
  *  - лекции без durationSec / summary; открытые СИСТЕМНЫЕ отметки на проверку;
  *  - студенческие данные: попытки без presentation, сессии без taskSnapshot, пересчёт баллов.
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/audit-content.ts [--out f.json] [--baseline prev.json] [--quiet]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/audit-content.ts [--course "…"] [--out f.json] [--baseline prev.json] [--quiet]
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { Prisma } from '@prisma/client';
@@ -43,6 +45,7 @@ import {
   type QuizLocator,
   type VersionCtx,
   activeQuestions,
+  courseProfile,
   gradedModules,
   isChatArtifact,
   isMetaLine,
@@ -66,8 +69,6 @@ import {
 import { MIN_RATIONALE_CHARS, questionLanguageProblems, shortRationales } from './revisions.js';
 
 const DEMO_COURSE_TITLE = 'Основы критического мышления';
-/** Документированное расхождение: видео kk-15 смонтировано с другими таймкодами (проверка по видео — за носителем). */
-const PARITY_EXCEPTIONS = new Set([15]);
 const BINTROU = /Бинтроу/gu;
 
 interface LectureAudit {
@@ -106,7 +107,7 @@ function auditLecture(lang: Language, l: LectureCtx): LectureAudit {
   for (const line of lines) if (isTimecodeLine(line)) headers.set(line.trim(), (headers.get(line.trim()) ?? 0) + 1);
   // Хвост: строка End of Lecture в последних 3 строках или название курса капсом в конце.
   const tail = lines.filter((x) => x.trim()).slice(-3);
-  const trailers = tail.filter((x) => END_TRAILER_RE.test(x) || /^\s*(INTRODUCTION TO POLITICAL SCIENCE|ВВЕДЕНИЕ В ПОЛИТОЛОГИЮ|САЯСАТТАНУҒА КІРІСПЕ)\s*$/u.test(x));
+  const trailers = tail.filter((x) => END_TRAILER_RE.test(x) || courseProfile().trailerRe.test(x));
   const lower = text.toLowerCase();
   const iCount = (lower.match(/і/gu) ?? []).length;
   const iiCount = (lower.match(/и/gu) ?? []).length;
@@ -256,13 +257,18 @@ async function main(): Promise<number> {
   const versions = LANGS.map((l) => course.versions[l]).filter((v): v is VersionCtx => !!v);
 
   /* ── Лекции ── */
+  const profile = courseProfile();
   const lectures: LectureAudit[] = versions.flatMap((v) => v.lectures.map((l) => auditLecture(v.language, l)));
+  // Лекции без расшифровки (ждут текст автора): в паритете и критериях покрытия не участвуют.
+  const awaiting = versions.flatMap((v) => v.lectures.filter((l) => !l.transcriptText.trim()).map((l) => lectureCode(v.language, l.number)));
   const parity: { lecture: number; ok: boolean; exception: boolean; ranges: Record<string, string[]> }[] = [];
-  for (let n = 1; n <= 15; n++) {
+  const lastLecture = Math.max(0, ...lectures.map((l) => l.number));
+  for (let n = 1; n <= lastLecture; n++) {
     const ranges: Record<string, string[]> = {};
-    for (const la of lectures.filter((x) => x.number === n)) ranges[la.lang] = la.timecodes;
-    const vals = Object.values(ranges).map((r) => r.join(','));
-    parity.push({ lecture: n, ok: vals.every((x) => x === vals[0]), exception: PARITY_EXCEPTIONS.has(n), ranges });
+    for (const la of lectures.filter((x) => x.number === n && !awaiting.includes(x.code))) ranges[la.lang] = la.timecodes;
+    // 'exact' — те же таймкоды; 'sections' — то же число разделов (у видео каждого языка свой хронометраж).
+    const vals = Object.values(ranges).map((r) => (profile.timecodeParity === 'sections' ? String(r.length) : r.join(',')));
+    parity.push({ lecture: n, ok: vals.every((x) => x === vals[0]), exception: profile.parityExceptions.includes(n), ranges });
   }
 
   /* ── Тесты ── */
@@ -300,10 +306,12 @@ async function main(): Promise<number> {
           covered.add(guessLecture(`${q.prompt} ${q.options.join(' ')}`, v.lectures));
         }
       }
+      // Покрытие — по лекциям с расшифровкой: по лекции, которая ждёт текст автора, вопроса быть не может.
+      const withText = v.lectures.filter((l) => l.transcriptText.trim());
       courseFinalCoverage[v.language] = {
         covered: covered.size,
-        of: v.lectures.length,
-        missing: v.lectures.map((l) => l.number).filter((n) => !covered.has(n)),
+        of: withText.length,
+        missing: withText.map((l) => l.number).filter((n) => !covered.has(n)),
         guessed,
       };
     }
@@ -406,7 +414,8 @@ async function main(): Promise<number> {
 
   /* ── Сводка (для диффа) и критерии выхода ── */
   const gradedQ = quizzes.filter((q) => q.graded);
-  const politQuestions = quizzes.reduce((a, q) => a + q.active, 0);
+  const allQuestions = quizzes.reduce((a, q) => a + q.active, 0);
+  const pendingLecture = (l: LectureAudit) => awaiting.includes(l.code);
   const summary = {
     chatArtifactLines: lectures.reduce((a, l) => a + l.chatArtifacts.length, 0),
     duplicateParagraphs: lectures.reduce((a, l) => a + l.duplicateParagraphs.length, 0),
@@ -430,7 +439,7 @@ async function main(): Promise<number> {
     gradedLongestIsKeyRate: round(gradedQ.reduce((a, q) => a + q.longestIsKeyRate * q.active, 0) / Math.max(1, gradedQ.reduce((a, q) => a + q.active, 0)), 3),
     gradedPracticeOverlaps: overlaps.length,
     courseFinalCoverage: Object.entries(courseFinalCoverage).map(([l, c]) => `${l}:${c.covered}/${c.of}`).join(' '),
-    rationalesCoverage: `${politQuestions - quizzes.reduce((a, q) => a + q.rationalesMissing, 0)}/${politQuestions}`,
+    rationalesCoverage: `${allQuestions - quizzes.reduce((a, q) => a + q.rationalesMissing, 0)}/${allQuestions}`,
     rationalesBadLength: quizzes.reduce((a, q) => a + q.rationalesBadLength, 0),
     rationalesShort: quizzes.reduce((a, q) => a + q.rationalesShort.length, 0),
     questionLanguageProblems: quizzes.reduce((a, q) => a + q.languageProblems.length, 0),
@@ -441,8 +450,10 @@ async function main(): Promise<number> {
       })
       .join(' '),
     practicals: practicals.map((p) => `${p.lang}:${p.tokenBudget}/${p.maxAiMessages}/${p.maxSessions}/${p.estimatedMinutes ?? '∅'}/${p.canonicalRef ?? '∅'}/kp${p.keyPoints}`).join(' '),
-    lecturesWithoutDuration: lectures.filter((l) => l.durationSec === null).length,
-    lecturesWithoutSummary: lectures.filter((l) => !l.hasSummary).length,
+    // Лекции, ждущие расшифровку автора, считаются отдельно: у них нет ни хронометража, ни краткого содержания.
+    lecturesWithoutDuration: lectures.filter((l) => l.durationSec === null && !pendingLecture(l)).length,
+    lecturesWithoutSummary: lectures.filter((l) => !l.hasSummary && !pendingLecture(l)).length,
+    ...(awaiting.length ? { lecturesAwaitingTranscript: awaiting.join(',') } : {}),
     openSystemReviewIssues: issues.length,
     attempts: studentData.attempts,
     attemptsWithoutPresentation: studentData.attemptsWithoutPresentation,
@@ -468,7 +479,7 @@ async function main(): Promise<number> {
     courseFinal: Object.values(courseFinalCoverage).every((c) => c.covered === c.of && c.guessed === 0),
     rationales: quizzes.every((q) => q.rationalesMissing === 0) && summary.rationalesBadLength === 0 && summary.rationalesShort === 0,
     questionLanguage: summary.questionLanguageProblems === 0,
-    practicals: practicals.length === 3 && practicals.every((p) => p.canonicalRef === 'polisia-v1' && p.keyPoints === 9 && p.maxAiMessages === 24 && p.maxSessions === 2 && p.estimatedMinutes === 25) && practicals.every((p) => p.tokenBudget === ({ ru: 160000, kk: 190000, en: 120000 } as Record<string, number>)[p.lang]),
+    practicals: practicals.length === 3 && practicals.every((p) => p.canonicalRef === profile.canonicalRef && p.keyPoints === profile.canonicalKeyPoints && p.maxAiMessages === 24 && p.maxSessions === 2 && p.estimatedMinutes === 25) && practicals.every((p) => p.tokenBudget === ({ ru: 160000, kk: 190000, en: 120000 } as Record<string, number>)[p.lang]),
     lectures: summary.lecturesWithoutDuration === 0 && summary.lecturesWithoutSummary === 0,
     demoArchived: summary.demoCourse === 'ARCHIVED/ARCHIVED',
     studentData: summary.attemptsWithoutPresentation === 0 && summary.sessionsWithoutSnapshot === 0 && summary.rescoreMismatches === 0,
@@ -478,6 +489,7 @@ async function main(): Promise<number> {
   log('\n══ Расшифровки ══');
   for (const l of lectures) {
     const flags = [
+      pendingLecture(l) ? 'нет расшифровки (ждёт автора)' : '',
       l.chatArtifacts.length ? `чат ${l.chatArtifacts.length}` : '',
       l.duplicateSections.length ? `дубли разделов ${l.duplicateSections.length}` : '',
       l.duplicateParagraphs.length ? `дубли абзацев ${l.duplicateParagraphs.length}` : '',
@@ -531,6 +543,7 @@ async function main(): Promise<number> {
   for (const [k, v] of Object.entries(summary)) console.log(`  ${k}: ${v}`);
   console.log('\n══ Критерии выхода ══');
   for (const [k, v] of Object.entries(exit)) console.log(`  ${v ? '✔' : '✖'} ${k}`);
+  if (awaiting.length) console.log(`  (вне критериев — лекции без расшифровки, ждут автора: ${awaiting.join(', ')})`);
 
   const baselinePath = args.get('--baseline');
   let diff: Record<string, { before: unknown; after: unknown }> | null = null;

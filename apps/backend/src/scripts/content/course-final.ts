@@ -5,12 +5,16 @@
  * doNotReuse — все неархивные формулировки оцениваемого банка версии (A11); после
  * применения аудит пересечений запускается снова (audit-content).
  *
- * Черновик (--draft): content-data/politology/course-final.v1.json {ru:[…], kk:[…], en:[…]}.
- * Применение (--from … [--apply --i-have-a-backup]): writeQuizQuestions(finalQuizId, items,
- * {mode: 'ARCHIVE_REPLACE'}) + локализованное название (localizedTitle('COURSE_FINAL')).
+ * Лекции без расшифровки (ждут текст автора) пропускаются — вопросов по ним нет, покрытие в
+ * meta.coverage считается от всех лекций версии («14/15 (нет: 4)»).
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts --draft
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts --from course-final.v1.json [--apply --i-have-a-backup]
+ * Черновик (--draft): content-data/<курс>/course-final.v1.json {ru:[…], kk:[…], en:[…]}.
+ * Применение (--from … [--apply --i-have-a-backup]): writeQuizQuestions(finalQuizId, items,
+ * {mode: 'ARCHIVE_REPLACE'}) + локализованное название (localizedTitle('COURSE_FINAL')); у нового
+ * курса итогового мини-квиза ещё нет — он создаётся (COURSE_FINAL, тренировочный, как в generation/service.ts).
+ *
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts [--course "…"] --draft
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/course-final.ts [--course "…"] --from course-final.v1.json [--apply --i-have-a-backup]
  */
 import type { Language } from '@edu/shared';
 import { draftCourseFinal, getDraftUsage, gradedPromptsOfVersion, localizedTitle, overlapsWith, writeQuizQuestions } from '../../generation/drafts.js';
@@ -80,17 +84,25 @@ async function apply(args: ReturnType<typeof parseArgs>): Promise<number> {
       report.line(unit, 'skip', 'нет в артефакте');
       continue;
     }
-    if (!v.finalMiniQuiz) {
-      report.line(unit, 'error', 'у версии нет итогового мини-квиза');
-      continue;
-    }
     const key = ledgerKey(SCRIPT, lang);
     const title = localizedTitle('COURSE_FINAL', lang);
-    const cur = await activeQuestions(prisma, v.finalMiniQuiz.id);
     if (await ledgerGet(prisma, key)) {
       report.line(unit, 'skip', 'уже применено (журнал)');
       continue;
     }
+    if (!v.finalMiniQuiz) {
+      // Новый курс: итогового мини-квиза ещё нет — создаётся тренировочным (как в generation/service.ts).
+      if (!args.apply) {
+        report.line(unit, 'would-change', `создать итоговый мини-квиз «${title}» + новые ${items.length} · покрытие ${art.meta.coverage[lang]}`);
+        continue;
+      }
+      v.finalMiniQuiz = await prisma.quiz.create({
+        data: { courseLanguageVersionId: v.id, kind: 'COURSE_FINAL', isGraded: false, title },
+        select: { id: true, title: true },
+      });
+      report.line(`${unit}:quiz`, 'changed', `создан итоговый мини-квиз «${title}»`);
+    }
+    const cur = await activeQuestions(prisma, v.finalMiniQuiz.id);
     if (!args.apply) {
       report.line(unit, 'would-change', `архив ${cur.length} → новые ${items.length}; название «${title}»`);
       continue;

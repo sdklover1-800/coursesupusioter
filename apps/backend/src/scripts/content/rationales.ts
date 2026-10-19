@@ -7,8 +7,8 @@
  * Правки рецензента после применения (meta.textFixes, напр. переписанные обоснования TRUE_FALSE)
  * переносятся на стенд, где обоснования уже записаны, по точному «было → стало» (lib.applyTextFixes).
  *
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts --draft
- *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts --from rationales.v1.json [--apply --i-have-a-backup] [--force]
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts [--course "…"] --draft
+ *   npx tsx --env-file-if-exists=../../.env src/scripts/content/rationales.ts [--course "…"] --from rationales.v1.json [--apply --i-have-a-backup] [--force]
  */
 import type { Language } from '@edu/shared';
 import { draftRationales, getDraftUsage, writeRationales } from '../../generation/drafts.js';

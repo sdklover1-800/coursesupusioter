@@ -1,0 +1,74 @@
+[
+  {
+    "script": "translate-transcripts",
+    "at": "2026-10-19T09:29:54.593Z",
+    "calls": 28,
+    "inputTokens": 236889,
+    "outputTokens": 41759,
+    "costUsd": 0.24635024999999997
+  },
+  {
+    "script": "graded-bank",
+    "at": "2026-10-19T11:28:01.148Z",
+    "calls": 18,
+    "inputTokens": 193585,
+    "outputTokens": 30229,
+    "costUsd": 0.26584005000000005
+  },
+  {
+    "script": "graded-bank",
+    "at": "2026-10-19T11:29:08.034Z",
+    "calls": 7,
+    "inputTokens": 62174,
+    "outputTokens": 11898,
+    "costUsd": 0.0966291
+  },
+  {
+    "script": "graded-bank (рецензент: перевод исправленного ru-банка на kk/en с глоссарием курса)",
+    "at": "2026-10-19T11:41:00.000Z",
+    "calls": 8,
+    "inputTokens": 94264,
+    "outputTokens": 18424,
+    "costUsd": 0.1219836
+  },
+  {
+    "script": "canonical-practical",
+    "at": "2026-10-19T11:55:46.837Z",
+    "calls": 2,
+    "inputTokens": 4723,
+    "outputTokens": 4234,
+    "costUsd": 0.02259525
+  },
+  {
+    "script": "course-final",
+    "at": "2026-10-19T11:57:25.913Z",
+    "calls": 30,
+    "inputTokens": 494673,
+    "outputTokens": 26723,
+    "costUsd": 0.4876294500000001
+  },
+  {
+    "script": "course-final (рецензент: перевод проверенного ru-набора на kk/en с глоссарием курса)",
+    "at": "2026-10-19T12:10:00.000Z",
+    "calls": 4,
+    "inputTokens": 45768,
+    "outputTokens": 8119,
+    "costUsd": 0.0497799
+  },
+  {
+    "script": "summaries",
+    "at": "2026-10-19T12:07:19.281Z",
+    "calls": 65,
+    "inputTokens": 440035,
+    "outputTokens": 9412,
+    "costUsd": 0.29669385
+  },
+  {
+    "script": "lecture-minis",
+    "at": "2026-10-19T12:07:25.695Z",
+    "calls": 27,
+    "inputTokens": 256717,
+    "outputTokens": 20896,
+    "costUsd": 0.27792975
+  }
+]

@@ -7,12 +7,18 @@
  *     при разборе чередующихся языковых блоков.
  *
  * Расшифровки — вход ИИ-генерации (§5.2), поэтому мусор в них портит материалы.
- * Запуск: npx tsx scripts/clean-transcripts.ts [--apply]
+ * Курс — по названию ru-версии (--course, по умолчанию «Введение в политологию»);
+ * --all — все курсы.
+ * Запуск: npx tsx scripts/clean-transcripts.ts [--course "Введение в философию" | --all] [--apply]
  */
-import { PrismaClient } from '@prisma/client';
+import { type Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const APPLY = process.argv.includes('--apply');
+const args = process.argv.slice(2);
+const APPLY = args.includes('--apply');
+const ALL = args.includes('--all');
+const ci = args.indexOf('--course');
+const COURSE_TITLE = ci !== -1 ? String(args[ci + 1]) : 'Введение в политологию';
 
 const ARTIFACTS: RegExp[] = [
   /^\s*Show (more|less)\s*$/gim,
@@ -80,7 +86,15 @@ function trimAlienTail(text: string, lang: string): string {
 }
 
 async function main() {
+  let where: Prisma.LectureWhereInput = {};
+  if (!ALL) {
+    const anchor = await prisma.courseLanguageVersion.findFirst({ where: { title: COURSE_TITLE, language: 'ru' } });
+    if (!anchor) throw new Error(`Курс «${COURSE_TITLE}» не найден`);
+    where = { module: { languageVersion: { courseId: anchor.courseId } } };
+  }
+  console.log(ALL ? 'Все курсы' : `Курс «${COURSE_TITLE}»`);
   const lectures = await prisma.lecture.findMany({
+    where,
     include: { module: { include: { languageVersion: { select: { language: true, title: true } } } } },
   });
 
